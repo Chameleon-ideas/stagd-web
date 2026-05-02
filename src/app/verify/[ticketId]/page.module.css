@@ -1,0 +1,130 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  text-align: center;
+  transition: background-color var(--duration-ui);
+}
+
+.loading {
+  background-color: var(--bg);
+  color: var(--text);
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--color-ink);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.valid {
+  background-color: var(--color-green);
+  color: #fff;
+}
+
+.already_used {
+  background-color: var(--color-red);
+  color: #fff;
+}
+
+.not_recognised {
+  background-color: var(--color-ink);
+  color: #fff;
+}
+
+.container {
+  max-width: 500px;
+  width: 100%;
+}
+
+.iconWrapper {
+  margin-bottom: var(--space-8);
+}
+
+.icon {
+  font-size: 120px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 12vw, 80px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-12);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: var(--space-8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.not_recognised .details {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+  opacity: 0.7;
+}
+
+.value {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.errorMsg {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.footer {
+  margin-top: var(--space-12);
+}
+
+.closeBtn {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: var(--space-4) var(--space-12);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: var(--tracking-tag);
+  cursor: pointer;
+  transition: background-color var(--duration-ui), color var(--duration-ui);
+}
+
+.closeBtn:hover {
+  background-color: #fff;
+  color: var(--color-ink);
+}

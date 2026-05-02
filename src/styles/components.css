@@ -1,0 +1,471 @@
+/* ============================================================
+   STAGD — Component Styles (v2 — corrected from brand guidelines)
+   All components: square corners, DM Sans 700 buttons, mono tags
+   ============================================================ */
+@import './tokens.css';
+
+/* ══════════════════════════════════════════════════════════
+   BUTTONS
+   Rules: Square corners · DM Sans 700 · Uppercase · No radius
+   ══════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  border-radius: var(--radius-none);
+  border: var(--border-width) solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-ui) var(--ease-expo),
+    color var(--duration-ui) var(--ease-expo),
+    border-color var(--duration-ui) var(--ease-expo),
+    transform var(--duration-ui) var(--ease-expo);
+}
+
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; pointer-events: none; }
+
+/* Sizes */
+.btn-sm  { height: 36px;  padding-inline: var(--space-4); font-size: 11px; }
+.btn-md  { height: 44px;  padding-inline: var(--space-5); }
+.btn-lg  { height: 52px;  padding-inline: var(--space-8); font-size: var(--text-body); }
+.btn-xl  { height: 60px;  padding-inline: var(--space-10); font-size: var(--text-body); }
+.btn-icon { width: 44px; height: 44px; padding: 0; }
+
+/* Primary — Ink Black fill, white text */
+.btn-primary {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+  border-color: var(--color-ink);
+}
+
+[data-theme="dark"] .btn-primary {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  border-color: var(--color-cream);
+}
+
+.btn-primary:hover {
+  background-color: #222222;
+  border-color: #222222;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background-color: var(--color-paper);
+  border-color: var(--color-paper);
+}
+
+/* Accent — Signal Yellow fill, Ink Black text */
+.btn-accent {
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+  border-color: var(--color-yellow);
+}
+.btn-accent:hover {
+  background-color: var(--color-yellow-dark);
+  border-color: var(--color-yellow-dark);
+}
+
+/* Secondary — outlined */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text);
+  border-color: var(--border-color);
+}
+.btn-secondary:hover {
+  background-color: var(--bg-surface);
+}
+
+/* Ghost — text only */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text);
+  border-color: transparent;
+}
+.btn-ghost:hover { background-color: var(--bg-surface); }
+
+/* ══════════════════════════════════════════════════════════
+   TAGS & CHIPS
+   Rules: Square corners (0px) · JetBrains Mono 10px · 0.1em tracking · ALL CAPS
+   ══════════════════════════════════════════════════════════ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-none);   /* SQUARE — always */
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Status stamps */
+.chip-yellow   { background: var(--color-yellow); color: var(--color-ink); }
+.chip-ink      { background: var(--color-ink); color: var(--color-cream); }
+.chip-red      { background: var(--color-red); color: #fff; }
+.chip-cyan     { background: var(--color-cyan); color: #fff; }
+.chip-green    { background: var(--color-green); color: #fff; }
+.chip-orange   { background: var(--color-orange); color: #fff; }
+.chip-lime     { background: var(--color-lime); color: var(--color-ink); }
+.chip-outlined { background: transparent; color: var(--text); border: var(--border-width) solid var(--border-color); }
+
+/* Category chips — map to accent system */
+.chip-concert  { background: var(--color-red);    color: #fff; }
+.chip-workshop { background: var(--color-cyan);   color: #fff; }
+.chip-gallery  { background: var(--color-green);  color: #fff; }
+.chip-market   { background: var(--color-orange); color: #fff; }
+.chip-poetry   { background: var(--color-cream);  color: var(--color-ink); border: 1px solid var(--color-ink); }
+.chip-film     { background: var(--color-ink);    color: var(--color-cream); }
+.chip-dance    { background: var(--color-yellow); color: var(--color-ink); }
+.chip-music    { background: var(--color-green);  color: #fff; }
+
+/* Price chip — yellow anchor */
+.chip-price {
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  font-size: var(--text-tag);
+  font-weight: 700;
+  padding: 3px var(--space-2);
+}
+
+/* ══════════════════════════════════════════════════════════
+   EVENT CARD
+   Newsstand grid: full-bleed cover, type at bottom-left
+   ══════════════════════════════════════════════════════════ */
+.event-card {
+  position: relative;
+  background: var(--color-ink);
+  border-radius: var(--radius-none);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: var(--border-width) solid var(--border-color);
+}
+
+/* Cover image / fallback area */
+.event-card__cover {
+  position: relative;
+  width: 100%;
+  flex: 1;
+}
+
+/* Gradient overlay — ALWAYS applied */
+.event-card__cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--image-gradient);
+  pointer-events: none;
+}
+
+/* Fallback poster — category colour + stripe */
+.event-card__cover.fallback {
+  background-image: var(--stripe-bg-light);
+}
+
+/* Top row: category + number */
+.event-card__top {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 2;
+}
+
+/* Bottom: meta + title — sits in gradient dark zone */
+.event-card__body {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+}
+
+.event-card__meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: rgba(244, 241, 230, 0.7);
+  margin-bottom: var(--space-1);
+}
+
+.event-card__title {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 4vw, 32px);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  color: #fff;
+}
+
+.event-card__date {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: rgba(244, 241, 230, 0.6);
+  margin-top: var(--space-1);
+}
+
+/* Bottom bar: tier + price */
+.event-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3);
+  border-top: var(--border-width) solid rgba(244, 241, 230, 0.1);
+}
+
+.event-card__tier {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: var(--color-cream);
+}
+
+/* ══════════════════════════════════════════════════════════
+   FALLBACK POSTER
+   category colour + diagonal stripe. Never grey, never blank.
+   ══════════════════════════════════════════════════════════ */
+.fallback-concert  { background-color: var(--color-red); }
+.fallback-workshop { background-color: var(--color-cyan); }
+.fallback-market   { background-color: var(--color-yellow); }
+.fallback-film     { background-color: var(--color-ink); }
+.fallback-theatre  { background-color: var(--color-ink); }
+.fallback-poetry   { background-color: var(--color-cream); }
+.fallback-dance    { background-color: var(--color-yellow); }
+.fallback-music    { background-color: var(--color-green); }
+.fallback-photography { background-color: var(--color-orange); }
+.fallback-pottery  { background-color: var(--color-lime); }
+
+/* ══════════════════════════════════════════════════════════
+   FORM INPUTS
+   1.5px border · Square · DM Sans 14px · Focus: yellow outline
+   ══════════════════════════════════════════════════════════ */
+.input {
+  width: 100%;
+  height: 44px;
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-none);
+  outline: none;
+  transition: border-color var(--duration-ui);
+}
+
+.input::placeholder { color: var(--text-faint); }
+
+.input:focus {
+  border-color: var(--color-yellow);
+  box-shadow: 0 0 0 2px var(--color-yellow);
+}
+
+.select {
+  width: 100%;
+  height: 44px;
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-none);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:focus { border-color: var(--color-yellow); }
+
+/* ══════════════════════════════════════════════════════════
+   MONO METADATA ROW
+   Data as design — flush-left mono, ruled lines
+   ══════════════════════════════════════════════════════════ */
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.meta-row:first-child { border-top: 1px solid var(--border-color); }
+
+.meta-separator {
+  color: var(--text-faint);
+}
+
+/* ══════════════════════════════════════════════════════════
+   STAT
+   ══════════════════════════════════════════════════════════ */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: var(--text-subhead);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABS
+   ══════════════════════════════════════════════════════════ */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color var(--duration-ui), border-color var(--duration-ui);
+  background: none;
+  border-radius: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab[aria-selected="true"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/* ══════════════════════════════════════════════════════════
+   AVATAR
+   ══════════════════════════════════════════════════════════ */
+.avatar {
+  display: block;
+  border-radius: var(--radius-none);
+  object-fit: cover;
+  background: var(--bg-raised);
+  flex-shrink: 0;
+}
+
+.avatar-sm  { width: 32px;  height: 32px; }
+.avatar-md  { width: 48px;  height: 48px; }
+.avatar-lg  { width: 64px;  height: 64px; }
+.avatar-xl  { width: 96px;  height: 96px; }
+.avatar-2xl { width: 128px; height: 128px; }
+
+/* ══════════════════════════════════════════════════════════
+   LOADING SHIMMER
+   ══════════════════════════════════════════════════════════ */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface) 25%,
+    var(--bg-raised) 50%,
+    var(--bg-surface) 75%
+  );
+  background-size: 1200px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM SHEET / OVERLAY
+   ══════════════════════════════════════════════════════════ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.6);
+  z-index: var(--z-overlay);
+  animation: fadeIn var(--duration-ui) var(--ease-expo);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg);
+  border-top: var(--border);
+  z-index: var(--z-modal);
+  padding: var(--space-6) var(--gutter) var(--space-10);
+  animation: slideUp var(--duration-card) var(--ease-expo);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CARD ENTRANCE ANIMATION
+   ══════════════════════════════════════════════════════════ */
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-reveal {
+  animation: cardReveal var(--duration-card) var(--ease-expo) both;
+}
+
+/* Stagger: apply --delay inline per item */
+.card-reveal { animation-delay: var(--delay, 0ms); }

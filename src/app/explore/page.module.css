@@ -1,0 +1,274 @@
+.page {
+  background-color: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+}
+
+/* ── HEADER ────────────────────────────────────────── */
+.header {
+  padding-top: var(--space-12);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+[data-theme="dark"] .header {
+  border-bottom-color: rgba(244, 241, 230, 0.08);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 80px);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-8);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
+}
+
+.tab {
+  font-family: var(--font-display);
+  font-size: var(--text-subhead);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-decoration: none;
+  transition: color var(--duration-ui);
+  padding-bottom: var(--space-2);
+  position: relative;
+}
+
+.tab:hover, .activeTab {
+  color: var(--text);
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-yellow);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: var(--space-12);
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.filterLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+  color: var(--text-faint);
+  min-width: 80px;
+}
+
+.filterChips {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.filterChip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 12px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all var(--duration-ui);
+}
+
+[data-theme="dark"] .filterChip {
+  border-color: rgba(244, 241, 230, 0.1);
+}
+
+.filterChip:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.activeChip {
+  background-color: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+/* ── RESULTS GRID ──────────────────────────────────── */
+.results {
+  padding-block: var(--space-12) var(--space-24);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+/* Artist Card */
+.artistCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  animation: cardReveal var(--duration-card) var(--ease-expo) both;
+  animation-delay: var(--delay);
+}
+
+.cardImageWrapper {
+  position: relative;
+  aspect-ratio: 4/5;
+  background-color: var(--bg-raised);
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+}
+
+.cardImage {
+  object-fit: cover;
+  transition: transform var(--duration-ui) var(--ease-expo);
+}
+
+.artistCard:hover .cardImage, 
+.eventCard:hover .cardImage {
+  transform: scale(1.05);
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-large);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+}
+
+.verified {
+  color: var(--color-yellow);
+  font-weight: 700;
+}
+
+.cardMeta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(17, 17, 17, 0.05);
+}
+
+[data-theme="dark"] .cardFooter {
+  border-top-color: rgba(244, 241, 230, 0.04);
+}
+
+.cardLocation, .cardRating {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Event Card */
+.eventCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  animation: cardReveal var(--duration-card) var(--ease-expo) both;
+  animation-delay: var(--delay);
+}
+
+.eventBadge {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  background-color: var(--bg);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+}
+
+.eventDate {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-yellow);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.eventVenue {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.eventPrice {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.empty {
+  text-align: center;
+  padding-block: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* @keyframes cardReveal referenced from previous modules */
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .tabs { gap: var(--space-6); }
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; gap: var(--space-12); }
+  .filterGroup { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .tabs { margin-bottom: var(--space-8); }
+  .title { font-size: 40px; }
+}
