@@ -113,7 +113,7 @@ export async function searchEvents(params?: {
     let events = Object.values(MOCK_EVENTS);
     
     if (params?.city && params.city !== 'All') {
-      events = events.filter(e => e.city.toLowerCase() === params.city?.toLowerCase());
+      events = events.filter(e => e.city?.toLowerCase() === params.city?.toLowerCase());
     }
     
     if (params?.type && params.type !== 'All') {
