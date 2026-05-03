@@ -111,12 +111,14 @@
 }
 
 .filterBtn:hover {
-  color: var(--color-yellow);
+  color: var(--text);
+  background-color: var(--bg-surface);
 }
 
 .activeBtn {
   font-weight: 700;
-  color: var(--color-yellow);
+  color: var(--text);
+  border-bottom: 2px solid var(--color-yellow);
 }
 
 .dropdownWrapper {
@@ -160,7 +162,7 @@
 /* Surprise Me Button */
 .surpriseBtn {
   background: transparent;
-  border: 1.5px solid var(--color-yellow);
+  border: 1.5px solid var(--text);
   padding: 8px 24px;
   color: var(--text);
   font-family: var(--font-body);
