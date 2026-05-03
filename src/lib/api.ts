@@ -275,7 +275,7 @@ export async function searchArtists(params?: {
     }
 
     if (params?.budget_max) {
-      artists = artists.filter(a => a.profile.starting_rate <= params.budget_max!);
+      artists = artists.filter(a => (a.profile.starting_rate ?? Infinity) <= params.budget_max!);
     }
 
     if (params?.availability === 'available') {
@@ -751,6 +751,7 @@ const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
   mairaj_ulhaq: {
     user: {
       id: 'artist_9',
+      phone: '',
       full_name: 'Mairaj Ulhaq',
       username: 'mairaj_ulhaq',
       role: 'creative',
