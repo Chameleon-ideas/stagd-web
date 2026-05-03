@@ -325,7 +325,7 @@ function EventCard({ item, index }: { item: any, index: number }) {
     <Link href={`/events/${event.id}`} className="event-card" style={{ display: 'block' }}>
       <div className={`event-card__cover ${ratioClass}`} style={{ position: 'relative', width: '100%', aspectRatio: aspect }}>
         <Image
-          src={event.cover_image_url}
+          src={event.cover_image_url ?? ""}
           alt={event.title}
           fill
           className="avatar"
