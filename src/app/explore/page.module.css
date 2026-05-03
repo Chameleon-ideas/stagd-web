@@ -179,6 +179,129 @@
   color: var(--color-ink);
 }
 
+/* ── DISCIPLINE GRID (Mobile App Style) ────────────── */
+.disciplineSection {
+  margin-top: var(--space-20);
+  margin-bottom: var(--space-32);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  position: relative;
+  animation: cardReveal 0.6s var(--ease-expo) forwards;
+}
+
+.disciplineHeader {
+  margin-bottom: var(--space-10);
+  max-width: 600px;
+  padding-left: var(--gutter);
+}
+
+.disciplineTagline {
+  font-family: var(--font-body);
+  font-size: var(--text-large);
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.disciplineScrollWrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: var(--space-8);
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  /* Cinematic edge fades */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--gutter),
+    black calc(100% - var(--gutter)),
+    transparent
+  );
+}
+
+/* Hide scrollbar but keep functionality */
+.disciplineScrollWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.disciplineGrid {
+  display: flex;
+  gap: 2px;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  width: max-content;
+}
+
+.disciplineCard {
+  flex: 0 0 440px;
+  height: 540px;
+  position: relative;
+  padding: var(--space-8);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  transition: transform 0.3s var(--ease-expo), filter 0.3s var(--ease-expo);
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 768px) {
+  .disciplineCard {
+    flex: 0 0 320px;
+    height: 400px;
+    padding: var(--space-5);
+  }
+}
+
+.disciplineCard:hover {
+  filter: brightness(1.05);
+}
+
+.cardMeta {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.8;
+  letter-spacing: 0.1em;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 6vw, 72px);
+  text-transform: uppercase;
+  line-height: 0.85;
+  margin: 0;
+  color: inherit;
+  letter-spacing: -0.02em;
+}
+
+/* Color Variants with Stripes */
+.cardYellow {
+  background-color: var(--color-yellow);
+  background-image: var(--stripe-bg-light);
+  color: var(--color-ink);
+}
+
+.cardGreen {
+  background-color: var(--color-green);
+  background-image: var(--stripe-bg-light);
+  color: var(--color-ink);
+}
+
+.cardCyan {
+  background-color: var(--color-cyan);
+  background-image: var(--stripe-bg-light);
+  color: var(--color-ink);
+}
+
+.cardNeutral {
+  background-color: var(--bg-surface);
+  background-image: var(--stripe-bg-dark);
+  color: var(--text);
+}
+
 /* ── UTILITY ROW ────────────────── */
 .utilityRow {
   padding: var(--space-2) 0 var(--space-4);

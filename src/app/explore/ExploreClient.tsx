@@ -12,7 +12,7 @@ import styles from './page.module.css';
 // ── CONSTANTS ────────────────────────────────────────────────
 
 const CITIES = ['All', 'Karachi', 'Lahore', 'Islamabad'];
-const DISCIPLINES = ['All', 'Music', 'Design', 'Print', 'Calligraphy', 'Textiles', '3D Art', 'Workshop'];
+const DISCIPLINES = ['Music', 'Printmaking', 'Street Art', '3D Art', 'Fashion', 'Calligraphy', 'Visual Arts', 'Photography'];
 const EVENT_DATES = ['Any', 'Today', 'This Week'];
 const EVENT_TYPES = ['All', 'Concert', 'Workshop', 'Exhibition', 'Talk'];
 
@@ -226,7 +226,9 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
         </div>
       </div>
 
-      {/* ── Results Summary ── */}
+
+
+      {/* ── Utility Row (Results Count & Sort) ── */}
       <div className={styles.utilityRow}>
         <div className={styles.resultsCount}>
           {loading ? 'Searching...' : `${results.total} ${activeTab} available`}
@@ -281,6 +283,40 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
           </div>
         )}
       </section>
+
+      {/* ── Discipline Scrollable Row (Below results) ── */}
+      {activeTab === 'artists' && (
+        <section className={styles.disciplineSection}>
+          <div className={styles.disciplineScrollWrapper}>
+            <div className={styles.disciplineGrid}>
+              {DISCIPLINES.map((d, i) => {
+                const colorClass = 
+                  d === 'Music' ? styles.cardYellow :
+                  d === 'Printmaking' ? styles.cardGreen :
+                  d === 'Fashion' ? styles.cardCyan :
+                  d === 'Photography' ? styles.cardYellow :
+                  styles.cardNeutral;
+
+                const counts: Record<string, number> = {
+                  'Music': 4, 'Printmaking': 3, 'Street Art': 6, '3D Art': 5,
+                  'Fashion': 8, 'Calligraphy': 4, 'Visual Arts': 12, 'Photography': 7
+                };
+
+                return (
+                  <button 
+                    key={d} 
+                    className={`${styles.disciplineCard} ${colorClass}`}
+                    onClick={() => handleFilterSelect('discipline', d)}
+                  >
+                    <span className={styles.cardMeta}>// {counts[d] || 0}</span>
+                    <h3 className={styles.cardTitle}>{d}</h3>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

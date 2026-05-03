@@ -757,7 +757,7 @@ const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
       username: 'mairaj_ulhaq',
       role: 'creative',
       city: 'Karachi',
-      avatar_url: '/images/mairaj/profile.jpg',
+      avatar_url: '/images/mairaj_ulhaq.png',
       created_at: new Date().toISOString(),
     },
     profile: {

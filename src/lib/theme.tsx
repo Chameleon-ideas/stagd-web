@@ -13,14 +13,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Read stored preference or system preference
-    const stored = localStorage.getItem('stagd-theme') as Theme | null;
-    const system = window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-    const initial = stored ?? system;
-    setTheme(initial);
-    document.documentElement.setAttribute('data-theme', initial);
+    // Read the theme that was pre-applied by the blocking script in layout.tsx
+    const applied = document.documentElement.getAttribute('data-theme') as Theme | null;
+    if (applied) {
+      setTheme(applied);
+    } else {
+      // Fallback if script failed
+      const stored = localStorage.getItem('stagd-theme') as Theme | null;
+      const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const initial = stored ?? system;
+      setTheme(initial);
+      document.documentElement.setAttribute('data-theme', initial);
+    }
   }, []);
 
   const toggle = () => {

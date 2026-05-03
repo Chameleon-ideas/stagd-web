@@ -36,16 +36,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script
-          id="theme-detection"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   var stored = localStorage.getItem('stagd-theme');
                   var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  document.documentElement.setAttribute('data-theme', stored || system);
+                  var theme = stored || system;
+                  document.documentElement.setAttribute('data-theme', theme);
                 } catch(e) {}
               })();
             `,
