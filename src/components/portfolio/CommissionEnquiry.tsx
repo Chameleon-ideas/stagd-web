@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { X, CheckCircle2, ArrowLeft, ChevronRight } from 'lucide-react';
 import type { ArtistPublicProfile } from '@/lib/types';
 import styles from './CommissionEnquiry.module.css';
@@ -26,6 +27,8 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
 
   const modalRef = useRef<HTMLDivElement>(null);
 
+  const router = useRouter();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -48,6 +51,11 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoToInbox = () => {
+    onClose();
+    router.push(`/inbox?with=${artist.user.username}`);
   };
 
   const nextStep = () => {
@@ -265,7 +273,7 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
               <button 
                 className="btn btn-primary btn-md" 
                 style={{ marginTop: 'var(--space-10)', width: '100%' }}
-                onClick={onClose}
+                onClick={handleGoToInbox}
               >
                 Go to Inbox
               </button>

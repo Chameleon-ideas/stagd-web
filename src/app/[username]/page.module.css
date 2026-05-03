@@ -163,10 +163,16 @@
 .eventCard {
   background-color: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  padding: var(--space-3);
+  padding: var(--space-5) var(--space-6);
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-5);
   align-items: center;
+  min-height: 80px;
+  transition: background-color 0.2s ease;
+}
+
+.eventCard:hover {
+  background-color: var(--bg-raised);
 }
 
 .dateBlock {
@@ -174,30 +180,47 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  border: 1px solid var(--border-color);
+  min-width: 56px;
+  height: 56px;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg);
 }
 
-.day { font-family: var(--font-display); font-size: 14px; line-height: 1; }
-.month { font-family: var(--font-mono); font-size: 7px; text-transform: uppercase; }
+.day { 
+  font-family: var(--font-display); 
+  font-size: 18px; 
+  line-height: 1; 
+  margin-bottom: 2px;
+}
+
+.month { 
+  font-family: var(--font-mono); 
+  font-size: 9px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
 
 .eventInfo {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .eventTitle {
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 16px;
   text-transform: uppercase;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 .eventMeta {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   color: var(--text-faint);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* ── HORIZONTAL PORTFOLIO ────────────────────────── */
