@@ -19,10 +19,9 @@ export function Header({ transparent = false }: HeaderProps) {
           <StagdLogo width={110} height={44} />
         </Link>
 
-        {/* Nav */}
+        {/* Nav — Simplified to only Explore */}
         <nav aria-label="Main navigation" className={styles.nav}>
           <Link href="/explore" className={styles.navLink}>Explore</Link>
-          <Link href="/explore?tab=events" className={styles.navLink}>Events</Link>
         </nav>
 
         {/* Actions */}
