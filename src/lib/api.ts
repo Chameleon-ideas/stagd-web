@@ -757,7 +757,7 @@ const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
       username: 'mairaj_ulhaq',
       role: 'creative',
       city: 'Karachi',
-      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&fit=crop',
+      avatar_url: '/images/mairaj/profile.jpg',
       created_at: new Date().toISOString(),
     },
     profile: {

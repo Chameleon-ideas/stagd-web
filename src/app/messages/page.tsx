@@ -11,7 +11,7 @@ import styles from './page.module.css';
 const MOCK_CHATS = [
   { id: '1', user: { full_name: 'Lyari Underground', avatar_url: '/images/lyari.png', status: 'online' }, lastMessage: 'The brief looks great, let\'s talk details.', time: '12:45 PM', unread: 2 },
   { id: '2', user: { full_name: 'Risograph Karachi', avatar_url: '/images/riso.png', status: 'offline' }, lastMessage: 'Sure, I can have the prints ready by Friday.', time: 'Yesterday', unread: 0 },
-  { id: 'mairaj_ulhaq', user: { full_name: 'Mairaj Ulhaq', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&fit=crop', status: 'online' }, lastMessage: 'New Commission Enquiry', time: 'Just now', unread: 1 },
+  { id: 'mairaj_ulhaq', user: { full_name: 'Mairaj Ulhaq', avatar_url: '/images/mairaj/profile.jpg', status: 'online' }, lastMessage: 'New Commission Enquiry', time: 'Just now', unread: 1 },
 ];
 
 function MessagesContent() {

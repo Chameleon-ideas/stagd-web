@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="491" height="197"
+     viewBox="0 0 491 197">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Anton&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- STAG -->
+  <text x="24" y="180.56"
+    font-family="Anton, sans-serif" font-size="193.60000000000002"
+    fill="#fff" letter-spacing="-7.744000000000001">STAG</text>
+  <!-- apostrophe / e -->
+  <text
+      x="365" y="110"
+      font-family="Anton, sans-serif" font-size="89.44320000000002"
+      fill="#FFDE0D" text-anchor="middle" dominant-baseline="auto"
+      transform="rotate(25 365 110)">e</text>
+  <!-- D -->
+  <text x="371.40613720703124" y="180.56"
+    font-family="Anton, sans-serif" font-size="193.60000000000002"
+    fill="#fff" letter-spacing="-7.744000000000001">D</text>
+</svg>

@@ -8,10 +8,11 @@
   padding-bottom: var(--space-20);
 }
 
-/* ── HEADER & TABS ────────────────────────────────── */
+/* ── HEADER & TITLE ───────────────────────────────── */
 .header {
   padding-top: var(--space-20);
   background-color: var(--bg);
+  position: relative;
 }
 
 .containerLarge {
@@ -28,7 +29,7 @@
   margin: 0 0 var(--space-12) 0;
   letter-spacing: -0.05em;
   color: var(--text);
-  opacity: 0.05; /* Faint background watermark style */
+  opacity: 0.05;
   position: absolute;
   top: var(--space-12);
   left: var(--gutter);
@@ -36,69 +37,69 @@
   z-index: 0;
 }
 
-.tabs {
-  display: flex;
-  gap: var(--space-8);
-  margin-bottom: var(--space-8);
-  border-bottom: 1.5px solid var(--border-color);
-  position: relative;
-  z-index: 10;
-}
-
-.tab {
-  background: none;
-  border: none;
-  padding: 0 0 var(--space-4) 0;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--text-faint);
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  position: relative;
-  transition: color 0.2s;
-}
-
-.tab:hover {
-  color: var(--text);
-}
-
-.activeTab {
-  color: var(--text);
-}
-
-.activeTab::after {
-  content: '';
-  position: absolute;
-  bottom: -1.5px;
-  left: 0;
-  width: 100%;
-  height: 2.5px;
-  background-color: var(--color-yellow);
-}
-
-/* ── FILTERS ROW (Dropdown Style) ────────────────── */
-.filterRow {
-  padding: var(--space-4) 0;
+/* ── UNIFIED FILTER ROW (Switch + Dropdowns) ──────── */
+.filterRowUnified {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: var(--space-4) 0;
+  border-bottom: 1.5px solid var(--border-color);
+  margin-bottom: var(--space-4);
   position: relative;
   z-index: 20;
 }
 
 .filterControls {
   display: flex;
-  gap: var(--space-4);
   align-items: center;
+  gap: var(--space-4);
 }
 
-.filterBtn {
+/* Segmented Control (Pill Switcher) */
+.segmentedControl {
   background-color: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  border-radius: 100px;
-  padding: 8px 20px;
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+}
+
+.segment {
+  background: none;
+  border: none;
+  padding: 6px 20px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-faint);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+
+.segment:hover {
+  color: var(--text);
+}
+
+.activeSegment {
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+}
+
+.dividerV {
+  width: 1.5px;
+  height: 24px;
+  background-color: var(--border-color);
+  opacity: 0.2;
+  margin: 0 var(--space-2);
+}
+
+/* Filter Dropdown Buttons */
+.filterBtn {
+  background: none;
+  border: none;
+  padding: 8px 12px;
   font-family: var(--font-body);
   font-size: 13px;
   color: var(--text);
@@ -110,14 +111,12 @@
 }
 
 .filterBtn:hover {
-  border-color: var(--color-yellow);
+  color: var(--color-yellow);
 }
 
 .activeBtn {
-  background-color: var(--color-yellow);
-  border-color: var(--color-yellow);
-  color: var(--color-ink);
-  font-weight: 500;
+  font-weight: 700;
+  color: var(--color-yellow);
 }
 
 .dropdownWrapper {
@@ -158,21 +157,17 @@
   color: var(--color-ink);
 }
 
-.selectedItem {
-  font-weight: 700;
-  color: var(--color-yellow);
-}
-
 /* Surprise Me Button */
 .surpriseBtn {
   background: transparent;
   border: 1.5px solid var(--color-yellow);
-  border-radius: 100px;
   padding: 8px 24px;
   color: var(--text);
   font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -184,21 +179,15 @@
 
 /* ── UTILITY ROW ────────────────── */
 .utilityRow {
-  padding: var(--space-6) 0 var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 1.5px solid rgba(17, 17, 17, 0.05);
-  margin-bottom: var(--space-8);
-}
-
-[data-theme="dark"] .utilityRow {
-  border-bottom-color: rgba(244, 241, 230, 0.05);
 }
 
 .resultsCount {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -208,15 +197,15 @@
   background: none;
   border: none;
   font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--text);
+  font-size: 11px;
+  color: var(--text-faint);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 4px 0;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
 /* ── RESULTS GRID ────────────────────────────────── */
@@ -225,10 +214,25 @@
   z-index: 10;
 }
 
-.masonryGrid {
+.uniformGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-8);
+  align-items: start;
+}
+
+.cardReveal {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes cardReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .empty {
@@ -238,11 +242,11 @@
 }
 
 @media (max-width: 1200px) {
-  .masonryGrid { grid-template-columns: repeat(2, 1fr); }
+  .uniformGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .masonryGrid { grid-template-columns: 1fr; }
-  .filterRow { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
-  .title { font-size: 80px; top: var(--space-4); }
+  .uniformGrid { grid-template-columns: 1fr; }
+  .filterRowUnified { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .filterControls { flex-wrap: wrap; }
 }

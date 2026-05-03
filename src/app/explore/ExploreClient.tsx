@@ -107,25 +107,28 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
       {/* ── Background Watermark ── */}
       <div className={styles.title}>Explore</div>
 
-      {/* ── Tabs ── */}
-      <div className={styles.tabs}>
-        <button 
-          className={`${styles.tab} ${activeTab === 'artists' ? styles.activeTab : ''}`}
-          onClick={() => handleTabChange('artists')}
-        >
-          Artists
-        </button>
-        <button 
-          className={`${styles.tab} ${activeTab === 'events' ? styles.activeTab : ''}`}
-          onClick={() => handleTabChange('events')}
-        >
-          Events
-        </button>
-      </div>
-
-      {/* ── Filter Controls ── */}
-      <div className={styles.filterRow}>
+      {/* ── Integrated Navigation & Filter Row ── */}
+      <div className={styles.filterRowUnified}>
         <div className={styles.filterControls}>
+          
+          {/* Segmented Tab Switcher (Pill Style) */}
+          <div className={styles.segmentedControl}>
+            <button 
+              className={`${styles.segment} ${activeTab === 'artists' ? styles.activeSegment : ''}`}
+              onClick={() => handleTabChange('artists')}
+            >
+              Artists
+            </button>
+            <button 
+              className={`${styles.segment} ${activeTab === 'events' ? styles.activeSegment : ''}`}
+              onClick={() => handleTabChange('events')}
+            >
+              Events
+            </button>
+          </div>
+
+          <div className={styles.dividerV} />
+
           {/* Shared City Filter */}
           <div className={styles.dropdownWrapper}>
             <button 
@@ -179,7 +182,7 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
                   onClick={() => toggleDropdown('type')}
                 >
                   <Filter size={14} />
-                  {filters.type === 'All' ? 'Event Type' : filters.type}
+                  {filters.type === 'All' ? 'Type' : filters.type}
                   <ChevronDown size={14} />
                 </button>
                 {openDropdown === 'type' && (
@@ -214,11 +217,13 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
           )}
         </div>
 
-        {activeTab === 'events' && (
-          <button className={styles.surpriseBtn} onClick={handleSurpriseMe}>
-            Surprise me
-          </button>
-        )}
+        <div className={styles.filterActions}>
+          {activeTab === 'events' && (
+            <button className={styles.surpriseBtn} onClick={handleSurpriseMe}>
+              Surprise me
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Results Summary ── */}
@@ -243,12 +248,12 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
         </div>
       </div>
 
-      {/* ── Results Grid ── */}
+      {/* ── Results Grid (Uniform Layout) ── */}
       <section className={styles.results}>
         {!loading && results.data.length > 0 ? (
-          <div className={styles.masonryGrid}>
+          <div className={styles.uniformGrid}>
             {results.data.map((item: any, i: number) => {
-              // Race condition safety check: ensure item structure matches active tab
+              // Race condition safety check
               const isArtistData = !!item.user;
               const isEventData = !!item.event;
 
@@ -258,9 +263,9 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
               return (
                 <div key={i} className={styles.cardReveal} style={{ '--delay': `${i * 40}ms` } as any}>
                   {activeTab === 'artists' ? (
-                    <ArtistCard artist={item} index={i} />
+                    <ArtistCard artist={item} />
                   ) : (
-                    <EventCard item={item} index={i} />
+                    <EventCard item={item} />
                   )}
                 </div>
               );
@@ -280,16 +285,12 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
   );
 }
 
-function ArtistCard({ artist, index }: { artist: any, index: number }) {
-  const ratios = ['aspect-4/5', 'aspect-1/1', 'aspect-3/4', 'aspect-4/5'];
-  const ratioClass = ratios[index % ratios.length];
-  const aspect = ratioClass === 'aspect-4/5' ? '4/5' : ratioClass === 'aspect-1/1' ? '1/1' : '3/4';
-
+function ArtistCard({ artist }: { artist: any }) {
   if (!artist?.user) return null;
 
   return (
     <Link href={`/${artist.user.username}`} className="event-card" style={{ display: 'block' }}>
-      <div className={`event-card__cover ${ratioClass}`} style={{ position: 'relative', width: '100%', aspectRatio: aspect }}>
+      <div className="event-card__cover" style={{ position: 'relative', width: '100%', aspectRatio: '4/5' }}>
         <Image
           src={artist.user.avatar_url || '/images/default-avatar.png'}
           alt={artist.user.full_name}
@@ -303,8 +304,8 @@ function ArtistCard({ artist, index }: { artist: any, index: number }) {
           {artist.profile?.verified && <span className="chip chip-yellow">VERIFIED</span>}
         </div>
         <div className="event-card__body">
-          <span className="event-card__meta" style={{ color: 'var(--text-faint)' }}>{artist.user.city}</span>
-          <h3 className="event-card__title" style={{ fontSize: '24px', color: 'var(--text)' }}>
+          <span className="event-card__meta">{artist.user.city}</span>
+          <h3 className="event-card__title">
             {artist.user.full_name}
           </h3>
         </div>
@@ -313,17 +314,13 @@ function ArtistCard({ artist, index }: { artist: any, index: number }) {
   );
 }
 
-function EventCard({ item, index }: { item: any, index: number }) {
+function EventCard({ item }: { item: any }) {
   const { event } = item;
-  const ratios = ['aspect-16/10', 'aspect-4/5', 'aspect-1/1', 'aspect-16/10'];
-  const ratioClass = ratios[index % ratios.length];
-  const aspect = ratioClass === 'aspect-16/10' ? '16/10' : ratioClass === 'aspect-4/5' ? '4/5' : '1/1';
-
   if (!event) return null;
 
   return (
     <Link href={`/events/${event.id}`} className="event-card" style={{ display: 'block' }}>
-      <div className={`event-card__cover ${ratioClass}`} style={{ position: 'relative', width: '100%', aspectRatio: aspect }}>
+      <div className="event-card__cover" style={{ position: 'relative', width: '100%', aspectRatio: '1/1' }}>
         <Image
           src={event.cover_image_url ?? ""}
           alt={event.title}
@@ -337,8 +334,8 @@ function EventCard({ item, index }: { item: any, index: number }) {
           <span className="chip chip-price">{event.is_free ? 'FREE' : formatPKR(event.min_price)}</span>
         </div>
         <div className="event-card__body">
-          <span className="event-card__meta" style={{ color: 'var(--text-faint)' }}>{formatDate(event.starts_at)} · {event.venue_name}</span>
-          <h3 className="event-card__title" style={{ fontSize: '24px', color: 'var(--text)' }}>
+          <span className="event-card__meta">{formatDate(event.starts_at)} · {event.venue_name}</span>
+          <h3 className="event-card__title">
             {event.title}
           </h3>
         </div>

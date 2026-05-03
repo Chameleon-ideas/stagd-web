@@ -1,7 +1,8 @@
 .page {
   background-color: var(--bg);
   color: var(--text);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden; /* Page is locked vertically */
   transition: background-color 0.4s ease;
   position: relative;
 }
@@ -9,41 +10,59 @@
 /* ── LAYOUT ────────────────────────────────────────── */
 .main {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  height: calc(100vh - 80px);
+  width: 100%;
 }
 
 .leftColumn {
-  width: 40%;
-  padding: var(--space-12) var(--gutter) var(--space-12);
+  width: 35%;
+  padding: var(--space-8) var(--gutter);
   display: flex;
   flex-direction: column;
   border-right: 1.5px solid var(--border-color);
-  overflow-y: auto;
-  position: relative;
   background-color: var(--bg);
-  z-index: 10;
+  z-index: 20;
+  justify-content: space-between;
 }
 
 .rightColumn {
-  width: 60%;
+  width: 65%;
   height: 100%;
-  background-color: #000;
+  background-color: var(--bg-surface);
   position: relative;
-  overflow-y: auto;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar for rightColumn */
+.rightColumn::-webkit-scrollbar {
+  display: none;
+}
+.rightColumn {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ── PROFILE ELEMENTS ────────────────────────────── */
+.topMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
 .idBlock {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-6);
-  margin-bottom: var(--space-12);
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .avatarSquare {
-  width: 80px;
-  height: 80px;
+  width: 56px;
+  height: 56px;
   border-radius: 0;
   object-fit: cover;
   border: 1.5px solid var(--border-color);
@@ -52,15 +71,15 @@
 .statusMetadata {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 2px;
 }
 
 .availability {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-body);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -71,12 +90,11 @@
   height: 6px;
   border-radius: 50%;
   background-color: #00FF00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
 }
 
 .location {
-  font-family: var(--font-body);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 9px;
   color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -84,31 +102,29 @@
 
 .name {
   font-family: var(--font-display);
-  font-size: clamp(60px, 8vw, 100px);
+  font-size: clamp(40px, 6vw, 72px);
   text-transform: uppercase;
   line-height: 0.85;
-  margin: 0 0 var(--space-8) 0;
-  letter-spacing: -0.04em;
-  word-wrap: break-word;
+  margin: var(--space-2) 0;
+  letter-spacing: -0.02em;
 }
 
 .bio {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 13.5px;
   line-height: 1.5;
   color: var(--text);
-  margin-bottom: var(--space-12);
-  max-width: 90%;
+  margin: var(--space-4) 0;
+  opacity: 0.8;
 }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
-  padding: var(--space-8) 0;
+  gap: var(--space-2);
+  padding: var(--space-4) 0;
   border-top: 1.5px solid var(--border-color);
   border-bottom: 1.5px solid var(--border-color);
-  margin-bottom: var(--space-12);
 }
 
 .statItem {
@@ -118,39 +134,37 @@
 
 .statValue {
   font-family: var(--font-display);
-  font-size: 32px;
-  line-height: 1;
+  font-size: 20px;
 }
 
 .statLabel {
-  font-family: var(--font-body);
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 8px;
   text-transform: uppercase;
   color: var(--text-faint);
   letter-spacing: 0.1em;
-  margin-top: 4px;
 }
 
 /* ── EVENTS ──────────────────────────────────────── */
 .eventsSection {
-  margin-top: auto;
+  margin-top: var(--space-4);
 }
 
 .sectionHeader {
-  font-family: var(--font-body);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 9px;
   text-transform: uppercase;
   color: var(--text-faint);
   letter-spacing: 0.1em;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-3);
 }
 
 .eventCard {
   background-color: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  padding: var(--space-4);
+  padding: var(--space-3);
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-3);
   align-items: center;
 }
 
@@ -159,13 +173,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
-  height: 48px;
-  border: 1.5px solid var(--border-color);
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
 }
 
-.day { font-family: var(--font-display); font-size: 20px; line-height: 1; }
-.month { font-family: var(--font-body); font-size: 9px; text-transform: uppercase; font-weight: 700; }
+.day { font-family: var(--font-display); font-size: 14px; line-height: 1; }
+.month { font-family: var(--font-mono); font-size: 7px; text-transform: uppercase; }
 
 .eventInfo {
   display: flex;
@@ -174,75 +188,102 @@
 
 .eventTitle {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 13px;
   text-transform: uppercase;
-  line-height: 1.1;
 }
 
 .eventMeta {
-  font-family: var(--font-body);
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 8px;
   color: var(--text-faint);
   text-transform: uppercase;
-  margin-top: 2px;
+}
+
+/* ── HORIZONTAL PORTFOLIO ────────────────────────── */
+.portfolioItem {
+  flex: 0 0 100%;
+  height: 100%;
+  position: relative;
+  scroll-snap-align: center;
+  overflow: hidden;
+}
+
+.portfolioImage {
+  object-fit: cover;
+}
+
+/* Top-Right Mono Overlay */
+.projectOverlay {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  background-color: var(--color-ink);
+  color: #fff;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.projectOverlay span {
+  opacity: 0.6;
 }
 
 /* ── FLOATING ACTION BAR ─────────────────────────── */
 .floatingActions {
   position: fixed;
-  bottom: 40px;
-  right: 40px;
+  bottom: 32px;
+  right: 32px;
   display: flex;
-  gap: 12px;
-  z-index: 999; /* Ensure it stays above everything */
-  pointer-events: auto;
+  gap: 8px;
+  z-index: 999;
 }
 
 .hireBtn {
   background-color: var(--color-yellow);
   color: var(--color-ink);
   border: 1.5px solid var(--color-ink);
-  padding: 12px 32px;
+  padding: 10px 24px;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
-  box-shadow: 8px 8px 0 rgba(0,0,0,0.1);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
   transition: all 0.2s;
 }
 
 .hireBtn:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 10px 10px 0 rgba(0,0,0,0.15);
+  transform: translate(-1px, -1px);
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.15);
 }
 
 .messageBtn {
   background-color: var(--bg);
   color: var(--text);
   border: 1.5px solid var(--border-color);
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 8px 8px 0 rgba(0,0,0,0.1);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
   transition: all 0.2s;
-}
-
-.messageBtn:hover {
-  background-color: var(--color-ink);
-  color: var(--color-white);
-  transform: translate(-2px, -2px);
-  box-shadow: 10px 10px 0 rgba(0,0,0,0.15);
 }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 1024px) {
-  .main { flex-direction: column; height: auto; overflow: visible; }
-  .leftColumn, .rightColumn { width: 100%; height: auto; }
-  .rightColumn { aspect-ratio: 1/1; }
-  .floatingActions { bottom: 20px; right: 20px; }
+  .page { height: auto; overflow: visible; }
+  .main { flex-direction: column; height: auto; }
+  .leftColumn { width: 100%; height: auto; border-right: none; border-bottom: 1.5px solid var(--border-color); }
+  .rightColumn { width: 100%; height: 70vh; overflow-x: auto; }
+  .portfolioItem { flex: 0 0 100%; }
 }
