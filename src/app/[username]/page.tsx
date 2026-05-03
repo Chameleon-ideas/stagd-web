@@ -1,226 +1,131 @@
-import { notFound } from 'next/navigation';
+"use client";
+
+import { use, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Mail, ArrowRight } from 'lucide-react';
 import { getArtistProfile, getArtistEvents } from '@/lib/api';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { HireButton } from '@/components/portfolio/HireButton';
-import { formatPKR, formatDate } from '@/lib/utils';
+import { CommissionEnquiry } from '@/components/portfolio/CommissionEnquiry';
 import styles from './page.module.css';
 
 interface ArtistPageProps {
   params: Promise<{ username: string }>;
 }
 
-export default async function ArtistPage({ params }: ArtistPageProps) {
-  const { username } = await params;
+export default function ArtistPage({ params }: ArtistPageProps) {
+  const { username } = use(params);
+  const [isCommissionOpen, setIsCommissionOpen] = useState(false);
+  
+  // In a real app, this would be a server component or use Suspense
+  // For this demo, we'll use the mock data directly
+  const profile = use(getArtistProfile(username));
+  const events = use(getArtistEvents(profile.user.id));
 
-  try {
-    const data = await getArtistProfile(username);
-    if (!data) return notFound();
+  if (!profile) return <div>Artist not found</div>;
 
-    const { user, profile, portfolio, review_average, review_count, follower_count, project_count } = data;
-    const eventsResponse = await getArtistEvents(user.id);
-    const events = eventsResponse.data;
-
-    const accentColor = profile.accent_color || 'var(--color-yellow)';
-
-    return (
-      <div className={styles.page} style={{ '--accent': accentColor } as React.CSSProperties}>
-        <Header />
-
-        <main className={styles.main}>
-          {/* ─── Profile Header ─────────────────────────────────── */}
-          <section className={styles.header}>
-            <div className="container">
-              <div className={styles.headerInner}>
-                <div className={styles.profileInfo}>
-                  <div className={styles.avatarWrapper}>
-                    <Image
-                      src={user.avatar_url || '/images/default-avatar.png'}
-                      alt={user.full_name}
-                      width={120}
-                      height={120}
-                      className={styles.avatar}
-                      priority
-                    />
-                    {profile.verified && (
-                      <div className={styles.verifiedBadge} title="Verified Artist">
-                        ✓
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className={styles.details}>
-                    <div className={styles.nameRow}>
-                      <h1 className={styles.name}>{user.full_name}</h1>
-                      <div className={styles.disciplines}>
-                        {profile.disciplines.map(d => (
-                          <span key={d} className="chip chip-outlined">{d}</span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <p className={styles.bio}>{profile.bio}</p>
-                    
-                    <div className={styles.meta}>
-                      <span className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Location</span>
-                        <span className={styles.metaValue}>{user.city || 'Karachi'}</span>
-                      </span>
-                      <span className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Availability</span>
-                        <span className={`${styles.metaValue} ${styles[profile.availability]}`}>
-                          {profile.availability}
-                        </span>
-                      </span>
-                      {profile.starting_rate && (
-                        <span className={styles.metaItem}>
-                          <span className={styles.metaLabel}>Starting at</span>
-                          <span className={styles.metaValue}>{formatPKR(profile.starting_rate)}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.actions}>
-                  <HireButton artist={data} className="btn btn-primary btn-md" />
-                  <button className="btn btn-secondary btn-md">
-                    Follow
-                  </button>
-                </div>
+  return (
+    <div className={styles.page}>
+      <Header />
+      
+      <main className={styles.main}>
+        {/* ─── Left Column: Info ─── */}
+        <aside className={styles.leftColumn}>
+          
+          {/* Editorial ID Block */}
+          <div className={styles.idBlock}>
+            <Image 
+              src={profile.user.avatar_url || '/images/default-avatar.png'} 
+              alt={profile.user.full_name}
+              width={80}
+              height={80}
+              className={styles.avatarSquare}
+            />
+            <div className={styles.statusMetadata}>
+              <div className={styles.availability}>
+                <span className={styles.dot}></span>
+                Available
               </div>
-
-              {/* Stats Bar */}
-              <div className={styles.statsBar}>
-                <div className={styles.stat}>
-                  <span className={styles.statValue}>{project_count}</span>
-                  <span className={styles.statLabel}>Projects</span>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.statValue}>{follower_count}</span>
-                  <span className={styles.statLabel}>Followers</span>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.statValue}>{review_average}</span>
-                  <span className={styles.statLabel}>Rating ({review_count})</span>
-                </div>
-              </div>
+              <div className={styles.location}>{profile.user.city}</div>
             </div>
-          </section>
+          </div>
 
-          {/* ─── Main Content Grid ─────────────────────────────── */}
-          <section className={styles.content}>
-            <div className="container">
-              <div className={styles.layout}>
-                
-                {/* Left: Portfolio + Events */}
-                <div className={styles.contentLeft}>
-                  {/* Portfolio */}
-                  <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                      <h2 className="text-tag font-mono text-muted">Selected Works</h2>
-                    </div>
-                    <div className={styles.grid}>
-                      {portfolio.map((item, i) => (
-                        <div 
-                          key={item.id} 
-                          className={`${styles.gridItem} ${i % 3 === 0 ? styles.gridWide : ''}`}
-                          style={{ '--delay': `${i * 40}ms` } as React.CSSProperties}
-                        >
-                          <div className={styles.imageWrapper}>
-                            <Image
-                              src={item.image_url}
-                              alt={item.title || 'Portfolio item'}
-                              fill
-                              className={styles.image}
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                            <div className={styles.imageOverlay}>
-                              <span className={styles.itemTitle}>{item.title}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          <h1 className={styles.name}>{profile.user.full_name}</h1>
+          <p className={styles.bio}>{profile.profile.bio}</p>
 
-                  {/* Events */}
-                  {events.length > 0 && (
-                    <div className={styles.section}>
-                      <div className={styles.sectionHeader}>
-                        <h2 className="text-tag font-mono text-muted">Upcoming Events</h2>
-                      </div>
-                      <div className={styles.eventList}>
-                        {events.map((ev, i) => (
-                          <Link 
-                            key={ev.event.id} 
-                            href={`/events/${ev.event.id}`}
-                            className={styles.eventRow}
-                            style={{ '--delay': `${i * 40}ms` } as React.CSSProperties}
-                          >
-                            <div className={styles.eventDate}>
-                              <span className={styles.dateDay}>{formatDate(ev.event.starts_at).split(',')[0]}</span>
-                              <span className={styles.dateNum}>{formatDate(ev.event.starts_at).split(',')[1]}</span>
-                            </div>
-                            <div className={styles.eventInfo}>
-                              <span className={styles.eventTitle}>{ev.event.title}</span>
-                              <span className={styles.eventMeta}>
-                                {ev.event.venue_name} · {ev.event.city}
-                              </span>
-                            </div>
-                            <div className={styles.eventPrice}>
-                              {ev.event.is_free ? 'Free' : formatPKR(ev.event.min_price)}
-                            </div>
-                            <div className={styles.eventArrow}>→</div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right: Commission Sidebar (Desktop) */}
-                <aside className={styles.sidebar}>
-                  <div className={styles.stickyCard}>
-                    <h3 className={styles.sidebarTitle}>Start a commission</h3>
-                    <p className={styles.sidebarBody}>
-                      Hire {user.full_name} for your next project. All communications, payments, and files are handled through Stagd.
-                    </p>
-                    <div className={styles.sidebarPricing}>
-                      <span className={styles.priceLabel}>Starting at</span>
-                      <span className={styles.priceValue}>{formatPKR(profile.starting_rate || 0)}</span>
-                    </div>
-                    <HireButton 
-                      artist={data} 
-                      className="btn btn-accent btn-md" 
-                      label="Send Enquiry"
-                    />
-                  </div>
-                </aside>
-
-              </div>
+          <div className={styles.stats}>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{profile.project_count}</span>
+              <span className={styles.statLabel}>Projects</span>
             </div>
-          </section>
-        </main>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{profile.follower_count}</span>
+              <span className={styles.statLabel}>Followers</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{profile.review_average}</span>
+              <span className={styles.statLabel}>Rating</span>
+            </div>
+          </div>
 
-        <Footer />
+          {/* Upcoming Event (if any) */}
+          {events.data.length > 0 && (
+            <div className={styles.eventsSection}>
+              <div className={styles.sectionHeader}>// Upcoming Event</div>
+              <div className={styles.eventCard}>
+                <div className={styles.dateBlock}>
+                  <span className={styles.day}>{new Date(events.data[0].event.starts_at).getDate()}</span>
+                  <span className={styles.month}>{new Date(events.data[0].event.starts_at).toLocaleString('default', { month: 'short' })}</span>
+                </div>
+                <div className={styles.eventInfo}>
+                  <span className={styles.eventTitle}>{events.data[0].event.title}</span>
+                  <span className={styles.eventMeta}>
+                    {events.data[0].event.venue_name} · {events.data[0].event.city}
+                  </span>
+                </div>
+              </div>
+              <Link href="/explore?tab=events" className="btn btn-text" style={{ marginTop: '16px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                View all events ({events.total}) <ArrowRight size={12} style={{ marginLeft: '4px' }} />
+              </Link>
+            </div>
+          )}
+        </aside>
+
+        {/* ─── Right Column: Media ─── */}
+        <section className={styles.rightColumn}>
+          {profile.portfolio.map((item, i) => (
+            <div key={item.id} style={{ width: '100%', position: 'relative', aspectRatio: i === 0 ? '1/1' : '16/9' }}>
+              <Image 
+                src={item.image_url} 
+                alt={item.title || 'Portfolio work'}
+                fill
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+          ))}
+        </section>
+      </main>
+
+      {/* ─── Floating Actions (Moved outside main for true fixed positioning) ─── */}
+      <div className={styles.floatingActions}>
+        <button className={styles.messageBtn} onClick={() => window.location.href = '/messages'}>
+          <Mail size={20} />
+        </button>
+        <button className={styles.hireBtn} onClick={() => setIsCommissionOpen(true)}>
+          Hire
+        </button>
       </div>
-    );
-  } catch (err) {
-    console.error(`Error fetching artist ${username}:`, err);
-    return notFound();
-  }
-}
 
-// ISR configuration
-export const revalidate = 60;
+      {/* Commission Modal */}
+      {isCommissionOpen && (
+        <CommissionEnquiry 
+          artist={profile} 
+          onClose={() => setIsCommissionOpen(false)} 
+        />
+      )}
 
-// Pre-render popular profiles for faster initial load
-export async function generateStaticParams() {
-  return [
-    { username: 'lyari_underground' },
-    { username: 'risograph_khi' },
-  ];
+      <Footer />
+    </div>
+  );
 }

@@ -1,0 +1,199 @@
+.scannerPage {
+  background-color: var(--color-bg);
+  min-height: calc(100vh - 80px);
+  padding: var(--spacing-12) 0;
+}
+
+.scannerLayout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: var(--spacing-12);
+}
+
+.scannerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-10);
+}
+
+.header h1 {
+  font-size: 48px;
+  font-weight: 800;
+  margin: var(--spacing-2) 0;
+}
+
+.header p {
+  color: var(--color-text-muted);
+  font-size: 18px;
+}
+
+.startState {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-20);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+  border: 2px dashed var(--color-border);
+}
+
+.cameraIcon {
+  font-size: 64px;
+}
+
+.cameraView {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background-color: black;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.frame {
+  width: 250px;
+  height: 250px;
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);
+  border-radius: var(--radius-md);
+}
+
+.controls {
+  position: absolute;
+  bottom: var(--spacing-6);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-4);
+}
+
+.resultCard {
+  background-color: var(--color-surface);
+  padding: var(--spacing-10);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s ease-out;
+}
+
+.resultValid { border-top: 8px solid var(--color-success, #4CAF50); }
+.resultInvalid { border-top: 8px solid var(--color-error, #f44336); }
+
+.resultIcon {
+  font-size: 48px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+}
+
+.resultValid .resultIcon { color: var(--color-success, #4CAF50); }
+.resultInvalid .resultIcon { color: var(--color-error, #f44336); }
+
+.resultDetails {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-3) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.detailRow span { color: var(--color-text-muted); }
+
+/* ─── SIDEBAR ────────────────────────────────── */
+
+.scannerRight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.statsCard {
+  background-color: var(--color-surface);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.attendanceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+  margin: var(--spacing-6) 0;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statVal {
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.statLab {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.recentScans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-6);
+}
+
+.scanRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.scanTime {
+  color: var(--color-text-muted);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 1024px) {
+  .scannerLayout {
+    grid-template-columns: 1fr;
+  }
+}

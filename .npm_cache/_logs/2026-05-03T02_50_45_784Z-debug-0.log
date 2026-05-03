@@ -1,0 +1,46 @@
+0 verbose cli /opt/homebrew/Cellar/node/25.8.1_1/bin/node /opt/homebrew/bin/npm
+1 info using npm@11.11.0
+2 info using node@v25.8.1
+3 silly config load:file:/opt/homebrew/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/macbook/Desktop/Projects/stagd-web/.npmrc
+5 silly config load:file:/Users/macbook/.npmrc
+6 silly config load:file:/opt/homebrew/etc/npmrc
+7 verbose title npm install lodash
+8 verbose argv "install" "lodash" "--cache" ".npm_cache"
+9 verbose logfile logs-max:10 dir:/Users/macbook/Desktop/Projects/stagd-web/.npm_cache/_logs/2026-05-03T02_50_45_784Z-
+10 verbose logfile /Users/macbook/Desktop/Projects/stagd-web/.npm_cache/_logs/2026-05-03T02_50_45_784Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
+13 verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+14 silly idealTree buildDeps
+15 silly fetch manifest lodash@*
+16 silly packumentCache full:https://registry.npmjs.org/lodash cache-miss
+17 http fetch GET 403 https://registry.npmjs.org/lodash 19ms (cache skip)
+18 silly placeDep ROOT lodash@ OK for: stagd-web@0.1.0 want: *
+19 verbose stack HttpErrorGeneral: 403 Forbidden - GET https://registry.npmjs.org/lodash
+19 verbose stack     at /opt/homebrew/lib/node_modules/npm/node_modules/npm-registry-fetch/lib/check-response.js:103:15
+19 verbose stack     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+19 verbose stack     at async RegistryFetcher.packument (/opt/homebrew/lib/node_modules/npm/node_modules/pacote/lib/registry.js:90:19)
+19 verbose stack     at async RegistryFetcher.manifest (/opt/homebrew/lib/node_modules/npm/node_modules/pacote/lib/registry.js:128:23)
+19 verbose stack     at async #fetchManifest (/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1227:20)
+19 verbose stack     at async #nodeFromEdge (/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1061:19)
+19 verbose stack     at async #buildDepStep (/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:917:11)
+19 verbose stack     at async Arborist.buildIdealTree (/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:170:7)
+19 verbose stack     at async Promise.all (index 1)
+19 verbose stack     at async Arborist.reify (/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:110:5)
+20 verbose statusCode 403
+21 verbose pkgid lodash@*
+22 error code E403
+23 error 403 403 Forbidden - GET https://registry.npmjs.org/lodash
+24 error 403 In most cases, you or one of your dependencies are requesting
+24 error 403 a package version that is forbidden by your security policy, or
+24 error 403 on a server you do not have access to.
+25 silly unfinished npm timer reify 1777776646034
+26 silly unfinished npm timer reify:loadTrees 1777776646035
+27 verbose cwd /Users/macbook/Desktop/Projects/stagd-web
+28 verbose os Darwin 25.3.0
+29 verbose node v25.8.1
+30 verbose npm  v11.11.0
+31 verbose exit 1
+32 verbose code 1
+33 error A complete log of this run can be found in: /Users/macbook/Desktop/Projects/stagd-web/.npm_cache/_logs/2026-05-03T02_50_45_784Z-debug-0.log

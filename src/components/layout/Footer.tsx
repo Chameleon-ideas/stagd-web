@@ -28,7 +28,7 @@ export function Footer() {
             </div>
             <div className={styles.navGroup}>
               <span className={styles.navTitle}>Connect</span>
-              <a href="https://instagram.com/stagd" className={styles.navLink}>Instagram</a>
+              <a href="https://instagram.com/stagd.app" className={styles.navLink}>Instagram</a>
               <a href="mailto:hello@stagd.app" className={styles.navLink}>Email Us</a>
             </div>
           </div>

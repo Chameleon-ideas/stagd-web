@@ -1,0 +1,318 @@
+.page {
+  background-color: var(--color-bg);
+  color: white;
+  min-height: 100vh;
+  padding-bottom: 120px; /* Space for bottom nav */
+}
+
+.topBar {
+  background-color: var(--color-bg);
+  padding: var(--spacing-6) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.topBarInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cancelBtn, .saveBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 0.2em;
+}
+
+/* Progress Bar */
+.progressContainer {
+  background-color: var(--color-bg);
+  padding: var(--spacing-4) 0;
+}
+
+.progressBar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-2);
+}
+
+.progressSegment {
+  height: 4px;
+  background-color: var(--color-border);
+  transition: background 0.3s ease;
+}
+
+.segmentActive {
+  background-color: var(--color-accent);
+}
+
+/* Main Content */
+.main {
+  padding: var(--spacing-12) 0;
+}
+
+.contentBox {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.stepMeta {
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+  font-size: 14px;
+  margin-bottom: var(--spacing-4);
+  letter-spacing: 0.05em;
+}
+
+.stepTitle {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: var(--spacing-12);
+  text-transform: uppercase;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-10);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-accent);
+  letter-spacing: 0.1em;
+}
+
+.typeGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.typeCard {
+  padding: var(--spacing-3) var(--spacing-6);
+  border: 1px solid var(--color-border);
+  background: none;
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  text-transform: uppercase;
+}
+
+.typeActive {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: black;
+}
+
+.textInput, .textArea {
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  color: white;
+  font-size: 24px;
+  padding: var(--spacing-2) 0;
+  width: 100%;
+  border-radius: 0;
+}
+
+.textInput:focus, .textArea:focus {
+  outline: none;
+  border-color: white;
+}
+
+.textArea {
+  height: 120px;
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-4);
+  font-size: 18px;
+  border-radius: 0;
+}
+
+.helpText {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-top: var(--spacing-1);
+}
+
+.uploadBox {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.uploadIcon {
+  font-size: 48px;
+}
+
+/* Step 03: Tickets */
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+}
+
+.toggleTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.toggle {
+  width: 48px;
+  height: 24px;
+  background-color: var(--color-border);
+  border-radius: 0;
+  position: relative;
+  cursor: pointer;
+}
+
+.toggleThumb {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 0;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+}
+
+.tierCard {
+  background-color: var(--color-surface);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+}
+
+.tierHeader {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-bottom: var(--spacing-4);
+}
+
+.tierName {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin-bottom: var(--spacing-6);
+  text-transform: uppercase;
+}
+
+.tierInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-6);
+}
+
+.tierInputGroup label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: var(--spacing-2);
+}
+
+.tierInputGroup input {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: white;
+  width: 100%;
+  padding: var(--spacing-3);
+  font-size: 18px;
+  border-radius: 0;
+}
+
+.addTierBtn {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: white;
+  padding: var(--spacing-4);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: var(--spacing-4);
+  border-radius: 0;
+}
+
+/* Bottom Nav */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-4) 0;
+}
+
+.bottomNavInner {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.backBtn {
+  flex: 1;
+  background: none;
+  border: 1px solid white;
+  color: white;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: var(--spacing-4);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.continueBtn {
+  flex: 3;
+  background-color: white;
+  color: black;
+  border: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: var(--spacing-4);
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 0;
+}
+
+@media (max-width: 768px) {
+  .stepTitle {
+    font-size: 40px;
+  }
+}

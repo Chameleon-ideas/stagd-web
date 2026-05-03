@@ -199,16 +199,27 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
         {step === 3 && (
           <div className={styles.step}>
             <div className={styles.successIcon}>
-              <CheckCircle2 size={48} strokeWidth={1.5} />
+              <CheckCircle2 size={48} strokeWidth={1.5} color="var(--color-yellow)" />
             </div>
-            <h2 id="comm-title" className={styles.title}>Enquiry Sent</h2>
+            <h2 id="comm-title" className={styles.title}>Brief Sent</h2>
             <p className={styles.subtitle}>
-              Your brief has been sent to {artist.user.full_name}. You'll be notified via email when they respond with a proposal.
+              Your brief has been sent to {artist.user.full_name}. You can now start a conversation to finalize the details.
             </p>
 
-            <div className={styles.footer}>
-              <button className="btn btn-primary btn-md" style={{ width: '100%' }} onClick={onClose}>
-                Got it
+            <div className={styles.footer} style={{ gap: 'var(--space-4)', flexDirection: 'column', display: 'flex' }}>
+              <button 
+                className="btn btn-primary btn-md" 
+                style={{ width: '100%' }} 
+                onClick={() => window.location.href = `/messages?recipient=${artist.user.id}`}
+              >
+                OPEN CHAT
+              </button>
+              <button 
+                className="btn btn-secondary btn-md" 
+                style={{ width: '100%' }} 
+                onClick={onClose}
+              >
+                CLOSE
               </button>
             </div>
           </div>

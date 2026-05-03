@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import { ThemeProvider } from '@/lib/theme';
+import { AuthProvider } from '@/lib/auth';
 import '@/styles/globals.css';
 import '@/styles/components.css';
 
@@ -56,7 +57,9 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ThemeProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

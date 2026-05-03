@@ -139,6 +139,10 @@
 .chip-film     { background: var(--color-ink);    color: var(--color-cream); }
 .chip-dance    { background: var(--color-yellow); color: var(--color-ink); }
 .chip-music    { background: var(--color-green);  color: #fff; }
+.chip-exhibition { background: var(--color-orange); color: #fff; }
+.chip-talk       { background: var(--color-cyan);   color: #fff; }
+.chip-other      { background: var(--color-ink);    color: var(--color-cream); }
+
 
 /* Price chip — yellow anchor */
 .chip-price {

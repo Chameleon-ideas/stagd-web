@@ -1,0 +1,234 @@
+.inboxPage {
+  background-color: var(--color-bg);
+  height: calc(100vh - 80px); /* Adjust based on header height */
+  overflow: hidden;
+}
+
+.inboxContainer {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  height: 100%;
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ─── CHAT LIST ────────────────────────────────── */
+
+.chatList {
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+}
+
+.panelHeader {
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panelHeader h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.chatItems {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chatItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-6);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+  position: relative;
+}
+
+.chatItem:hover {
+  background-color: var(--color-bg);
+}
+
+.chatItemActive {
+  background-color: rgba(var(--color-accent-rgb), 0.05);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.chatMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.chatName {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.chatTime {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.lastMessage {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-accent);
+  border-radius: 50%;
+  position: absolute;
+  right: var(--spacing-6);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ─── CHAT THREAD ──────────────────────────────── */
+
+.chatThread {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+}
+
+.threadHeader {
+  padding: var(--spacing-4) var(--spacing-8);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.threadInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.avatarSm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.threadInfo h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.status {
+  font-size: 12px;
+  color: var(--color-success, #4CAF50);
+}
+
+.messages {
+  flex: 1;
+  padding: var(--spacing-8);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.message {
+  max-width: 70%;
+  display: flex;
+}
+
+.messageMe {
+  align-self: flex-end;
+}
+
+.messageOther {
+  align-self: flex-start;
+}
+
+.messageContent {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+.messageMe .messageContent {
+  background-color: var(--color-accent);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.messageOther .messageContent {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.messageTime {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+  display: block;
+}
+
+.inputArea {
+  padding: var(--spacing-6) var(--spacing-8);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.messageForm {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.messageInput {
+  flex: 1;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.messageInput:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+  .inboxContainer {
+    grid-template-columns: 1fr;
+  }
+  .chatThread {
+    display: none; /* Mobile pattern would use separate screen */
+  }
+}
