@@ -35,9 +35,9 @@ export default async function HomePage() {
               </div>
 
               <h1 id="hero-heading" className={styles.heroHeading}>
-                FIND.<br />
-                <span className={styles.heroAccent}>HIRE.</span><br />
-                SHOW UP.
+                FIND<span className={styles.yellowDot}>.</span><br />
+                <span className={styles.heroAccent}>HIRE<span className={styles.yellowDot}>.</span></span><br />
+                SHOW UP<span className={styles.yellowDot}>.</span>
               </h1>
 
               <p className={styles.heroBody}>

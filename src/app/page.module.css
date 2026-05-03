@@ -53,7 +53,13 @@
   white-space: pre-line;
 }
 
-.heroAccent { color: var(--color-green); }
+.heroAccent {
+  color: var(--color-green);
+}
+
+.yellowDot {
+  color: var(--color-yellow);
+}
 
 .heroBody {
   font-size: var(--text-large);

@@ -103,7 +103,7 @@
   right: 2px;
   width: 10px;
   height: 10px;
-  background-color: #00FF00;
+  background-color: var(--color-yellow);
   border: 2px solid var(--bg);
   border-radius: 50%;
 }
