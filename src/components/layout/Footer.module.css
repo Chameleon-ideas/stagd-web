@@ -93,21 +93,22 @@
   gap: var(--space-4);
 }
 
-.appBadge {
-  font-family: var(--font-mono);
-  font-size: var(--text-tag);
-  letter-spacing: var(--tracking-tag);
-  text-transform: uppercase;
-  color: var(--text);
-  border: 1px solid var(--border-color);
-  padding: var(--space-2) var(--space-4);
-  transition: all var(--duration-ui);
+.storeLink {
+  transition: opacity var(--duration-ui) var(--ease-expo), transform var(--duration-ui) var(--ease-expo);
+  display: flex;
+  align-items: center;
 }
 
-.appBadge:hover {
-  background: var(--color-ink);
-  color: var(--color-cream);
+.storeLink:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
 }
+
+.lightLogo { display: block; }
+.darkLogo { display: none; }
+
+[data-theme="dark"] .lightLogo { display: none; }
+[data-theme="dark"] .darkLogo { display: block; }
 
 @media (max-width: 1024px) {
   .top {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/utils';
@@ -11,7 +12,13 @@ export const metadata: Metadata = {
     'Find artists, book tickets, commission work. Stagd is where Karachi\'s independent creative scene shows up.',
 };
 
-export default function HomePage() {
+import { searchEvents } from '@/lib/api';
+import { formatPKR, formatDate } from '@/lib/utils';
+
+export default async function HomePage() {
+  const eventsData = await searchEvents({ per_page: 5 });
+  const realEvents = eventsData.data;
+
   return (
     <>
       <Header />
@@ -38,11 +45,13 @@ export default function HomePage() {
               </p>
 
               <div className={styles.heroCtas}>
-                <a href={APP_STORE_URL} className="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer" id="hero-ios">
-                  App Store
+                <a href={APP_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="hero-ios">
+                  <Image src="/stores/appstore-light.svg" alt="Download on App Store" width={135} height={40} className={styles.lightLogo} />
+                  <Image src="/stores/appstore-dark.svg" alt="Download on App Store" width={135} height={40} className={styles.darkLogo} />
                 </a>
-                <a href={PLAY_STORE_URL} className="btn btn-secondary btn-lg" target="_blank" rel="noopener noreferrer" id="hero-android">
-                  Play Store
+                <a href={PLAY_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="hero-android">
+                  <Image src="/stores/playstore-light.svg" alt="Get it on Google Play" width={135} height={40} className={styles.lightLogo} />
+                  <Image src="/stores/playstore-dark.svg" alt="Get it on Google Play" width={135} height={40} className={styles.darkLogo} />
                 </a>
               </div>
               <Link href="/explore" className={styles.heroExplore} id="hero-browse">
@@ -50,30 +59,35 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Newsstand grid — 3 event card previews */}
+            {/* Platform Collage — Discovery + Commissions + Events */}
             <div className={styles.heroRight} aria-hidden="true">
-              <div className={styles.newsstand}>
-                {DEMO_EVENTS.map((ev, i) => (
-                  <div
-                    key={i}
-                    className={`${styles.nsCard} ${i === 0 ? styles.nsCardFeatured : ''}`}
-                    style={{ '--card-bg': ev.color } as React.CSSProperties}
-                  >
-                    <div className={styles.nsCardInner}>
-                      <div className={styles.nsTop}>
-                        <span className={`chip chip-yellow`}>{ev.type}</span>
-                        <span className={styles.nsNum}>{ev.num}</span>
-                      </div>
-                      <div className={styles.nsBottom}>
-                        <p className={styles.nsMeta}>{ev.meta}</p>
-                        <p className={styles.nsTitle}>{ev.title}</p>
-                        <p className={styles.nsDate}>{ev.date}</p>
-                      </div>
-                    </div>
-                    {/* Diagonal stripe texture */}
-                    <div className={`${styles.nsStripe} stripe-light`} />
+              <div className={styles.collage}>
+                {/* Artist Peek */}
+                <div className={`${styles.collageCard} ${styles.artistPeek}`}>
+                  <Image src="/images/zainab_baloch.png" alt="Artist Profile" fill style={{ objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', color: '#fff' }}>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>Discovery</p>
+                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px' }}>Zainab Baloch</p>
                   </div>
-                ))}
+                </div>
+
+                {/* Event Peek */}
+                <div className={`${styles.collageCard} ${styles.eventPeek}`}>
+                  <Image src="/images/lyari.png" alt="Event" fill style={{ objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
+                    <span className="chip chip-yellow" style={{ fontSize: '9px' }}>Event</span>
+                  </div>
+                </div>
+
+                {/* Commission Peek */}
+                <div className={`${styles.collageCard} ${styles.commPeek}`}>
+                  <span className={styles.commLabel}>Commissions</span>
+                  <p className={styles.commTitle}>Riso Printing Vol. 3</p>
+                  <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>In progress</span>
+                    <div style={{ width: '8px', height: '8px', background: 'var(--color-yellow)', borderRadius: '50%' }} />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -178,15 +192,44 @@ export default function HomePage() {
                 </Link>
               </div>
               <div className={styles.pillarRight}>
-                <div className={styles.eventTypes}>
-                  {EVENT_TYPE_LIST.map(t => (
-                    <div
-                      key={t.label}
-                      className={`chip ${t.chipClass} ${styles.eventTypeChip}`}
-                    >
-                      {t.label}
-                    </div>
-                  ))}
+                <div className={styles.eventShowcase}>
+                  {realEvents.map((item) => {
+                    const ev = item.event;
+                    
+                    // Helper to map event types to design system chips
+                    const getChipClass = (type: string) => {
+                      const t = type.toLowerCase();
+                      if (t.includes('concert') || t.includes('gig')) return 'chip-concert';
+                      if (t.includes('workshop') || t.includes('class')) return 'chip-workshop';
+                      if (t.includes('gallery') || t.includes('exhibition')) return 'chip-exhibition';
+                      if (t.includes('market')) return 'chip-market';
+                      if (t.includes('talk') || t.includes('poetry')) return 'chip-talk';
+                      if (t.includes('film')) return 'chip-film';
+                      if (t.includes('dance')) return 'chip-dance';
+                      return 'chip-ink'; // Default
+                    };
+
+                    return (
+                      <Link key={ev.id} href={`/events/${ev.id}`} className={styles.eventShowcaseCard}>
+                        <div className={styles.eventShowcaseCover}>
+                          <Image 
+                            src={ev.cover_image_url || '/images/default-event.png'} 
+                            alt={ev.title}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className={styles.eventShowcaseImage}
+                          />
+                          <div className={styles.eventShowcaseTop}>
+                            <span className={`chip ${getChipClass(ev.event_type)}`}>{ev.event_type}</span>
+                          </div>
+                          <div className={styles.eventShowcaseBottom}>
+                            <span className={styles.eventShowcaseMeta}>{formatDate(ev.starts_at)}</span>
+                            <h4 className={styles.eventShowcaseTitle}>{ev.title}</h4>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -231,11 +274,13 @@ export default function HomePage() {
               Stagd is where Pakistan's independent creative scene shows up. Download the app and claim your space.
             </p>
             <div className={styles.finalBtns}>
-              <a href={APP_STORE_URL} className="btn btn-primary btn-xl" target="_blank" rel="noopener noreferrer" id="final-ios">
-                Download on App Store
+              <a href={APP_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="final-ios">
+                <Image src="/stores/appstore-light.svg" alt="Download on App Store" width={150} height={44} className={styles.lightLogo} />
+                <Image src="/stores/appstore-dark.svg" alt="Download on App Store" width={150} height={44} className={styles.darkLogo} />
               </a>
-              <a href={PLAY_STORE_URL} className="btn btn-secondary btn-xl" target="_blank" rel="noopener noreferrer" id="final-android">
-                Get it on Play Store
+              <a href={PLAY_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="final-android">
+                <Image src="/stores/playstore-light.svg" alt="Get it on Play Store" width={150} height={44} className={styles.lightLogo} />
+                <Image src="/stores/playstore-dark.svg" alt="Get it on Play Store" width={150} height={44} className={styles.darkLogo} />
               </a>
             </div>
           </div>
@@ -246,6 +291,8 @@ export default function HomePage() {
     </>
   );
 }
+
+/* ── Static demo data ─────────────────────────────────────── */
 
 /* ── Static demo data ─────────────────────────────────────── */
 

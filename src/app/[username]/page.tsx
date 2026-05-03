@@ -43,17 +43,26 @@ export default function ArtistPage({ params }: ArtistPageProps) {
 
   // ─── SCROLL SYNC: Vertical to Horizontal ───
   useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer || loading) return;
+
     const handleWheel = (e: WheelEvent) => {
-      if (scrollRef.current && window.innerWidth > 1024) {
-        // Prevent default vertical scroll and move horizontally
+      if (window.innerWidth > 768) {
+        // Force horizontal translation for all vertical input with hyper-velocity
         e.preventDefault();
-        scrollRef.current.scrollLeft += e.deltaY;
+        scrollContainer.scrollLeft += e.deltaY * 18;
       }
     };
 
+    // Listen on both container and window for absolute coverage
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
+    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      scrollContainer.removeEventListener('wheel', handleWheel);
+    };
+  }, [loading]); 
 
   if (loading) {
     return (
@@ -174,7 +183,7 @@ export default function ArtistPage({ params }: ArtistPageProps) {
           <Mail size={18} />
         </button>
         <button className={styles.hireBtn} onClick={() => setIsCommissionOpen(true)}>
-          Hire Artist
+          Hire
         </button>
       </div>
 

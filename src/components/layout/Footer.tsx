@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { StagdLogo } from './StagdLogo';
 import styles from './Footer.module.css';
 
@@ -39,12 +40,16 @@ export function Footer() {
         <div className={styles.bottom}>
           <div className={styles.legal}>
             <span>© {new Date().getFullYear()} STAGD</span>
-            <span className={styles.dot}>·</span>
-            <span>A CHAMELEON IDEAS PROJECT</span>
           </div>
           <div className={styles.appLinks}>
-            <a href="https://apps.apple.com/app/stagd" className={styles.appBadge}>App Store</a>
-            <a href="https://play.google.com/store/apps/stagd" className={styles.appBadge}>Play Store</a>
+            <a href="https://apps.apple.com/app/stagd" className={styles.storeLink} target="_blank" rel="noopener noreferrer">
+              <Image src="/stores/appstore-light.svg" alt="App Store" width={110} height={32} className={styles.lightLogo} />
+              <Image src="/stores/appstore-dark.svg" alt="App Store" width={110} height={32} className={styles.darkLogo} />
+            </a>
+            <a href="https://play.google.com/store/apps/stagd" className={styles.storeLink} target="_blank" rel="noopener noreferrer">
+              <Image src="/stores/playstore-light.svg" alt="Play Store" width={110} height={32} className={styles.lightLogo} />
+              <Image src="/stores/playstore-dark.svg" alt="Play Store" width={110} height={32} className={styles.darkLogo} />
+            </a>
           </div>
         </div>
       </div>
