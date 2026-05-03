@@ -35,13 +35,13 @@ export default async function HomePage() {
               </div>
 
               <h1 id="hero-heading" className={styles.heroHeading}>
-                Five nights<br />
-                <span className={styles.heroAccent}>worth</span><br />
-                showing up for.
+                FIND.<br />
+                <span className={styles.heroAccent}>HIRE.</span><br />
+                SHOW UP.
               </h1>
 
               <p className={styles.heroBody}>
-                Portfolios, commissions, and ticketing for independent artists in Pakistan — and the people who show up for them.
+                Pakistan's first platform for the creative class and everyone who believes in it.
               </p>
 
               <div className={styles.heroCtas}>
@@ -195,7 +195,7 @@ export default async function HomePage() {
                 <div className={styles.eventShowcase}>
                   {realEvents.map((item) => {
                     const ev = item.event;
-                    
+
                     // Helper to map event types to design system chips
                     const getChipClass = (type: string) => {
                       const t = type.toLowerCase();
@@ -212,8 +212,8 @@ export default async function HomePage() {
                     return (
                       <Link key={ev.id} href={`/events/${ev.id}`} className={styles.eventShowcaseCard}>
                         <div className={styles.eventShowcaseCover}>
-                          <Image 
-                            src={ev.cover_image_url || '/images/default-event.png'} 
+                          <Image
+                            src={ev.cover_image_url || '/images/default-event.png'}
                             alt={ev.title}
                             fill
                             style={{ objectFit: 'cover' }}
