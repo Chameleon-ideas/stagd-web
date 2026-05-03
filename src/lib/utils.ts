@@ -92,6 +92,8 @@ export function eventTypeLabel(type: EventType): string {
     workshop: 'Workshop',
     gallery: 'Gallery',
     spoken_word: 'Spoken Word',
+    exhibition: 'Exhibition',
+    talk: 'Talk',
     other: 'Event',
   };
   return map[type];
@@ -103,6 +105,8 @@ export function eventTypeBadgeClass(type: EventType): string {
     workshop: 'badge-workshop',
     gallery: 'badge-gallery',
     spoken_word: 'badge-poetry',
+    exhibition: 'badge-exhibition',
+    talk: 'badge-talk',
     other: 'badge-event-other',
   };
   return map[type];
@@ -114,6 +118,8 @@ export function eventTypeAccentVar(type: EventType): string {
     workshop: 'var(--color-workshop)',
     gallery: 'var(--color-gallery)',
     spoken_word: 'var(--color-poetry)',
+    exhibition: 'var(--color-gallery)', // Use gallery color for exhibition
+    talk: 'var(--color-workshop)', // Use workshop color for talks
     other: 'var(--color-other)',
   };
   return map[type];
