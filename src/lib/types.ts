@@ -9,7 +9,7 @@
 export type UserRole = 'creative' | 'general' | 'both';
 export type City = 'Karachi' | 'Lahore' | 'Islamabad';
 export type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
-export type EventType = 'concert' | 'workshop' | 'gallery' | 'spoken_word' | 'other';
+export type EventType = 'concert' | 'workshop' | 'gallery' | 'spoken_word' | 'exhibition' | 'talk' | 'other';
 export type EventStatus = 'draft' | 'live' | 'cancelled' | 'completed';
 export type CommissionStatus = 'enquiry' | 'in_discussion' | 'in_progress' | 'completed' | 'cancelled';
 export type ProposalStatus = 'pending' | 'accepted' | 'tweaking' | 'superseded';
