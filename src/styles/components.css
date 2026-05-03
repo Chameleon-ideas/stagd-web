@@ -33,7 +33,15 @@
 }
 
 .btn:active { transform: scale(0.97); }
-.btn:disabled { opacity: 0.4; pointer-events: none; }
+.btn:disabled { 
+  opacity: 0.5; 
+  pointer-events: none;
+  filter: grayscale(0.5);
+}
+
+[data-theme="dark"] .btn:disabled {
+  opacity: 0.6;
+}
 
 /* Sizes */
 .btn-sm  { height: 36px;  padding-inline: var(--space-4); font-size: 11px; }

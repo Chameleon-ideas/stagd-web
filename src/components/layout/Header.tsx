@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
+import { StagdLogo } from './StagdLogo';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -14,17 +14,9 @@ export function Header({ transparent = false }: HeaderProps) {
       className={`${styles.header} ${transparent ? styles.transparent : ''}`}
     >
       <div className={`container ${styles.inner}`}>
-        {/* Logo — real PNG from brand */}
+        {/* Logo — Dynamic SVG */}
         <Link href="/" className={styles.logo} aria-label="Stagd — Home">
-          <Image
-            src="/images/logo.png"
-            alt="Stagd"
-            width={120}
-            height={36}
-            priority
-            className={styles.logoImg}
-            style={{ width: 'auto', height: '28px' }}
-          />
+          <StagdLogo width={110} height={44} />
         </Link>
 
         {/* Nav */}

@@ -454,6 +454,27 @@
   gap: 2px;
 }
 
+.visualSerial {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-grey);
+  margin-top: var(--space-1);
+}
+
+.ticketVisualWatermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  font-family: var(--font-display);
+  font-size: 44px;
+  color: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0.2em;
+  z-index: 1;
+}
+
 .ticketVisualFooter {
   padding: var(--space-3) var(--space-4);
   font-family: var(--font-mono);

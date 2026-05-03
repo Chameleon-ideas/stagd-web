@@ -1,0 +1,30 @@
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.logoImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: filter var(--duration-ui) var(--ease-expo);
+}
+
+/* 
+  DYNAMIC THEME FILTER:
+  - In Light Mode, we need to flip the WHITE letters to BLACK.
+  - invert(1) turns White -> Black.
+  - However, invert(1) turns Yellow -> Blue.
+  - hue-rotate(180deg) turns Blue back to Yellow.
+  - This preserves the yellow 'e' while flipping the STAG and D characters.
+*/
+[data-theme="light"] .logoImage {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* In Dark Mode, we use the SVG as is (white text) */
+[data-theme="dark"] .logoImage {
+  filter: none;
+}

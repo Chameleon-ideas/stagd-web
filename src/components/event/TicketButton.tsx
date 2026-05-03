@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { TicketCheckout } from './TicketCheckout';
 import type { Event } from '@/lib/types';
 
@@ -12,9 +13,17 @@ interface TicketButtonProps {
 /**
  * TicketButton (Client Component)
  * Handles opening the purchase modal on the event page.
+ * Uses a Portal to ensure the modal is rendered at the root level, 
+ * preventing z-index and stacking context issues.
  */
 export function TicketButton({ event, className }: TicketButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   return (
     <>
@@ -26,11 +35,12 @@ export function TicketButton({ event, className }: TicketButtonProps) {
         {event.is_sold_out ? 'Sold Out' : 'Get Tickets'}
       </button>
 
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <TicketCheckout 
           event={event} 
           onClose={() => setIsOpen(false)} 
-        />
+        />,
+        document.body
       )}
     </>
   );

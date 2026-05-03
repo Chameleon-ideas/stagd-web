@@ -91,10 +91,135 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
     }
   };
 
-  const handleDownload = () => {
-    setShowVisual(true);
-    // In a real app, we'd use html2canvas or a PDF library here.
-    // For this demo, we'll show the designed ticket UI.
+  const handleDownload = async () => {
+    if (!ticketResult) return;
+    
+    // Create a hidden canvas to render the ticket
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set dimensions for a high-res ticket (800x1200)
+    canvas.width = 800;
+    canvas.height = 1200;
+
+    // Helper to load images for canvas
+    const loadImage = (src: string): Promise<HTMLImageElement> => {
+      return new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    };
+
+    try {
+      // 1. Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. Header
+      ctx.fillStyle = '#111111';
+      ctx.fillRect(0, 0, canvas.width, 100);
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.fillText('STAGD', 40, 60);
+      
+      ctx.font = '20px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`#${ticketResult.id.slice(-8).toUpperCase()}`, canvas.width - 40, 60);
+
+      // 3. Cover Image
+      const coverImg = await loadImage(event.cover_image_url || '');
+      const coverHeight = 450;
+      // Draw image to fit width, maintaining aspect ratio roughly
+      ctx.drawImage(coverImg, 0, 100, canvas.width, coverHeight);
+      
+      // 4. Content Area
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 48px sans-serif';
+      ctx.fillText(event.title.toUpperCase(), 40, 630);
+
+      // Details
+      ctx.font = '16px monospace';
+      ctx.fillStyle = '#666666';
+      ctx.fillText('DATE', 40, 690);
+      ctx.fillText('TIME', 300, 690);
+      
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillText(formatDate(event.starts_at), 40, 730);
+      ctx.fillText(formatTime(event.starts_at), 300, 730);
+
+      ctx.font = '16px monospace';
+      ctx.fillStyle = '#666666';
+      ctx.fillText('VENUE', 40, 800);
+      ctx.fillText('TIER', 300, 800);
+      
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillText(event.venue_name || '', 40, 840);
+      ctx.fillText(`${selectedTier.name} x ${quantity}`, 300, 840);
+
+      // Divider
+      ctx.strokeStyle = '#eeeeee';
+      ctx.setLineDash([10, 10]);
+      ctx.beginPath();
+      ctx.moveTo(40, 900);
+      ctx.lineTo(760, 900);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 5. QR Code & Buyer Info
+      const qrImg = await loadImage(ticketResult.qr);
+      ctx.drawImage(qrImg, 40, 940, 200, 200);
+
+      ctx.fillStyle = '#666666';
+      ctx.font = '16px monospace';
+      ctx.fillText('ADMIT ONE', 280, 980);
+      
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.fillText(formData.name, 280, 1030);
+      
+      ctx.fillStyle = '#999999';
+      ctx.font = '14px monospace';
+      ctx.fillText(`SER NO: ${ticketResult.id.slice(0, 8)}`, 280, 1070);
+
+      // Footer
+      ctx.fillStyle = '#eeeeee';
+      ctx.fillRect(0, 1150, canvas.width, 50);
+      ctx.fillStyle = '#666666';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('VALID FOR ONE-TIME ENTRY ONLY. NO REFUNDS. STAGD V1.0', canvas.width / 2, 1180);
+
+      // Trigger Download using Data URL (often more reliable for filenames in some browsers)
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `stagd-ticket-${ticketResult.id.slice(-8).toLowerCase()}.png`;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+      
+    } catch (err) {
+      console.error('Download failed:', err);
+      // If it's a security error (tainted canvas), explain why
+      if (err instanceof Error && (err.name === 'SecurityError' || err.message.includes('tainted'))) {
+        alert('Could not download image due to security restrictions on the event photo. Please take a screenshot or use the print option.');
+      } else {
+        alert('Download failed. Please try again or use the print option.');
+      }
+    }
   };
 
   return (
@@ -244,7 +369,13 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
                 <div className={styles.qrWrapper}>
                   <div className={styles.qrContainer}>
-                    <Image src={ticketResult.qr} alt="Ticket QR Code" fill className={styles.qrImg} />
+                    <Image 
+                      src={ticketResult.qr} 
+                      alt="Ticket QR Code" 
+                      fill 
+                      unoptimized 
+                      className={styles.qrImg} 
+                    />
                   </div>
                   <span className={styles.ticketId}>{ticketResult.id}</span>
                 </div>
@@ -271,13 +402,14 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
             <div className={styles.ticketVisualInner}>
               <div className={styles.ticketVisualTop}>
                 <div className={styles.ticketVisualBrand}>STAGD</div>
-                <div className={styles.ticketVisualId}>{ticketResult?.id}</div>
+                <div className={styles.ticketVisualId}>#{ticketResult?.id.slice(-8).toUpperCase()}</div>
               </div>
 
               <div className={styles.ticketVisualImage}>
                 <Image src={event.cover_image_url} alt="" fill className={styles.img} />
                 <div className={styles.editorialGradient} />
                 <div className={styles.ticketVisualType}>{event.event_type}</div>
+                <div className={styles.ticketVisualWatermark}>OFFICIAL PASS</div>
               </div>
 
               <div className={styles.ticketVisualInfo}>
@@ -309,11 +441,17 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
                 <div className={styles.ticketVisualQrRow}>
                   <div className={styles.visualQr}>
-                    <Image src={ticketResult?.qr || ''} alt="QR" fill />
+                    <Image 
+                      src={ticketResult?.qr || ''} 
+                      alt="QR" 
+                      fill 
+                      unoptimized 
+                    />
                   </div>
                   <div className={styles.visualBuyer}>
                     <span className={styles.visualLabel}>Admit One</span>
                     <span className={styles.visualValue}>{formData.name}</span>
+                    <span className={styles.visualSerial}>SER NO: {ticketResult?.id.slice(0, 8)}</span>
                   </div>
                 </div>
               </div>
@@ -324,8 +462,8 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
             </div>
             
             <div className={styles.visualActions}>
-              <button className="btn btn-primary btn-md" onClick={() => window.print()}>
-                Print Ticket
+              <button className="btn btn-primary btn-md" onClick={handleDownload}>
+                Download Ticket
               </button>
               <button className={styles.backBtn} onClick={() => setShowVisual(false)}>
                 Back

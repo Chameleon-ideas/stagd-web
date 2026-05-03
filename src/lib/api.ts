@@ -181,6 +181,19 @@ export async function purchaseTicket(
     payment_token?: string;
   },
 ): Promise<{ ticket_id: string; qr_url: string; total_paid: number }> {
+  if (MOCK_ENABLED) {
+    const ticket_id = `TKT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    
+    // Bypassing QRFY for now as requested, using a simple QR generator
+    const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticket_id}`;
+
+    return {
+      ticket_id,
+      qr_url,
+      total_paid: 1500 * payload.quantity
+    };
+  }
+
   return apiFetch(`/events/${eventId}/tickets/purchase`, {
     method: 'POST',
     body: JSON.stringify(payload),

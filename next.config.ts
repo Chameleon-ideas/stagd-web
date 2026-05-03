@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
+
   images: {
     remotePatterns: [
       // Supabase Storage (artist photos, portfolio images, event covers)
@@ -18,6 +22,22 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      // QR Code Generators
+      {
+        protocol: "https",
+        hostname: "api.qrserver.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.qrfy.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "qrfy.com",
+        pathname: "/**",
       },
     ],
     formats: ["image/webp"],
