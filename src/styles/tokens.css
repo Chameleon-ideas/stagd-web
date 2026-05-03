@@ -54,8 +54,8 @@
   --text-tag:      10px;                       /* Chips, status stamps */
 
   /* ── Typography: Line Heights ────────────────────────── */
-  --leading-tight:  1.05;
-  --leading-snug:   1.2;
+  --leading-tight:  0.85;   /* Display headings — brand spec */
+  --leading-snug:   0.95;   /* Subheads / Card titles */
   --leading-normal: 1.65;   /* Body — brand spec */
   --leading-loose:  1.8;
 
