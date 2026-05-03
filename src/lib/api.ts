@@ -294,6 +294,7 @@ export async function searchArtists(params?: {
         user: a.user,
         profile: a.profile,
         review_average: a.review_average,
+        review_count: a.review_count,
         project_count: a.project_count,
       })),
       total: artists.length,
