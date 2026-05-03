@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Anton, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 import { ThemeProvider } from '@/lib/theme';
