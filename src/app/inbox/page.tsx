@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -83,7 +83,7 @@ function ProposalCard({ proposal, onAccept, onRevise }: { proposal: any, onAccep
   );
 }
 
-export default function InboxPage() {
+function InboxClient() {
   const searchParams = useSearchParams();
   const withUser = searchParams.get('with');
   
@@ -102,95 +102,107 @@ export default function InboxPage() {
   const messages = MOCK_MESSAGES[selectedChat.id] || [];
 
   return (
+    <div className={styles.inboxContainer}>
+      {/* ─── SIDEBAR ─────────────────────── */}
+      <div className={styles.chatList}>
+        <div className={styles.panelHeader}>
+          <h1>Inbox</h1>
+          <div className={styles.searchWrapper}>
+            <input type="text" placeholder="Search conversations..." className={styles.searchInput} />
+          </div>
+        </div>
+        
+        <div className={styles.chatItems}>
+          {MOCK_CHATS.map(chat => (
+            <button
+              key={chat.id}
+              className={`${styles.chatItem} ${selectedChat.id === chat.id ? styles.chatItemActive : ''}`}
+              onClick={() => setSelectedChat(chat)}
+            >
+              <img src={chat.avatar} alt={chat.name} className={styles.avatar} />
+              <div className={styles.chatMeta}>
+                <div className={styles.chatTop}>
+                  <span className={styles.chatName}>{chat.name}</span>
+                  <span className={styles.chatTime}>{chat.time}</span>
+                </div>
+                <p className={styles.lastMessage}>{chat.lastMessage}</p>
+              </div>
+              {chat.unread > 0 && <span className={styles.unreadBadge}>{chat.unread}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── THREAD ──────────────────── */}
+      <div className={styles.chatThread}>
+        <div className={styles.threadHeader}>
+          <div className={styles.threadInfo}>
+            <img src={selectedChat.avatar} alt={selectedChat.name} className={styles.avatarSm} />
+            <div>
+              <h2>{selectedChat.name}</h2>
+              <span className={styles.status}>{selectedChat.status}</span>
+            </div>
+          </div>
+          <div className={styles.threadActions}>
+            <button className="btn btn-secondary btn-sm" style={{ padding: '8px 16px' }}>View Profile</button>
+          </div>
+        </div>
+
+        <div className={styles.messages}>
+          <div className={styles.dateDivider}>
+            <span>May 03, 2026</span>
+          </div>
+
+          {messages.map(msg => (
+            <div key={msg.id} className={`${styles.message} ${msg.sender === 'me' ? styles.messageMe : styles.messageOther}`}>
+              {msg.type === 'proposal' ? (
+                <ProposalCard proposal={msg} />
+              ) : (
+                <>
+                  <div className={styles.messageContent}>
+                    <p>{msg.text}</p>
+                  </div>
+                  <span className={styles.messageTime}>{msg.time}</span>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.inputArea}>
+          <form className={styles.messageForm} onSubmit={(e) => { e.preventDefault(); setMessage(''); }}>
+            <button type="button" className="btn btn-icon" style={{ padding: '0 12px' }}>
+              <Paperclip size={20} />
+            </button>
+            <input
+              type="text"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className={styles.messageInput}
+            />
+            <button type="submit" className="btn btn-accent btn-md" style={{ width: '100px' }}>Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function InboxPage() {
+  return (
     <>
       <Header />
       <main className={styles.inboxPage}>
-        <div className={styles.inboxContainer}>
-          
-          {/* ─── SIDEBAR ─────────────────────── */}
-          <div className={styles.chatList}>
-            <div className={styles.panelHeader}>
-              <h1>Inbox</h1>
-              <div className={styles.searchWrapper}>
-                <input type="text" placeholder="Search conversations..." className={styles.searchInput} />
-              </div>
-            </div>
-            
-            <div className={styles.chatItems}>
-              {MOCK_CHATS.map(chat => (
-                <button
-                  key={chat.id}
-                  className={`${styles.chatItem} ${selectedChat.id === chat.id ? styles.chatItemActive : ''}`}
-                  onClick={() => setSelectedChat(chat)}
-                >
-                  <img src={chat.avatar} alt={chat.name} className={styles.avatar} />
-                  <div className={styles.chatMeta}>
-                    <div className={styles.chatTop}>
-                      <span className={styles.chatName}>{chat.name}</span>
-                      <span className={styles.chatTime}>{chat.time}</span>
-                    </div>
-                    <p className={styles.lastMessage}>{chat.lastMessage}</p>
-                  </div>
-                  {chat.unread > 0 && <span className={styles.unreadBadge}>{chat.unread}</span>}
-                </button>
-              ))}
-            </div>
+        <Suspense fallback={
+          <div className={styles.inboxContainer} style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ color: 'var(--text-faint)', fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>
+              Hydrating secure thread...
+            </p>
           </div>
-
-          {/* ─── THREAD ──────────────────── */}
-          <div className={styles.chatThread}>
-            <div className={styles.threadHeader}>
-              <div className={styles.threadInfo}>
-                <img src={selectedChat.avatar} alt={selectedChat.name} className={styles.avatarSm} />
-                <div>
-                  <h2>{selectedChat.name}</h2>
-                  <span className={styles.status}>{selectedChat.status}</span>
-                </div>
-              </div>
-              <div className={styles.threadActions}>
-                <button className="btn btn-secondary btn-sm" style={{ padding: '8px 16px' }}>View Profile</button>
-              </div>
-            </div>
-
-            <div className={styles.messages}>
-              <div className={styles.dateDivider}>
-                <span>May 03, 2026</span>
-              </div>
-
-              {messages.map(msg => (
-                <div key={msg.id} className={`${styles.message} ${msg.sender === 'me' ? styles.messageMe : styles.messageOther}`}>
-                  {msg.type === 'proposal' ? (
-                    <ProposalCard proposal={msg} />
-                  ) : (
-                    <>
-                      <div className={styles.messageContent}>
-                        <p>{msg.text}</p>
-                      </div>
-                      <span className={styles.messageTime}>{msg.time}</span>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className={styles.inputArea}>
-              <form className={styles.messageForm} onSubmit={(e) => { e.preventDefault(); setMessage(''); }}>
-                <button type="button" className="btn btn-icon" style={{ padding: '0 12px' }}>
-                  <Paperclip size={20} />
-                </button>
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className={styles.messageInput}
-                />
-                <button type="submit" className="btn btn-accent btn-md" style={{ width: '100px' }}>Send</button>
-              </form>
-            </div>
-          </div>
-
-        </div>
+        }>
+          <InboxClient />
+        </Suspense>
       </main>
       <Footer />
     </>
