@@ -252,7 +252,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                 
                 <div className={styles.eventSummary}>
                   <div className={styles.eventThumb}>
-                    <Image src={event.cover_image_url} alt="" fill className={styles.img} />
+                    <Image src={event.cover_image_url ?? ""} alt="" fill className={styles.img} />
                   </div>
                   <div className={styles.eventInfo}>
                     <span className={styles.eventTitle}>{event.title}</span>
@@ -406,7 +406,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
               </div>
 
               <div className={styles.ticketVisualImage}>
-                <Image src={event.cover_image_url} alt="" fill className={styles.img} />
+                <Image src={event.cover_image_url ?? ""} alt="" fill className={styles.img} />
                 <div className={styles.editorialGradient} />
                 <div className={styles.ticketVisualType}>{event.event_type}</div>
                 <div className={styles.ticketVisualWatermark}>OFFICIAL PASS</div>
