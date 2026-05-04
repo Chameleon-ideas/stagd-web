@@ -50,9 +50,9 @@
 .sidebarTitle {
   font-family: var(--font-display);
   font-size: 82px;
-  line-height: 0.8;
+  line-height: 1;
   margin: 0 0 var(--space-4);
-  letter-spacing: -0.04em;
+  letter-spacing: normal;
   color: var(--text);
   text-transform: uppercase;
 }
@@ -370,7 +370,7 @@
 .cardCyan { background-color: var(--color-cyan); color: var(--color-ink); }
 .cardNeutral { background-color: var(--bg-surface); color: var(--text); }
 
-.cardTitle { font-family: var(--font-display); font-size: 32px; text-transform: uppercase; line-height: 0.8; letter-spacing: -0.04em; }
+.cardTitle { font-family: var(--font-display); font-size: 32px; text-transform: uppercase; line-height: 1; letter-spacing: normal; }
 
 .cardReveal {
   opacity: 0;

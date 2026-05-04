@@ -25,10 +25,12 @@
 
   /* ── Semantic aliases (light mode) ───────────────────── */
   --bg:           var(--color-cream);
+  --bg-rgb:       255, 255, 255;
   --bg-surface:   var(--color-paper);
   --bg-raised:    var(--color-newsprint);
   --text:         var(--color-ink);
   --text-muted:   var(--color-grey);
+  --text-accent:  #B89000;   /* High-contrast gold for light mode accessibility */
   --text-faint:   #999390;
   --grid-color:   rgba(17, 17, 17, 0.04);
 
@@ -149,10 +151,12 @@
 /* ── Dark Mode ──────────────────────────────────────────── */
 [data-theme="dark"] {
   --bg:         var(--color-ink);
+  --bg-rgb:     17, 17, 17;
   --bg-surface: #1A1A1A;
   --bg-raised:  #222222;
   --text:       #F4F1E6;
   --text-muted: #BDB7B3;
+  --text-accent: var(--color-yellow); /* Signal yellow is fine on dark bg */
   --text-faint: #8E8884;
   --border-color: rgba(244, 241, 230, 0.22);
   --grid-color:   rgba(244, 241, 230, 0.03);

@@ -25,18 +25,43 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   text-decoration: none;
+  box-shadow: 4px 4px 0 var(--color-ink);
   transition:
-    background-color var(--duration-ui) var(--ease-expo),
-    color var(--duration-ui) var(--ease-expo),
-    border-color var(--duration-ui) var(--ease-expo),
-    transform var(--duration-ui) var(--ease-expo);
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.btn:active { transform: scale(0.97); }
+[data-theme="dark"] .btn {
+  box-shadow: 4px 4px 0 var(--color-cream);
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .btn:hover {
+  box-shadow: 6px 6px 0 var(--color-cream);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .btn:active {
+  box-shadow: 2px 2px 0 var(--color-cream);
+}
+
 .btn:disabled { 
   opacity: 0.5; 
   pointer-events: none;
   filter: grayscale(0.5);
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 [data-theme="dark"] .btn:disabled {
@@ -64,24 +89,35 @@
 }
 
 .btn-primary:hover {
-  background-color: #222222;
-  border-color: #222222;
+  background-color: var(--color-green);
+  border-color: var(--color-green);
 }
 
 [data-theme="dark"] .btn-primary:hover {
-  background-color: var(--color-paper);
-  border-color: var(--color-paper);
+  background-color: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-white);
 }
 
-/* Accent — Signal Yellow fill, Ink Black text */
+/* Accent — Transparent default, Signal Yellow on hover */
 .btn-accent {
+  background-color: transparent;
+  color: var(--text);
+  border-color: var(--color-ink);
+}
+
+[data-theme="dark"] .btn-accent {
+  border-color: var(--color-cream);
+}
+
+.btn-accent:hover {
   background-color: var(--color-yellow);
   color: var(--color-ink);
-  border-color: var(--color-yellow);
+  border-color: var(--color-ink);
 }
-.btn-accent:hover {
-  background-color: var(--color-yellow-dark);
-  border-color: var(--color-yellow-dark);
+
+[data-theme="dark"] .btn-accent:hover {
+  border-color: var(--color-yellow);
 }
 
 /* Secondary — outlined */
@@ -92,6 +128,63 @@
 }
 .btn-secondary:hover {
   background-color: var(--bg-surface);
+}
+
+/* Outline Green — transparent default, solid green on hover */
+.btn-outline-green {
+  background-color: transparent;
+  color: var(--text);
+  border-color: var(--border-color);
+}
+.btn-outline-green:hover {
+  background-color: var(--color-green);
+  color: var(--color-white);
+  border-color: var(--color-green);
+}
+
+/* Outline Green — transparent default, solid green on hover */
+.btn-outline-green {
+  background-color: transparent;
+  color: var(--text);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .btn-outline-green {
+  border-color: var(--color-cream);
+}
+.btn-outline-green:hover {
+  background-color: var(--color-green) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-green) !important;
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+[data-theme="dark"] .btn-outline-green:hover {
+  box-shadow: 6px 6px 0 var(--color-cream);
+}
+
+/* Contrast Green — solid cream in light mode, solid ink in dark mode, green on hover */
+.btn-contrast-green {
+  background-color: var(--bg-surface);
+  color: var(--text);
+  border-color: var(--color-ink);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .btn-contrast-green {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+  border-color: var(--color-cream);
+  box-shadow: 4px 4px 0 var(--color-cream);
+}
+
+.btn-contrast-green:hover {
+  background-color: var(--color-green) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-green) !important;
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .btn-contrast-green:hover {
+  box-shadow: 6px 6px 0 var(--color-cream);
 }
 
 /* Ghost — text only */

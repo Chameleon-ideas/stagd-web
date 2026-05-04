@@ -2,16 +2,12 @@
   position: sticky;
   top: 0;
   z-index: var(--z-dropdown);
-  background: var(--bg);
+  background: rgba(var(--bg-rgb), 0.85);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
-  border-bottom-color: rgba(17, 17, 17, 0.1);
   transition:
     background-color var(--duration-page) var(--ease-expo),
     border-color var(--duration-page) var(--ease-expo);
-}
-
-[data-theme="dark"] .header {
-  border-bottom-color: rgba(244, 241, 230, 0.08);
 }
 
 .header.transparent {
@@ -51,28 +47,79 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: var(--space-2);
   margin-left: var(--space-4);
+}
+
+.liveStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border-right: 1px solid var(--border-color);
+  margin-right: var(--space-2);
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-yellow);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+.statusText {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
 }
 
 .navLink {
   font-family: var(--font-mono);
-  font-size: var(--text-tag);
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: var(--tracking-tag);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: var(--space-2) var(--space-4);
-  transition: color var(--duration-ui);
+  padding: var(--space-2) var(--space-3);
+  transition: all var(--duration-ui);
+  position: relative;
 }
 
-.navLink:hover { color: var(--text); }
+.navLink:hover { 
+  color: var(--text);
+  transform: translateY(-1px);
+}
 
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-6);
   margin-left: auto;
+}
+
+.headerMeta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+}
+
+.cta {
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.05em;
 }
 
 @media (max-width: 640px) {

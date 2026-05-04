@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 import { searchEvents } from '@/lib/api';
 import { EditorialLayout } from '@/components/layout/EditorialLayout';
 import { formatDate } from '@/lib/utils';
+import { HeroMarquee } from '@/components/home/HeroMarquee';
 
 export default async function HomePage() {
   const eventsData = await searchEvents({ per_page: 5 });
@@ -22,71 +23,46 @@ export default async function HomePage() {
     <EditorialLayout>
       <main id="main-content" className={styles.gridBackground}>
 
-        {/* ─── HERO ──────────────────────────────────────────── */}
         <section className={styles.hero} aria-labelledby="hero-heading">
-          <div className={`container ${styles.heroInner}`}>
+          <div className={`container ${styles.heroLayout}`}>
 
-            <div className={styles.heroLeft}>
-              <div className={styles.heroLabel}>
-                <span className={`chip chip-yellow ${styles.nowLive}`}>KHI · Now live</span>
-                <span className={styles.heroMeta}>Vol 01</span>
+
+            <div className={styles.heroContent}>
+              <div className={styles.heroHeader}>
+                <div className={styles.heroTopMeta}>
+                  <span className={styles.liveBadge}>KHI · NOW LIVE</span>
+                  <span className={styles.volText}>VOL 01</span>
+                </div>
+                <h1 id="hero-heading" className={styles.heroHeading}>
+                  FIND.<br />
+                  <span className={styles.heroAccent}>HIRE</span>.<br />
+                  SHOW UP.
+                </h1>
               </div>
-
-              <h1 id="hero-heading" className={styles.heroHeading}>
-                FIND<span className={styles.yellowDot}>.</span><br />
-                <span className={styles.heroAccent}>HIRE<span className={styles.yellowDot}>.</span></span><br />
-                SHOW UP<span className={styles.yellowDot}>.</span>
-              </h1>
 
               <p className={styles.heroBody}>
                 Pakistan's first platform for the creative class and everyone who believes in it.
               </p>
 
-              <div className={styles.heroCtas}>
-                <a href={APP_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="hero-ios">
-                  <Image src="/stores/appstore-light.svg" alt="Download on App Store" width={135} height={40} className={styles.lightLogo} />
-                  <Image src="/stores/appstore-dark.svg" alt="Download on App Store" width={135} height={40} className={styles.darkLogo} />
-                </a>
-                <a href={PLAY_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="hero-android">
-                  <Image src="/stores/playstore-light.svg" alt="Get it on Google Play" width={135} height={40} className={styles.lightLogo} />
-                  <Image src="/stores/playstore-dark.svg" alt="Get it on Google Play" width={135} height={40} className={styles.darkLogo} />
-                </a>
+              <div className={styles.heroActions}>
+                <Link href="/explore" className="btn btn-accent btn-lg" id="hero-browse">
+                  Explore Registry →
+                </Link>
+                <div className={styles.heroStoreLinks}>
+                  <a href={APP_STORE_URL} className={styles.miniStoreLink} target="_blank" rel="noopener noreferrer">
+                    <Image src="/stores/appstore-light.svg" alt="App Store" width={100} height={30} className={styles.lightLogo} />
+                    <Image src="/stores/appstore-dark.svg" alt="App Store" width={100} height={30} className={styles.darkLogo} />
+                  </a>
+                  <a href={PLAY_STORE_URL} className={styles.miniStoreLink} target="_blank" rel="noopener noreferrer">
+                    <Image src="/stores/playstore-light.svg" alt="Play Store" width={100} height={30} className={styles.lightLogo} />
+                    <Image src="/stores/playstore-dark.svg" alt="Play Store" width={100} height={30} className={styles.darkLogo} />
+                  </a>
+                </div>
               </div>
-              <Link href="/explore" className={styles.heroExplore} id="hero-browse">
-                Browse artists →
-              </Link>
             </div>
 
-            {/* Platform Collage — Discovery + Commissions + Events */}
-            <div className={styles.heroRight} aria-hidden="true">
-              <div className={styles.collage}>
-                {/* Artist Peek */}
-                <div className={`${styles.collageCard} ${styles.artistPeek}`}>
-                  <Image src="/images/zoya_portrait.png" alt="Zoya Khan" fill style={{ objectFit: 'cover' }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', color: '#fff' }}>
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>Discovery</p>
-                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px' }}>Zoya Khan</p>
-                  </div>
-                </div>
-
-                {/* Event Peek */}
-                <div className={`${styles.collageCard} ${styles.eventPeek}`}>
-                  <Image src="/images/osman_project.png" alt="Event" fill style={{ objectFit: 'cover' }} />
-                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                    <span className="chip chip-yellow" style={{ fontSize: '9px' }}>Event</span>
-                  </div>
-                </div>
-
-                {/* Commission Peek */}
-                <div className={`${styles.collageCard} ${styles.commPeek}`}>
-                  <span className={styles.commLabel}>Commissions</span>
-                  <p className={styles.commTitle}>Modern Qalam Mural</p>
-                  <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>In progress</span>
-                    <div style={{ width: '8px', height: '8px', background: 'var(--color-yellow)', borderRadius: '50%' }} />
-                  </div>
-                </div>
-              </div>
+            <div className={styles.heroVisual} aria-hidden="true">
+              <HeroMarquee />
             </div>
 
           </div>
@@ -97,7 +73,7 @@ export default async function HomePage() {
           <div className="container">
             <div className={styles.claimInner}>
               <div className={styles.claimLeft}>
-                <span className="section-label text-tag text-muted">For creatives</span>
+                <span className={styles.sectionMeta}>// CREATOR INITIATIVE</span>
                 <h2 className={styles.claimHeading}>
                   Your work.<br />Your URL.<br />
                   <span className={styles.claimUrl}>stagd.app/yourname</span>
@@ -119,7 +95,7 @@ export default async function HomePage() {
         <section className={styles.pillars} aria-labelledby="pillars-heading">
           <div className="container">
             <div className={styles.pillarsHeader}>
-              <span className="text-tag font-mono text-muted" style={{ letterSpacing: 'var(--tracking-tag)', textTransform: 'uppercase' }}>What Stagd does</span>
+              <span className={styles.sectionMeta}>// THE INFRASTRUCTURE</span>
               <h2 id="pillars-heading" className={styles.pillarsHeading}>Three things.<br />Done properly.</h2>
             </div>
 
@@ -235,18 +211,18 @@ export default async function HomePage() {
         </section>
 
         {/* ─── FOR ORGANISERS — full-width stripe ───────────── */}
-        <section className={`${styles.organisers} stripe-dark`} aria-labelledby="org-heading">
+        <section className={`${styles.organisers} stripe-dark`} data-theme="dark" aria-labelledby="org-heading">
           <div className="container">
             <div className={styles.organisersInner}>
               <div className={styles.organisersLeft}>
-                <span className="text-tag font-mono text-muted" style={{ letterSpacing: 'var(--tracking-tag)', textTransform: 'uppercase' }}>For organisers</span>
+                <span className={styles.sectionMeta}>// ORGANISER TOOLS</span>
                 <h2 id="org-heading" className={styles.orgHeading}>
                   Sell tickets<br />before the night.
                 </h2>
                 <p className={styles.orgBody}>
                   Create your event. Set ticket tiers. Share the poster. Stagd generates QR codes, runs Safepay checkout, and gives your door staff a phone scanner — no app download required.
                 </p>
-                <a href={APP_STORE_URL} className="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer" id="org-cta">
+                <a href={APP_STORE_URL} className="btn btn-secondary btn-md" target="_blank" rel="noopener noreferrer" id="org-cta">
                   Set up your first event
                 </a>
               </div>
@@ -265,20 +241,12 @@ export default async function HomePage() {
         {/* ─── FINAL CTA ────────────────────────────────────── */}
         <section className={styles.finalCta} aria-labelledby="final-heading">
           <div className="container">
-            <h2 id="final-heading" className={styles.finalHeading}>
-              Build something<br />worth discovering.
-            </h2>
-            <p className={styles.finalBody}>
-              Stagd is where Pakistan's independent creative scene shows up. Download the app and claim your space.
-            </p>
-            <div className={styles.finalBtns}>
-              <a href={APP_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="final-ios">
-                <Image src="/stores/appstore-light.svg" alt="Download on App Store" width={150} height={44} className={styles.lightLogo} />
-                <Image src="/stores/appstore-dark.svg" alt="Download on App Store" width={150} height={44} className={styles.darkLogo} />
-              </a>
-              <a href={PLAY_STORE_URL} className={styles.storeLink} target="_blank" rel="noopener noreferrer" id="final-android">
-                <Image src="/stores/playstore-light.svg" alt="Get it on Play Store" width={150} height={44} className={styles.lightLogo} />
-                <Image src="/stores/playstore-dark.svg" alt="Get it on Play Store" width={150} height={44} className={styles.darkLogo} />
+            <div className={styles.finalCtaInner}>
+              <h2 id="final-heading" className={styles.finalHeading}>
+                READY TO LEVEL UP?
+              </h2>
+              <a href={APP_STORE_URL} className="btn btn-contrast-green btn-lg" target="_blank" rel="noopener noreferrer">
+                Join the community
               </a>
             </div>
           </div>

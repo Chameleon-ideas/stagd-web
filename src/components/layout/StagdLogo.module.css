@@ -21,10 +21,11 @@
   - This preserves the yellow 'e' while flipping the STAG and D characters.
 */
 [data-theme="light"] .logoImage {
+  /* Flip white wordmark text to black for light mode */
   filter: invert(1) hue-rotate(180deg);
 }
 
-/* In Dark Mode, we use the SVG as is (white text) */
 [data-theme="dark"] .logoImage {
+  /* Maintain native white wordmark for dark mode visibility */
   filter: none;
 }

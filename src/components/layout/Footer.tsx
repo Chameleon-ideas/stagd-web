@@ -15,17 +15,19 @@ export function Footer() {
           <span className={styles.navHeader}>(FOLLOW)</span>
           <a href="https://instagram.com" className={styles.navLink}>Instagram</a>
           <a href="https://linkedin.com" className={styles.navLink}>Linkedin</a>
-          <a href="https://behance.net" className={styles.navLink}>Behance</a>
           <a href="mailto:hello@stagd.app" className={styles.navLink}>Email</a>
         </div>
 
         <div className={styles.navGroup}>
           <span className={styles.navHeader}>(NAVIGATION)</span>
-          <Link href="/" className={styles.navLink}>Home</Link>
+          <div className={styles.navRow}>
+            <Link href="/" className={styles.navLink}>Home</Link>
+            <button onClick={scrollToTop} className={styles.backToTop}>
+              Back to Top
+            </button>
+          </div>
           <Link href="/explore" className={styles.navLink}>Explore</Link>
-          <button onClick={scrollToTop} className={styles.backToTop}>
-            Back to Top
-          </button>
+          <Link href="/about" className={styles.navLink}>About</Link>
         </div>
 
         <div className={styles.navGroup} style={{ alignItems: 'flex-end' }}>
@@ -44,8 +46,13 @@ export function Footer() {
       </div>
 
       <div className={styles.ticker}>
-        <div className={styles.tickerText}>
-          Let's Talk Let's Talk Let's Talk Let's Talk Let's Talk Let's Talk
+        <div className={styles.tickerTrack}>
+          <div className={styles.tickerText}>
+            FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP •
+          </div>
+          <div className={styles.tickerText} aria-hidden="true">
+            FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP •
+          </div>
         </div>
       </div>
 
@@ -64,8 +71,8 @@ export function Footer() {
         </div>
 
         <div className={styles.copyright}>
-          ©{new Date().getFullYear()}<br />
-          ALL RIGHTS RESERVED
+          © {new Date().getFullYear()} ALL RIGHTS RESERVED<br />
+
         </div>
       </div>
     </footer>

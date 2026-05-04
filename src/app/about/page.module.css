@@ -1,0 +1,209 @@
+.aboutPage {
+  background-color: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* Hero Section */
+.hero {
+  padding: var(--space-32) 0;
+  border-bottom: 1px solid var(--border-color);
+  background-image: 
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.heroMeta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-accent);
+  letter-spacing: 0.2em;
+  margin-bottom: var(--space-8);
+}
+
+.heroStatement {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 10vw, 120px);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-8);
+  color: var(--text);
+}
+
+.heroLead {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: 32px;
+  color: var(--text);
+  margin-bottom: var(--space-8);
+  letter-spacing: -0.02em;
+}
+
+.heroBody {
+  font-family: var(--font-body);
+  font-size: 20px;
+  max-width: 720px;
+  line-height: 1.6;
+  color: var(--text);
+  border-left: 4px solid var(--color-yellow);
+  padding-left: var(--space-6);
+}
+
+/* Manifesto Section */
+.manifesto {
+  padding: var(--space-32) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.manifestoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-px);
+  background-color: var(--border-color);
+}
+
+.manifestoCard {
+  padding: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  transition: all 0.3s var(--ease-expo);
+  border-radius: 0;
+  min-height: 400px;
+}
+
+.cardGreen { background-color: var(--color-green); color: var(--color-ink); }
+.cardCyan { background-color: var(--color-cyan); color: var(--color-ink); }
+.cardRed { background-color: var(--color-red); color: white; }
+
+.cardGreen .cardNum, .cardCyan .cardNum { color: var(--color-ink); opacity: 0.6; }
+.cardRed .cardNum { color: white; opacity: 0.6; }
+
+.cardNum {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-yellow);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.cardBody {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  margin-top: auto;
+}
+
+/* Vision Section */
+.vision {
+  padding: var(--space-32) 0;
+  background-color: var(--color-ink);
+  color: white;
+}
+
+.visionSplit {
+  display: flex;
+  gap: var(--space-20);
+  align-items: flex-start;
+}
+
+.visionLeft {
+  flex: 1.2;
+}
+
+.visionRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.visionMeta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-accent);
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-4);
+}
+
+.visionHeading {
+  font-family: var(--font-display);
+  font-size: 72px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  color: white;
+}
+
+.visionBody {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  opacity: 0.9;
+}
+
+/* CTA Section */
+.ctaSection {
+  padding: var(--space-8) 0;
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+  border-top: 1px solid var(--border-color);
+}
+
+.ctaBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.ctaHeading {
+  font-family: var(--font-display);
+  font-size: 32px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.ctaPrimary {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-decoration: none;
+  border: 1px solid var(--color-ink);
+  padding: 10px 24px;
+  transition: all 0.2s var(--ease-expo);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.ctaPrimary:hover {
+  background-color: var(--color-ink);
+  color: var(--color-yellow);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .manifestoGrid { grid-template-columns: 1fr; }
+  .visionSplit { flex-direction: column; }
+  .ctaBox { flex-direction: column; align-items: flex-start; }
+  .ctaActions { align-items: flex-start; text-align: left; }
+  .ctaHeading { font-size: 82px; }
+}
+
+@media (max-width: 768px) {
+  .heroStatement { font-size: 48px; }
+  .visionHeading { font-size: 48px; }
+  .ctaHeading { font-size: 56px; }
+}
