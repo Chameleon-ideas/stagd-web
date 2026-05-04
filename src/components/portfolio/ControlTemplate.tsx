@@ -14,6 +14,12 @@ interface ControlTemplateProps {
   events: any;
 }
 
+interface Project {
+  cover_image_url: string;
+  title: string;
+  items: any[];
+}
+
 const DISCIPLINE_COLORS: Record<string, string> = {
   'Food Photography': 'var(--color-orange)',
   'Product Photography': 'var(--color-yellow)',
@@ -46,7 +52,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   // Create a flat list of all gallery images for navigation
   const allMedia = useMemo(() => {
     const media: any[] = [];
-    projects.forEach(p => {
+    projects.forEach((p: Project) => {
       media.push({ image_url: p.cover_image_url, title: p.title, project: p.title });
       p.items.forEach((item: any) => {
         media.push({ ...item, project: p.title });
