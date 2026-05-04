@@ -100,6 +100,7 @@ export interface ArtistPublicProfile {
   follower_count: number;
   project_count: number;
   social_links?: SocialLinks;
+  detailed_bio?: string;
 }
 
 export interface SocialLinks {
