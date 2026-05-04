@@ -147,7 +147,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       opacity: 1,
       scale: 1,
       transition: {
-        x: { type: "tween", duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+        x: { type: "tween" as const, duration: 0.8, ease: [0.16, 1, 0.3, 1] },
         opacity: { duration: 0.4 }
       }
     },
@@ -156,7 +156,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       opacity: 0,
       scale: 0.95,
       transition: {
-        x: { type: "tween", duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+        x: { type: "tween" as const, duration: 0.8, ease: [0.16, 1, 0.3, 1] },
         opacity: { duration: 0.4 }
       }
     })
