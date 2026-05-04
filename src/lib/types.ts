@@ -45,13 +45,14 @@ export interface ArtistProfile {
 
 export interface PortfolioItem {
   id: string;
-  artist_id: string;
+  artist_id?: string;
+  project_id?: string;
   image_url: string;
   title?: string;
   category?: string;
-  is_hidden: boolean;
-  sort_order: number;
-  created_at: string;
+  is_hidden?: boolean;
+  sort_order?: number;
+  created_at?: string;
 }
 
 export interface PastProject {
