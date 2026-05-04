@@ -58,7 +58,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
         media.push({ ...item, project: p.title });
       });
     });
-    profile.portfolio.forEach(item => {
+    profile.portfolio.forEach((item: any) => {
       media.push({ ...item, project: 'Archive' });
     });
     return media;
