@@ -23,6 +23,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     role: 'creative' as 'creative' | 'visitor',
+    city: 'Karachi' as 'Karachi' | 'Lahore' | 'Islamabad',
   });
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -92,6 +93,20 @@ export default function SignupPage() {
               required
               className={styles.input}
             />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="city" className={styles.label}>City</label>
+            <select
+              id="city"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value as 'Karachi' | 'Lahore' | 'Islamabad' })}
+              className={styles.input}
+            >
+              <option value="Karachi">Karachi</option>
+              <option value="Lahore">Lahore</option>
+              <option value="Islamabad">Islamabad</option>
+            </select>
           </div>
 
           <div className={styles.formGroup}>

@@ -103,6 +103,8 @@ interface SignupData {
   email: string;
   password: string;
   role: 'creative' | 'visitor';
+  city?: 'Karachi' | 'Lahore' | 'Islamabad';
+  avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -200,20 +202,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     const username = toUsername(data.fullName);
 
-    const { error } = await supabase.auth.signUp({
+    const mappedRole: User['role'] = data.role;
+
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         data: {
           full_name: data.fullName,
           username,
-          role: data.role === 'visitor' ? 'general' : 'creative',
+          role: mappedRole,
+          city: data.city || null,
+          avatar_url: data.avatarUrl || null,
         },
       },
     });
 
+    if (error) {
+      setIsLoading(false);
+      throw error;
+    }
+
+    const authUser = signUpData.user;
+
+    if (authUser?.id) {
+      const updates: {
+        full_name: string;
+        username: string;
+        role: User['role'];
+        city?: SignupData['city'];
+        avatar_url?: string;
+      } = {
+        full_name: data.fullName,
+        username,
+        role: mappedRole,
+      };
+
+      if (data.city) updates.city = data.city;
+      if (data.avatarUrl) updates.avatar_url = data.avatarUrl;
+
+      await supabase.from('profiles').update(updates).eq('id', authUser.id);
+    }
+
     setIsLoading(false);
-    if (error) throw error;
 
     router.push('/auth/login');
   };

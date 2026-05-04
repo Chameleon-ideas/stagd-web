@@ -143,6 +143,11 @@
   color: var(--color-success);
 }
 
+.helpText {
+  font-size: var(--text-small);
+  color: var(--text-muted);
+}
+
 .authFooter {
   text-align: center;
   font-size: var(--text-small);
