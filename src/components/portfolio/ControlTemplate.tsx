@@ -254,7 +254,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 <h3>{selectedImage.title || 'Untitled Work'}</h3>
                 <p>Curated by {profile.user.full_name} · 2024</p>
                 <div className={styles.lightboxCounter}>
-                  {selectedIndex + 1} / {allMedia.length}
+                  {(selectedIndex ?? 0) + 1} / {allMedia.length}
                 </div>
               </div>
             </div>
