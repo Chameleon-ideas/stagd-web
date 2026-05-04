@@ -16,9 +16,13 @@ import { supabase } from './supabase';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
+// OLD (kept for reference):
 // Switch to TRUE to work on UI/UX with local mock data
 // Switch to FALSE to use live Supabase data
-const MOCK_ENABLED = true; 
+// const MOCK_ENABLED = true;
+
+// NEW: live Supabase / API mode
+const MOCK_ENABLED = false;
 
 // ── Fetch helper (Legacy/Mock) ──────────────────────────────
 
@@ -54,33 +58,46 @@ export async function getArtistProfile(
     if (mock) return mock;
   }
 
+  // OLD (kept for reference):
+  // const { data, error } = await supabase
+  //   .from('profiles')
+  //   .select(`
+  //     *,
+  //     profile:artist_profiles(*),
+  //     portfolio:portfolio_items(*),
+  //     past_projects(*),
+  //     reviews(*)
+  //   `)
+  //   .eq('username', username)
+  //   .single();
+
+  // NEW: query only existing tables from current schema
   const { data, error } = await supabase
     .from('profiles')
     .select(`
       *,
-      profile:artist_profiles(*),
-      portfolio:portfolio_items(*),
-      past_projects(*),
-      reviews(*)
+      artist_profiles(*),
+      portfolio_items(*),
+      reviews!reviews_reviewee_id_fkey(*)
     `)
     .eq('username', username)
     .single();
 
   if (error) {
-    return apiFetch<ArtistPublicProfile>(`/users/${username}`);
+    throw new Error(error.message);
   }
   
   return {
     user: data as any,
-    profile: data.profile as any,
-    portfolio: data.portfolio as any,
-    projects: data.projects as any || [],
-    past_projects: data.past_projects as any,
-    reviews: data.reviews as any,
+    profile: data.artist_profiles as any,
+    portfolio: (data.portfolio_items as any) || [],
+    projects: [],
+    past_projects: [],
+    reviews: (data.reviews as any) || [],
     review_average: 5.0,
-    review_count: 0,
+    review_count: data.reviews?.length || 0,
     follower_count: 0,
-    project_count: data.past_projects?.length || 0,
+    project_count: data.portfolio_items?.length || 0,
   };
 }
 
@@ -129,7 +146,50 @@ export async function searchEvents(params?: {
     };
   }
 
-  return apiFetch<PaginatedResponse<EventSearchResult>>(`/search/events`);
+  // OLD (kept for reference):
+  // return apiFetch<PaginatedResponse<EventSearchResult>>(`/search/events`);
+
+  // NEW: direct Supabase query (no localhost:4000 dependency)
+  let query = supabase
+    .from('events')
+    .select(`
+      *,
+      organiser:profiles!events_organiser_id_fkey(id, full_name, username, avatar_url),
+      ticket_tiers(*)
+    `)
+    .eq('status', 'live')
+    .order('starts_at', { ascending: true });
+
+  if (params?.city && params.city !== 'All') query = query.eq('city', params.city as any);
+  if (params?.type && params.type !== 'All') query = query.eq('event_type', params.type as any);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+
+  const mapped = (data || []).map((ev: any) => {
+    const tiers = ev.ticket_tiers || [];
+    const minPrice = tiers.length ? Math.min(...tiers.map((t: any) => t.price || 0)) : 0;
+    const totalCapacity = tiers.reduce((sum: number, t: any) => sum + (t.capacity || 0), 0);
+    const soldOut = totalCapacity > 0 ? false : false;
+
+    const event: Event = {
+      ...ev,
+      organiser: ev.organiser,
+      ticket_tiers: tiers,
+      min_price: minPrice,
+      is_free: minPrice === 0,
+      is_sold_out: soldOut,
+    };
+    return { event, organiser: ev.organiser };
+  });
+
+  return {
+    data: mapped,
+    total: mapped.length,
+    page: 1,
+    per_page: mapped.length || 20,
+    has_more: false,
+  };
 }
 
 export async function getEvent(id: string): Promise<Event> {
@@ -137,7 +197,32 @@ export async function getEvent(id: string): Promise<Event> {
     const mock = MOCK_EVENTS[id];
     if (mock) return mock;
   }
-  return apiFetch<Event>(`/events/${id}`);
+  // OLD (kept for reference):
+  // return apiFetch<Event>(`/events/${id}`);
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      organiser:profiles!events_organiser_id_fkey(id, full_name, username, avatar_url),
+      ticket_tiers(*)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  const tiers = data.ticket_tiers || [];
+  const minPrice = tiers.length ? Math.min(...tiers.map((t: any) => t.price || 0)) : 0;
+
+  return {
+    ...data,
+    organiser: data.organiser,
+    ticket_tiers: tiers,
+    min_price: minPrice,
+    is_free: minPrice === 0,
+    is_sold_out: false,
+  } as Event;
 }
 
 export async function getArtistEvents(organiserId: string): Promise<PaginatedResponse<EventSearchResult>> {
@@ -145,7 +230,43 @@ export async function getArtistEvents(organiserId: string): Promise<PaginatedRes
     const events = Object.values(MOCK_EVENTS).filter(e => e.organiser_id === organiserId);
     return { data: events.map(e => ({ event: e, organiser: e.organiser })), total: events.length, page: 1, per_page: 20, has_more: false };
   }
-  return apiFetch<PaginatedResponse<EventSearchResult>>(`/events?organiser=${organiserId}&status=live`);
+  // OLD (kept for reference):
+  // return apiFetch<PaginatedResponse<EventSearchResult>>(`/events?organiser=${organiserId}&status=live`);
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      organiser:profiles!events_organiser_id_fkey(id, full_name, username, avatar_url),
+      ticket_tiers(*)
+    `)
+    .eq('organiser_id', organiserId)
+    .eq('status', 'live')
+    .order('starts_at', { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  const mapped = (data || []).map((ev: any) => {
+    const tiers = ev.ticket_tiers || [];
+    const minPrice = tiers.length ? Math.min(...tiers.map((t: any) => t.price || 0)) : 0;
+    const event: Event = {
+      ...ev,
+      organiser: ev.organiser,
+      ticket_tiers: tiers,
+      min_price: minPrice,
+      is_free: minPrice === 0,
+      is_sold_out: false,
+    };
+    return { event, organiser: ev.organiser };
+  });
+
+  return {
+    data: mapped,
+    total: mapped.length,
+    page: 1,
+    per_page: mapped.length || 20,
+    has_more: false,
+  };
 }
 
 // ════════════════════════════════════════════════════════════
@@ -221,7 +342,60 @@ export async function searchArtists(params?: {
       has_more: false,
     };
   }
-  return apiFetch<PaginatedResponse<ArtistSearchResult>>(`/search/artists`);
+  // OLD (kept for reference):
+  // return apiFetch<PaginatedResponse<ArtistSearchResult>>(`/search/artists`);
+
+  let query = supabase
+    .from('profiles')
+    .select(`
+      id,
+      full_name,
+      username,
+      avatar_url,
+      city,
+      artist_profiles(*)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (params?.city && params.city !== 'All') query = query.eq('city', params.city as any);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+
+  const mapped = (data || [])
+    .filter((p: any) => !!p.artist_profiles)
+    .filter((p: any) => {
+      if (!params?.discipline || params.discipline === 'All') return true;
+      const disciplines = p.artist_profiles?.disciplines || [];
+      return disciplines.some((d: string) => d.toLowerCase() === params.discipline?.toLowerCase());
+    })
+    .map((p: any) => ({
+      user: {
+        id: p.id,
+        full_name: p.full_name,
+        username: p.username,
+        avatar_url: p.avatar_url,
+        city: p.city,
+      },
+      profile: {
+        disciplines: p.artist_profiles?.disciplines || [],
+        availability: p.artist_profiles?.availability || 'available',
+        starting_rate: p.artist_profiles?.starting_rate || 0,
+        rates_on_request: p.artist_profiles?.rates_on_request || false,
+        verified: p.artist_profiles?.verified || false,
+      },
+      review_average: 5,
+      review_count: 0,
+      project_count: 0,
+    }));
+
+  return {
+    data: mapped,
+    total: mapped.length,
+    page: 1,
+    per_page: mapped.length || 20,
+    has_more: false,
+  };
 }
 
 // ════════════════════════════════════════════════════════════
