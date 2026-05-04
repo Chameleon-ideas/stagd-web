@@ -1,6 +1,4 @@
 import { searchArtists, searchEvents } from '@/lib/api';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import ExploreClient from './ExploreClient';
 import styles from './page.module.css';
 
@@ -9,6 +7,8 @@ interface ExplorePageProps {
     tab?: string;
   }>;
 }
+
+import { WorkstationLayout } from '@/components/layout/WorkstationLayout';
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   const params = await searchParams;
@@ -23,20 +23,8 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   }
 
   return (
-    <div className={styles.page}>
-      <Header />
-
-      <main className={styles.main}>
-        {/* ─── Header ────────────────────────────────────────── */}
-        <section className={styles.header}>
-          <div className="container">
-            <h1 className={styles.title}>Explore</h1>
-            <ExploreClient initialData={initialData} initialTab={activeTab} />
-          </div>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
+    <WorkstationLayout>
+      <ExploreClient initialData={initialData} initialTab={activeTab} />
+    </WorkstationLayout>
   );
 }

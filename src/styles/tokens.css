@@ -18,9 +18,9 @@
   --color-lime:        #D6F23B;   /* Civic Lime — Outdoor / Dance / Pottery */
 
   /* ── Colour: Surfaces / Neutrals ─────────────────────── */
-  --color-cream:       #FFFFFF;   /* Primary background (white) */
-  --color-paper:       #ECE6D5;   /* Card / app background — preferred */
-  --color-newsprint:   #E8E4D2;   /* Secondary surface */
+  --color-cream:       #FFFFFF;   /* Primary background (White) */
+  --color-paper:       #FFFFFF;   /* Card / app background */
+  --color-newsprint:   #F5F5F5;   /* Keep secondary surface slightly off-white for depth if needed, or white if strictly asked */
   --color-grey:        #666666;   /* Labels / metadata */
 
   /* ── Semantic aliases (light mode) ───────────────────── */
@@ -30,6 +30,7 @@
   --text:         var(--color-ink);
   --text-muted:   var(--color-grey);
   --text-faint:   #999390;
+  --grid-color:   rgba(17, 17, 17, 0.04);
 
   /* ── Colour: States ──────────────────────────────────── */
   --color-error:   var(--color-red);
@@ -153,7 +154,8 @@
   --text:       #F4F1E6;
   --text-muted: #9A9490;
   --text-faint: #5C5854;
-  --border-color: rgba(244, 241, 230, 0.12);
+  --border-color: rgba(244, 241, 230, 0.22);
+  --grid-color:   rgba(244, 241, 230, 0.12);
   --stripe-dark: rgba(244, 241, 230, 0.04);
   --stripe-bg-dark: repeating-linear-gradient(
     var(--stripe-angle),

@@ -42,19 +42,10 @@ async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
-// ── Auth header helper (for authenticated requests) ──────────
-
-function authHeaders(token: string): HeadersInit {
-  return { Authorization: `Bearer ${token}` };
-}
-
 // ════════════════════════════════════════════════════════════
 // USERS & PROFILES
 // ════════════════════════════════════════════════════════════
 
-/**
- * Get a public artist profile by username.
- */
 export async function getArtistProfile(
   username: string,
 ): Promise<ArtistPublicProfile> {
@@ -83,6 +74,7 @@ export async function getArtistProfile(
     user: data as any,
     profile: data.profile as any,
     portfolio: data.portfolio as any,
+    projects: data.projects as any || [],
     past_projects: data.past_projects as any,
     reviews: data.reviews as any,
     review_average: 5.0,
@@ -96,9 +88,6 @@ export async function getArtistProfile(
 // EVENTS
 // ════════════════════════════════════════════════════════════
 
-/**
- * List events with optional filters.
- */
 export async function searchEvents(params?: {
   city?: string;
   type?: string;
@@ -122,27 +111,9 @@ export async function searchEvents(params?: {
 
     if (params?.is_free) {
       events = events.filter(e => e.is_free);
-    } else if (params?.price_max) {
-      events = events.filter(e => e.min_price <= params.price_max!);
     }
 
-    // Mock Date Logic
-    if (params?.date && params.date !== 'Any') {
-      const today = new Date();
-      if (params.date === 'Today') {
-        events = events.filter(e => new Date(e.starts_at).toDateString() === today.toDateString());
-      } else if (params.date === 'This Week') {
-        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-        events = events.filter(e => new Date(e.starts_at) <= nextWeek);
-      }
-    }
-
-    // Sort Logic
-    if (params?.sort === 'Price low-high') {
-      events = events.sort((a, b) => a.min_price - b.min_price);
-    } else if (params?.sort === 'Price high-low') {
-      events = events.sort((a, b) => b.min_price - a.min_price);
-    } else if (params?.sort === 'Soonest') {
+    if (params?.sort === 'Soonest') {
       events = events.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
     }
 
@@ -158,47 +129,29 @@ export async function searchEvents(params?: {
     };
   }
 
-  let query = supabase
-    .from('events')
-    .select('*, organiser:profiles(id, full_name, username, avatar_url)', { count: 'exact' });
+  return apiFetch<PaginatedResponse<EventSearchResult>>(`/search/events`);
+}
 
-  if (params?.city) query = query.eq('city', params.city);
-  if (params?.type) query = query.eq('event_type', params.type);
-  if (params?.price_max) query = query.lte('min_price', params.price_max);
-  if (params?.is_free) query = query.eq('is_free', true);
-  
-  const page = params?.page ?? 1;
-  const perPage = params?.per_page ?? 20;
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
-  
-  const { data, error, count } = await query
-    .order('starts_at', { ascending: true })
-    .range(from, to);
-
-  if (error) {
-    return apiFetch<PaginatedResponse<EventSearchResult>>(`/search/events`);
+export async function getEvent(id: string): Promise<Event> {
+  if (MOCK_ENABLED) {
+    const mock = MOCK_EVENTS[id];
+    if (mock) return mock;
   }
+  return apiFetch<Event>(`/events/${id}`);
+}
 
-  return {
-    data: (data || []).map(d => ({
-      event: d as any,
-      organiser: d.organiser as any,
-    })),
-    total: count || 0,
-    page,
-    per_page: perPage,
-    has_more: (count || 0) > to + 1,
-  };
+export async function getArtistEvents(organiserId: string): Promise<PaginatedResponse<EventSearchResult>> {
+  if (MOCK_ENABLED) {
+    const events = Object.values(MOCK_EVENTS).filter(e => e.organiser_id === organiserId);
+    return { data: events.map(e => ({ event: e, organiser: e.organiser })), total: events.length, page: 1, per_page: 20, has_more: false };
+  }
+  return apiFetch<PaginatedResponse<EventSearchResult>>(`/events?organiser=${organiserId}&status=live`);
 }
 
 // ════════════════════════════════════════════════════════════
 // TICKETS & PURCHASES
 // ════════════════════════════════════════════════════════════
 
-/**
- * Purchase a ticket.
- */
 export async function purchaseTicket(
   eventId: string,
   payload: {
@@ -212,22 +165,11 @@ export async function purchaseTicket(
   if (MOCK_ENABLED) {
     const ticket_id = `TKT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticket_id}`;
-    return {
-      ticket_id,
-      qr_url,
-      total_paid: 1500 * payload.quantity
-    };
+    return { ticket_id, qr_url, total_paid: 1500 * payload.quantity };
   }
-
-  return apiFetch(`/events/${eventId}/tickets/purchase`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+  return apiFetch(`/events/${eventId}/tickets/purchase`, { method: 'POST', body: JSON.stringify(payload) });
 }
 
-/**
- * Verify a ticket.
- */
 export async function verifyTicket(ticketId: string): Promise<VerifyResult> {
   if (MOCK_ENABLED) {
     if (ticketId === 'TKT-VALID') {
@@ -242,25 +184,16 @@ export async function verifyTicket(ticketId: string): Promise<VerifyResult> {
     }
     return { status: 'not_recognised' };
   }
-  return apiFetch<VerifyResult>(`/verify/${ticketId}`, {
-    cache: 'no-store',
-  });
+  return apiFetch<VerifyResult>(`/verify/${ticketId}`, { cache: 'no-store' });
 }
 
 // ════════════════════════════════════════════════════════════
-// SEARCH
+// SEARCH ARTISTS
 // ════════════════════════════════════════════════════════════
 
-/**
- * Search artists with filters.
- */
 export async function searchArtists(params?: {
   discipline?: string;
   city?: string;
-  budget_max?: number;
-  availability?: string;
-  page?: number;
-  per_page?: number;
   sort?: string;
 }): Promise<PaginatedResponse<ArtistSearchResult>> {
   if (MOCK_ENABLED) {
@@ -272,21 +205,6 @@ export async function searchArtists(params?: {
     
     if (params?.discipline && params.discipline !== 'All') {
       artists = artists.filter(a => a.profile.disciplines.some(d => d.toLowerCase() === params.discipline?.toLowerCase()));
-    }
-
-    if (params?.budget_max) {
-      artists = artists.filter(a => (a.profile.starting_rate ?? Infinity) <= params.budget_max!);
-    }
-
-    if (params?.availability === 'available') {
-      artists = artists.filter(a => a.profile.availability === 'available');
-    }
-
-    // Sort Logic
-    if (params?.sort === 'Rating') {
-      artists = artists.sort((a, b) => b.review_average - a.review_average);
-    } else if (params?.sort === 'Most reviewed') {
-      artists = artists.sort((a, b) => b.review_count - a.review_count);
     }
 
     return {
@@ -303,111 +221,24 @@ export async function searchArtists(params?: {
       has_more: false,
     };
   }
-
-  let query = supabase
-    .from('artist_profiles')
-    .select(`
-      *,
-      user:profiles(id, full_name, username, avatar_url, city),
-      portfolio_items(image_url)
-    `, { count: 'exact' });
-
-  if (params?.city) query = query.eq('user.city', params.city);
-  if (params?.discipline) query = query.contains('disciplines', [params.discipline]);
-  if (params?.budget_max) query = query.lte('starting_rate', params.budget_max);
-  if (params?.availability) query = query.eq('availability', params.availability);
-  
-  const page = params?.page ?? 1;
-  const perPage = params?.per_page ?? 20;
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
-
-  const { data, error, count } = await query
-    .order('verified', { ascending: false })
-    .range(from, to);
-
-  if (error) {
-    return apiFetch<PaginatedResponse<ArtistSearchResult>>(`/search/artists`);
-  }
-
-  return {
-    data: (data || []).map(d => ({
-      user: d.user as any,
-      profile: d as any,
-      hero_image: d.portfolio_items?.[0]?.image_url,
-      review_average: 5.0,
-      review_count: 0,
-    })),
-    total: count || 0,
-    page,
-    per_page: perPage,
-    has_more: (count || 0) > to + 1,
-  };
+  return apiFetch<PaginatedResponse<ArtistSearchResult>>(`/search/artists`);
 }
 
-/**
- * Get a public event by ID.
- */
-export async function getEvent(id: string): Promise<Event> {
-  if (MOCK_ENABLED) {
-    const mock = MOCK_EVENTS[id];
-    if (mock) return mock;
-  }
-  
-  const { data, error } = await supabase
-    .from('events')
-    .select('*, organiser:profiles(*), ticket_tiers(*)')
-    .eq('id', id)
-    .single();
-
-  if (error) {
-    return apiFetch<Event>(`/events/${id}`);
-  }
-  
-  return {
-    ...data,
-    organiser: data.organiser as any,
-    ticket_tiers: data.ticket_tiers as any,
-  } as any;
-}
-
-/**
- * Get events organised by a specific user.
- */
-export async function getArtistEvents(
-  organiserId: string,
-): Promise<PaginatedResponse<EventSearchResult>> {
-  if (MOCK_ENABLED) {
-    const events = Object.values(MOCK_EVENTS).filter(e => e.organiser_id === organiserId);
-    return {
-      data: events.map(e => ({
-        event: e,
-        organiser: e.organiser,
-      })),
-      total: events.length,
-      page: 1,
-      per_page: 20,
-      has_more: false,
-    };
-  }
-  return apiFetch<PaginatedResponse<EventSearchResult>>(
-    `/events?organiser=${organiserId}&status=live`,
-  );
-}
-
-// ── Mock Data ────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// MOCK DATA
+// ════════════════════════════════════════════════════════════
 
 const MOCK_EVENTS: Record<string, Event> = {
   event_1: {
     id: 'event_1',
-    organiser_id: 'artist_1',
-    organiser: { id: 'artist_1', full_name: 'Lyari Underground', username: 'lyari_underground', avatar_url: '/images/lyari.png' },
+    organiser_id: 'lyari_underground',
+    organiser: { id: 'lyari_underground', full_name: 'Lyari Underground', username: 'lyari_underground', avatar_url: '/images/lyari.png' },
     title: 'Sounds of Lyari Festival',
     event_type: 'concert',
-    cover_image_url: '/images/festival.png',
+    cover_image_url: 'https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=1200&fit=crop',
     venue_name: 'T2F Garden',
     city: 'Karachi',
-    starts_at: new Date(Date.now() + 86400000 * 5).toISOString(),
+    starts_at: '2026-05-12T20:00:00Z',
     status: 'live',
     created_at: '',
     ticket_tiers: [],
@@ -417,14 +248,14 @@ const MOCK_EVENTS: Record<string, Event> = {
   },
   event_2: {
     id: 'event_2',
-    organiser_id: 'artist_2',
-    organiser: { id: 'artist_2', full_name: 'Risograph Karachi', username: 'risograph_khi', avatar_url: '/images/riso.png' },
+    organiser_id: 'risograph_khi',
+    organiser: { id: 'risograph_khi', full_name: 'Risograph Karachi', username: 'risograph_khi', avatar_url: '/images/riso.png' },
     title: 'Intro to Riso Printing',
     event_type: 'workshop',
-    cover_image_url: '/images/workshop.png',
+    cover_image_url: 'https://images.unsplash.com/photo-1598301257982-0cf014dabbcd?q=80&w=1200&fit=crop',
     venue_name: 'Stagd Studio',
     city: 'Karachi',
-    starts_at: new Date(Date.now() + 86400000 * 10).toISOString(),
+    starts_at: '2026-05-14T14:00:00Z',
     status: 'live',
     created_at: '',
     ticket_tiers: [],
@@ -434,356 +265,90 @@ const MOCK_EVENTS: Record<string, Event> = {
   },
   event_3: {
     id: 'event_3',
-    organiser_id: 'artist_3',
-    organiser: { id: 'artist_3', full_name: 'The Last Exit', username: 'last_exit_lhr', avatar_url: '/images/lahore_street_art.png' },
-    title: 'Lahore Mural Tour',
-    event_type: 'exhibition',
-    cover_image_url: '/images/mural_tour.png',
-    venue_name: 'Walled City',
-    city: 'Lahore',
-    starts_at: new Date(Date.now() + 86400000 * 7).toISOString(),
-    status: 'live',
-    created_at: '',
-    ticket_tiers: [],
-    min_price: 500,
-    is_free: false,
-    is_sold_out: false,
-  },
-  event_4: {
-    id: 'event_4',
-    organiser_id: 'artist_6',
-    organiser: { id: 'artist_6', full_name: 'Ali Raza', username: 'ali_raza_art', avatar_url: '/images/ali_raza.png' },
-    title: 'Script & Sound',
-    event_type: 'concert',
-    cover_image_url: '/images/ali_raza.png',
-    venue_name: 'Alhamra Arts Council',
-    city: 'Lahore',
-    starts_at: new Date(Date.now() + 86400000 * 15).toISOString(),
-    status: 'live',
-    created_at: '',
-    ticket_tiers: [],
-    min_price: 2000,
-    is_free: false,
-    is_sold_out: false,
-  },
-  event_5: {
-    id: 'event_5',
-    organiser_id: 'artist_7',
-    organiser: { id: 'artist_7', full_name: 'Saad Siddiqui', username: 'saad_codes', avatar_url: '/images/saad_sid.png' },
-    title: 'Syntax Error',
-    event_type: 'talk',
-    cover_image_url: '/images/saad_sid.png',
-    venue_name: 'The Hive',
-    city: 'Islamabad',
-    starts_at: new Date(Date.now() + 86400000 * 3).toISOString(),
+    organiser_id: 'sanki_king',
+    organiser: { id: 'sanki_king', full_name: 'Sanki King', username: 'sanki_king', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddda0d7c75?q=80&w=150&fit=crop' },
+    title: 'Street Art Jam Vol. 04',
+    event_type: 'workshop',
+    cover_image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop',
+    venue_name: 'Old City Walls',
+    city: 'Karachi',
+    starts_at: '2026-05-20T17:00:00Z',
     status: 'live',
     created_at: '',
     ticket_tiers: [],
     min_price: 0,
     is_free: true,
     is_sold_out: false,
-  },
-  event_6: {
-    id: 'event_6',
-    organiser_id: 'artist_8',
-    organiser: { id: 'artist_8', full_name: 'Zainab Baloch', username: 'zainab_baloch', avatar_url: '/images/zainab_baloch.png' },
-    title: 'Warp & Weft',
-    event_type: 'workshop',
-    cover_image_url: '/images/zainab_baloch.png',
-    venue_name: 'Koel Gallery',
-    city: 'Karachi',
-    starts_at: new Date(Date.now() + 86400000 * 20).toISOString(),
-    status: 'live',
-    created_at: '',
-    ticket_tiers: [],
-    min_price: 5000,
-    is_free: false,
-    is_sold_out: false,
   }
 };
 
 const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
   lyari_underground: {
-    user: {
-      id: 'artist_1',
-      phone: '+923001234567',
-      full_name: 'Lyari Underground',
-      username: 'lyari_underground',
-      role: 'creative',
-      city: 'Karachi',
-      avatar_url: '/images/lyari.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_1',
-      bio: 'The sound of the streets. Lyari Underground is a hip-hop collective bringing the raw energy of Karachi\'s most vibrant neighborhood to the global stage.',
-      disciplines: ['Music', 'Hip-hop', 'Community'],
-      availability: 'available',
-      starting_rate: 50000,
-      verified: true,
-      accent_color: '#649839',
-      instagram_handle: 'lyari_ug',
-    },
-    portfolio: [
-      { id: 'p1', artist_id: 'artist_1', image_url: '/images/festival.png', title: 'Live at T2F', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'p2', artist_id: 'artist_1', image_url: '/images/lyari.png', title: 'Studio Session', sort_order: 1, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [
-      { id: 'proj1', artist_id: 'artist_1', title: 'Sounds of Lyari Festival', description: 'Curating the first neighborhood hip-hop festival.', created_at: '' }
-    ],
-    reviews: [],
-    review_average: 4.9,
-    review_count: 24,
-    follower_count: 1200,
-    project_count: 45,
+    user: { id: 'artist_1', full_name: 'Lyari Underground', username: 'lyari_underground', city: 'Karachi', avatar_url: '/images/lyari.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_1', bio: 'The sound of the streets.', disciplines: ['Music', 'Street Art'], availability: 'available', starting_rate: 50000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 4.9, review_count: 24, follower_count: 1200, project_count: 45,
   },
   risograph_khi: {
-    user: {
-      id: 'artist_2',
-      phone: '+923007654321',
-      full_name: 'Risograph Karachi',
-      username: 'risograph_khi',
-      role: 'creative',
-      city: 'Karachi',
-      avatar_url: '/images/riso.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_2',
-      bio: 'Independent print studio specializing in risograph techniques. Experimental, tactile, and community-driven.',
-      disciplines: ['Printmaking', 'Graphic Design', 'Workshop'],
-      availability: 'available',
-      starting_rate: 15000,
-      verified: true,
-      accent_color: '#1CAEE5',
-    },
+    user: { id: 'artist_2', full_name: 'Risograph Karachi', username: 'risograph_khi', city: 'Karachi', avatar_url: '/images/riso_new.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_2', bio: 'Independent print studio specializing in risograph techniques.', disciplines: ['Printmaking', 'Visual Arts'], availability: 'available', starting_rate: 15000, verified: true },
     portfolio: [
-      { id: 'r1', artist_id: 'artist_2', image_url: '/images/riso.png', title: 'Cyan Overlay', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'r2', artist_id: 'artist_2', image_url: '/images/workshop.png', title: 'Texture Study', sort_order: 1, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 5.0,
-    review_count: 8,
-    follower_count: 850,
-    project_count: 12,
-  },
-  last_exit_lhr: {
-    user: {
-      id: 'artist_3',
-      phone: '+923001112223',
-      full_name: 'The Last Exit',
-      username: 'last_exit_lhr',
-      role: 'creative',
-      city: 'Lahore',
-      avatar_url: '/images/lahore_street_art.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_3',
-      bio: 'A street art collective transforming the walls of Lahore with vibrant murals and storytelling.',
-      disciplines: ['Street Art', 'Muralism', 'Visual Arts'],
-      availability: 'available',
-      starting_rate: 25000,
-      verified: true,
-      accent_color: '#E91E63',
-    },
-    portfolio: [
-      { id: 'l1', artist_id: 'artist_3', image_url: '/images/lahore_street_art.png', title: 'Walled City Mural', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'l2', artist_id: 'artist_3', image_url: '/images/mural_tour.png', title: 'Street Gallery', sort_order: 1, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 4.8,
-    review_count: 15,
-    follower_count: 2100,
-    project_count: 32,
-  },
-  nova_digital: {
-    user: {
-      id: 'artist_4',
-      phone: '+923004445556',
-      full_name: 'Nova Digital',
-      username: 'nova_digital',
-      role: 'creative',
-      city: 'Islamabad',
-      avatar_url: '/images/isb_digital.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_4',
-      bio: 'Exploring the intersection of technology and art through 3D modeling and digital environments.',
-      disciplines: ['3D Art', 'Digital Design', 'Animation'],
-      availability: 'available',
-      starting_rate: 40000,
-      verified: true,
-      accent_color: '#7C4DFF',
-    },
-    portfolio: [
-      { id: 'n1', artist_id: 'artist_4', image_url: '/images/isb_digital.png', title: 'Abstract Flow', sort_order: 0, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 5.0,
-    review_count: 12,
-    follower_count: 3400,
-    project_count: 18,
-  },
-  amal_fashion: {
-    user: {
-      id: 'artist_5',
-      phone: '+923007778889',
-      full_name: 'Amal Sustainable',
-      username: 'amal_fashion_khi',
-      role: 'creative',
-      city: 'Karachi',
-      avatar_url: '/images/khi_fashion.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_5',
-      bio: 'Slow fashion and sustainable textiles, handcrafted in the heart of Karachi.',
-      disciplines: ['Fashion Design', 'Textiles', 'Sustainability'],
-      availability: 'available',
-      starting_rate: 30000,
-      verified: true,
-      accent_color: '#4CAF50',
-    },
-    portfolio: [
-      { id: 'f1', artist_id: 'artist_5', image_url: '/images/khi_fashion.png', title: 'Organic Collection', sort_order: 0, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 4.9,
-    review_count: 21,
-    follower_count: 1500,
-    project_count: 24,
-  },
-  ali_raza_art: {
-    user: {
-      id: 'artist_6',
-      phone: '+923001112224',
-      full_name: 'Ali Raza',
-      username: 'ali_raza_art',
-      role: 'creative',
-      city: 'Lahore',
-      avatar_url: '/images/ali_raza.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_6',
-      bio: 'Contemporary calligrapher merging traditional script with modern abstract forms.',
-      disciplines: ['Calligraphy', 'Visual Arts', 'Design'],
-      availability: 'available',
-      starting_rate: 35000,
-      verified: true,
-      accent_color: '#000000',
-    },
-    portfolio: [
-      { id: 'ali1', artist_id: 'artist_6', image_url: '/images/ali_raza.png', title: 'Ink Study', sort_order: 0, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 5.0,
-    review_count: 18,
-    follower_count: 4200,
-    project_count: 56,
-  },
-  saad_codes: {
-    user: {
-      id: 'artist_7',
-      phone: '+923001112225',
-      full_name: 'Saad Siddiqui',
-      username: 'saad_codes',
-      role: 'creative',
-      city: 'Islamabad',
-      avatar_url: '/images/saad_sid.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_7',
-      bio: 'Creative coder exploring generative art and interactive installations.',
-      disciplines: ['Generative Art', 'Code', 'Interactive'],
-      availability: 'available',
-      starting_rate: 45000,
-      verified: true,
-      accent_color: '#00FF00',
-    },
-    portfolio: [
-      { id: 'saad1', artist_id: 'artist_7', image_url: '/images/saad_sid.png', title: 'Recursive Flow', sort_order: 0, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 4.9,
-    review_count: 14,
-    follower_count: 2800,
-    project_count: 22,
-  },
-  zainab_baloch: {
-    user: {
-      id: 'artist_8',
-      phone: '+923001112226',
-      full_name: 'Zainab Baloch',
-      username: 'zainab_baloch',
-      role: 'creative',
-      city: 'Karachi',
-      avatar_url: '/images/zainab_baloch.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_8',
-      bio: 'Textile artist focused on sustainable weaving techniques and organic dyes.',
-      disciplines: ['Textiles', 'Visual Arts', 'Workshop'],
-      availability: 'available',
-      starting_rate: 20000,
-      verified: true,
-      accent_color: '#8B4513',
-    },
-    portfolio: [
-      { id: 'z1', artist_id: 'artist_8', image_url: '/images/zainab_baloch.png', title: 'Woven Earth', sort_order: 0, is_hidden: false, created_at: '' },
-    ],
-    past_projects: [],
-    reviews: [],
-    review_average: 5.0,
-    review_count: 9,
-    follower_count: 1900,
-    project_count: 14,
+       { id: 'r1', artist_id: 'artist_2', title: 'Riso Study 01', category: 'Print', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+       { id: 'r2', artist_id: 'artist_2', title: 'Texture 02', category: 'Print', image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      {
+        id: 'proj_riso_01', artist_id: 'artist_2', title: 'Mechanical Texture', description: 'Exploring granular imperfections.', cover_image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', items: [], created_at: ''
+      }
+    ], 
+    past_projects: [], reviews: [], review_average: 5.0, review_count: 8, follower_count: 850, project_count: 12,
   },
   mairaj_ulhaq: {
-    user: {
-      id: 'artist_9',
-      phone: '',
-      full_name: 'Mairaj Ulhaq',
-      username: 'mairaj_ulhaq',
-      role: 'creative',
-      city: 'Karachi',
-      avatar_url: '/images/mairaj_ulhaq.png',
-      created_at: new Date().toISOString(),
-    },
-    profile: {
-      id: 'artist_9',
-      bio: 'Food and Product photographer specializing in high-fidelity Marketing Content. I shoot goods, transforming culinary and luxury products into cinematic visual narratives.',
-      disciplines: ['Food Photography', 'Product Design', 'Marketing Content'],
-      availability: 'available',
-      starting_rate: 65000,
-      verified: true,
-      accent_color: '#FFB800',
-    },
+    user: { id: 'artist_3', full_name: 'Mairaj Ulhaq', username: 'mairaj_ulhaq', city: 'Karachi', avatar_url: '/images/mairaj_ulhaq.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_3', bio: 'Food and Product photographer specializing in high-fidelity Marketing Content.', disciplines: ['Photography', 'Marketing Content'], availability: 'available', starting_rate: 65000, verified: true },
     portfolio: [
-      { id: 'm1', artist_id: 'artist_9', title: 'Edenrobe Fragrance', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=800&h=1000&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'm2', artist_id: 'artist_9', title: 'Mondo Culinary Series', image_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&h=600&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-      { id: 'm3', artist_id: 'artist_9', title: 'After Five Coffee', image_url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800&h=1000&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
-      { id: 'm4', artist_id: 'artist_9', title: 'Siroc Contemporary', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&h=600&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
-      { id: 'm5', artist_id: 'artist_9', title: 'Liquid Texture Study', image_url: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=800&h=1000&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
-      { id: 'm6', artist_id: 'artist_9', title: 'Grao Lifestyle', image_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&h=600&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
+      { id: 'm1', artist_id: 'artist_3', title: 'Fragrance Study', category: 'Product', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'm2', artist_id: 'artist_3', title: 'Coffee Ritual', category: 'Lifestyle', image_url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+      { id: 'm3', artist_id: 'artist_3', title: 'Modern Texture', category: 'Abstract', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
+      { id: 'm4', artist_id: 'artist_3', title: 'Culinary Art', category: 'Food', image_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { id: 'p1', artist_id: 'artist_3', title: 'Edenrobe Fragrance', description: 'Visual campaign.', cover_image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', items: [], created_at: '' }
     ],
-    past_projects: [
-      { id: 'mp1', artist_id: 'artist_9', title: 'Edenrobe Winter Campaign', description: 'Lead photographer for the 2024 fragrance launch.', created_at: '' }
-    ],
-    reviews: [],
-    review_average: 5.0,
-    review_count: 22,
-    follower_count: 2400,
-    project_count: 58,
+    past_projects: [], reviews: [], review_average: 5.0, review_count: 12, follower_count: 2400, project_count: 32,
+  },
+  ali_rez: {
+    user: { id: 'artist_7', full_name: 'Ali Rez', username: 'ali_rez', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_creative_director_portrait_1777893345611.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_7', bio: 'Award-winning creative director focusing on social impact.', disciplines: ['Marketing Content', 'Visual Arts'], availability: 'busy', starting_rate: 250000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 102, follower_count: 15000, project_count: 240,
+  },
+  sana_nasir: {
+    user: { id: 'artist_10', full_name: 'Sana Nasir', username: 'sana_nasir', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_female_illustrator_portrait_1777893367977.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_10', bio: 'Illustrator and art director specializing in dark, surreal world-building.', disciplines: ['Digital Art', 'Visual Arts'], availability: 'available', starting_rate: 55000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 4.9, review_count: 18, follower_count: 2100, project_count: 42,
+  },
+  zulfiqar_zulfi: {
+    user: { id: 'artist_12', full_name: 'Zulfiqar Ali Zulfi', username: 'zulfiqar_zulfi', city: 'Lahore', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_master_painter_portrait_1777893384772.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_12', bio: 'Master landscape painter capturing the light and haze of the Punjab.', disciplines: ['Visual Arts'], availability: 'available', starting_rate: 200000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 88, follower_count: 9000, project_count: 150,
+  },
+  abdullah_syed: {
+    user: { id: 'artist_9', full_name: 'Abdullah M.I. Syed', username: 'abdullah_syed', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_male_scholar_artist_portrait_1777893415330.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_9', bio: 'Visual artist and scholar investigating the relationship between text and body.', disciplines: ['Visual Arts', 'Calligraphy'], availability: 'available', starting_rate: 120000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 31, follower_count: 3200, project_count: 88,
+  },
+  babar_sheikh: {
+    user: { id: 'artist_11', full_name: 'Babar Sheikh', username: 'babar_sheikh', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_male_filmmaker_portrait_1777893434096.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_11', bio: 'Film director and musician exploring the avant-garde in Pakistani cinema.', disciplines: ['Music', 'Marketing Content'], availability: 'available', starting_rate: 150000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 27, follower_count: 4300, project_count: 52,
+  },
+  zainab_baloch: {
+    user: { id: 'artist_4', full_name: 'Zainab Baloch', username: 'zainab_baloch', city: 'Karachi', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddda0d7c75?q=80&w=150&fit=crop', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_4', bio: 'Contemporary textile artist exploring traditional weaving.', disciplines: ['Textile Design', 'Visual Arts'], availability: 'available', starting_rate: 40000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 4.8, review_count: 15, follower_count: 1800, project_count: 28,
+  },
+  sanki_king: {
+    user: { id: 'artist_5', full_name: 'Sanki King', username: 'sanki_king', city: 'Karachi', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&fit=crop', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'artist_5', bio: 'Graffiti pioneer and street artist.', disciplines: ['Street Art', 'Calligraphy'], availability: 'available', starting_rate: 80000, verified: true },
+    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 42, follower_count: 5500, project_count: 120,
   }
 };

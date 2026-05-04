@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -13,16 +11,16 @@ export const metadata: Metadata = {
 };
 
 import { searchEvents } from '@/lib/api';
-import { formatPKR, formatDate } from '@/lib/utils';
+import { EditorialLayout } from '@/components/layout/EditorialLayout';
+import { formatDate } from '@/lib/utils';
 
 export default async function HomePage() {
   const eventsData = await searchEvents({ per_page: 5 });
   const realEvents = eventsData.data;
 
   return (
-    <>
-      <Header />
-      <main id="main-content">
+    <EditorialLayout>
+      <main id="main-content" className={styles.gridBackground}>
 
         {/* ─── HERO ──────────────────────────────────────────── */}
         <section className={styles.hero} aria-labelledby="hero-heading">
@@ -287,8 +285,7 @@ export default async function HomePage() {
         </section>
 
       </main>
-      <Footer />
-    </>
+    </EditorialLayout>
   );
 }
 

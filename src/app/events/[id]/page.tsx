@@ -2,8 +2,6 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getEvent } from '@/lib/api';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { TicketButton } from '@/components/event/TicketButton';
 import { formatPKR, formatDate, formatTime } from '@/lib/utils';
 import styles from './page.module.css';
@@ -28,7 +26,6 @@ export default async function EventPage({ params }: EventPageProps) {
 
     return (
       <div className={styles.page} style={{ '--event-accent': accentColor } as React.CSSProperties}>
-        <Header />
 
         <main className={styles.main}>
           {/* ─── Hero Section ─────────────────────────────────── */}
@@ -134,8 +131,6 @@ export default async function EventPage({ params }: EventPageProps) {
             </div>
           </section>
         </main>
-
-        <Footer />
       </div>
     );
   } catch (err) {

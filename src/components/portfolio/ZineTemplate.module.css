@@ -1,0 +1,201 @@
+.zineContainer {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: var(--space-32);
+}
+
+/* ── THE COVER ───────────────────────────────────── */
+.cover {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  align-items: center;
+  padding: 0 var(--gutter);
+  position: relative;
+  border-bottom: 1.5px solid var(--color-ink);
+}
+
+.verticalTitle {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 12vw, 180px);
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  transform: rotate(-90deg) translateX(-50%);
+  transform-origin: left bottom;
+  position: absolute;
+  left: var(--gutter);
+  white-space: nowrap;
+}
+
+.coverImageWrapper {
+  grid-column: 2;
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  aspect-ratio: 4/5;
+  background-color: var(--color-newsprint);
+  border: 1.5px solid var(--color-ink);
+}
+
+.coverImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stripeTexture {
+  position: absolute;
+  inset: -20px;
+  background-image: var(--stripe-bg-dark);
+  z-index: -1;
+  opacity: 0.4;
+}
+
+/* ── NARRATIVE BLOCKS ────────────────────────────── */
+.narrativeBlock {
+  padding: var(--space-32) var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-8);
+  position: relative;
+  align-items: center;
+}
+
+.ghostNumber {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 30vw;
+  color: var(--color-ink);
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.narrativeText {
+  grid-column: 2 / 7;
+  font-family: var(--font-body);
+  font-size: var(--text-large);
+  line-height: var(--leading-normal);
+  z-index: 10;
+}
+
+.narrativeMedia {
+  grid-column: 8 / 13;
+  border: 1.5px solid var(--color-ink);
+  z-index: 10;
+}
+
+/* ── THE COLLAGE ─────────────────────────────────── */
+.collageGrid {
+  padding: var(--space-20) var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.collageItem {
+  position: relative;
+  background-color: var(--color-newsprint);
+  border: 1.5px solid var(--color-ink);
+  overflow: hidden;
+}
+
+.collageItem.small { grid-column: span 3; aspect-ratio: 1; }
+.collageItem.medium { grid-column: span 6; aspect-ratio: 4/3; }
+.collageItem.large { grid-column: span 8; aspect-ratio: 16/9; }
+.collageItem.full { grid-column: span 12; aspect-ratio: 21/9; }
+
+.collageItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s var(--ease-expo);
+}
+
+.collageItem:hover img {
+  transform: scale(1.05);
+}
+
+.metaBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── THE INDEX ───────────────────────────────────── */
+.indexSection {
+  margin-top: var(--space-32);
+  padding: 0 var(--gutter);
+  max-width: var(--max-width);
+  margin-inline: auto;
+}
+
+.indexTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--color-ink);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.indexRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-4) 0;
+  border-bottom: 1.5px solid rgba(17, 17, 17, 0.1);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: var(--text-small);
+  transition: background-color 0.2s;
+}
+
+.indexRow:hover {
+  background-color: var(--color-yellow);
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+/* ── RESPONSIVE ────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .cover {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding-top: var(--space-20);
+  }
+  
+  .verticalTitle {
+    transform: none;
+    position: static;
+    font-size: 80px;
+    margin-bottom: var(--space-8);
+  }
+  
+  .narrativeBlock {
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+  }
+  
+  .narrativeText, .narrativeMedia {
+    grid-column: 1 / -1;
+  }
+  
+  .collageItem {
+    grid-column: span 12 !important;
+  }
+}

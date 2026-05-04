@@ -1,12 +1,51 @@
 .page {
   background-color: var(--bg);
   color: var(--text);
-  height: 100vh;
-  overflow: hidden; /* Page is locked vertically */
-  overscroll-behavior: none; /* Prevent browser bounce */
-  touch-action: none; /* Prevent browser gestures from hijacking */
+  min-height: 100vh;
   transition: background-color 0.4s ease;
   position: relative;
+}
+
+.classicView {
+  height: 100vh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.editorialTheme {
+  background-color: var(--color-white);
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: auto !important;
+}
+
+.templateSwitcher {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  background-color: var(--color-ink);
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  z-index: 1000;
+  border: 1px solid var(--color-yellow);
+}
+
+.templateSwitcher button {
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-white);
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.templateSwitcher button.activeTab {
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
 }
 
 /* ── LAYOUT ────────────────────────────────────────── */

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Anton, DM_Sans, JetBrains_Mono } from 'next/font/google';
+import { Anton, DM_Sans, JetBrains_Mono, Playfair_Display } from 'next/font/google';
 import Script from 'next/script';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
@@ -23,6 +23,13 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-mono',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  display: 'swap',
+  style: ['normal', 'italic'],
+  variable: '--font-editorial',
 });
 
 export const metadata: Metadata = {
@@ -54,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${anton.variable} ${dmSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${anton.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${playfair.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

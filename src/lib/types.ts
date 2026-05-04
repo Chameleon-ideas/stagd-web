@@ -63,6 +63,17 @@ export interface PastProject {
   created_at: string;
 }
 
+export interface Project {
+  id: string;
+  artist_id: string;
+  title: string;
+  description?: string;
+  cover_image_url: string;
+  discipline?: string;
+  items: PortfolioItem[];
+  created_at: string;
+}
+
 export interface Review {
   id: string;
   commission_id: string;
@@ -79,6 +90,7 @@ export interface ArtistPublicProfile {
   user: User;
   profile: ArtistProfile;
   portfolio: PortfolioItem[];
+  projects: Project[];
   past_projects: PastProject[];
   reviews: Review[];
   review_average: number;
@@ -91,6 +103,8 @@ export interface ArtistPublicProfile {
 export interface SocialLinks {
   instagram?: string;
   behance?: string;
+  linkedin?: string;
+  twitter?: string;
   website?: string;
   youtube?: string;
   tiktok?: string;

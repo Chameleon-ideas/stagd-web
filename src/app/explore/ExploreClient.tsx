@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronDown, MapPin, Briefcase, Filter } from 'lucide-react';
+import { ChevronDown, MapPin, Briefcase, Filter, Search } from 'lucide-react';
 import { searchArtists, searchEvents } from '@/lib/api';
 import { formatPKR, formatDate } from '@/lib/utils';
 import styles from './page.module.css';
@@ -103,15 +103,26 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
   };
 
   return (
-    <div className={styles.containerLarge}>
-      {/* ── Background Watermark ── */}
-      <div className={styles.title}>Explore</div>
+    <div className={styles.exploreMain}>
+      {/* ── LEFT PANE: CONTROL ────────────────────────── */}
+      <aside className={styles.sidebar}>
+        <div className={styles.sidebarContent}>
+          <h1 className={styles.sidebarTitle}>EXPLORE</h1>
 
-      {/* ── Integrated Navigation & Filter Row ── */}
-      <div className={styles.filterRowUnified}>
-        <div className={styles.filterControls}>
-          
-          {/* Segmented Tab Switcher (Pill Style) */}
+          {/* Search Bar */}
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <Search size={16} className={styles.searchIcon} />
+              <input 
+                type="text" 
+                placeholder="SEARCH ARCHIVE..." 
+                className={styles.searchInput}
+              />
+            </div>
+          </div>
+
+          <div className={styles.navLabel}>// DISCOVERY TYPE</div>
+          {/* Segmented Tab Switcher */}
           <div className={styles.segmentedControl}>
             <button 
               className={`${styles.segment} ${activeTab === 'artists' ? styles.activeSegment : ''}`}
@@ -127,196 +138,169 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
             </button>
           </div>
 
-          <div className={styles.dividerV} />
-
-          {/* Shared City Filter */}
-          <div className={styles.dropdownWrapper}>
-            <button 
-              className={`${styles.filterBtn} ${filters.city !== 'All' ? styles.activeBtn : ''}`}
-              onClick={() => toggleDropdown('city')}
-            >
-              <MapPin size={14} />
-              {filters.city === 'All' ? 'Location' : filters.city}
-              <ChevronDown size={14} />
-            </button>
-            {openDropdown === 'city' && (
-              <div className={styles.dropdown}>
-                {CITIES.map(c => (
-                  <button key={c} className={styles.dropdownItem} onClick={() => handleFilterSelect('city', c)}>
-                    {c}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Artist: Discipline */}
-          {activeTab === 'artists' && (
+          <div className={styles.navLabel}>// PARAMETERS</div>
+          
+          <div className={styles.filterVertical}>
+            {/* Shared City Filter */}
             <div className={styles.dropdownWrapper}>
               <button 
-                className={`${styles.filterBtn} ${filters.discipline !== 'All' ? styles.activeBtn : ''}`}
-                onClick={() => toggleDropdown('discipline')}
+                className={`${styles.filterBtn} ${filters.city !== 'All' ? styles.activeBtn : ''}`}
+                onClick={() => toggleDropdown('city')}
               >
-                <Briefcase size={14} />
-                {filters.discipline === 'All' ? 'Discipline' : filters.discipline}
-                <ChevronDown size={14} />
+                <MapPin size={14} />
+                {filters.city === 'All' ? 'Location' : filters.city}
+                <ChevronDown size={14} className={styles.chevron} />
               </button>
-              {openDropdown === 'discipline' && (
+              {openDropdown === 'city' && (
                 <div className={styles.dropdown}>
-                  {DISCIPLINES.map(d => (
-                    <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('discipline', d)}>
-                      {d}
+                  {CITIES.map(c => (
+                    <button key={c} className={styles.dropdownItem} onClick={() => handleFilterSelect('city', c)}>
+                      {c}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-          )}
 
-          {/* Event: Type & Date */}
-          {activeTab === 'events' && (
-            <>
+            {/* Artist: Discipline */}
+            {activeTab === 'artists' && (
               <div className={styles.dropdownWrapper}>
                 <button 
-                  className={`${styles.filterBtn} ${filters.type !== 'All' ? styles.activeBtn : ''}`}
-                  onClick={() => toggleDropdown('type')}
+                  className={`${styles.filterBtn} ${filters.discipline !== 'All' ? styles.activeBtn : ''}`}
+                  onClick={() => toggleDropdown('discipline')}
                 >
-                  <Filter size={14} />
-                  {filters.type === 'All' ? 'Type' : filters.type}
-                  <ChevronDown size={14} />
+                  <Briefcase size={14} />
+                  {filters.discipline === 'All' ? 'Discipline' : filters.discipline}
+                  <ChevronDown size={14} className={styles.chevron} />
                 </button>
-                {openDropdown === 'type' && (
+                {openDropdown === 'discipline' && (
                   <div className={styles.dropdown}>
-                    {EVENT_TYPES.map(t => (
-                      <button key={t} className={styles.dropdownItem} onClick={() => handleFilterSelect('type', t)}>
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className={styles.dropdownWrapper}>
-                <button 
-                  className={`${styles.filterBtn} ${filters.date !== 'Any' ? styles.activeBtn : ''}`}
-                  onClick={() => toggleDropdown('date')}
-                >
-                  {filters.date === 'Any' ? 'Date' : filters.date}
-                  <ChevronDown size={14} />
-                </button>
-                {openDropdown === 'date' && (
-                  <div className={styles.dropdown}>
-                    {EVENT_DATES.map(d => (
-                      <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('date', d)}>
+                    {DISCIPLINES.map(d => (
+                      <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('discipline', d)}>
                         {d}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
-            </>
-          )}
-        </div>
+            )}
 
-        <div className={styles.filterActions}>
-          {activeTab === 'events' && (
-            <button className={styles.surpriseBtn} onClick={handleSurpriseMe}>
-              Surprise me
-            </button>
-          )}
-        </div>
-      </div>
-
-
-
-      {/* ── Utility Row (Results Count & Sort) ── */}
-      <div className={styles.utilityRow}>
-        <div className={styles.resultsCount}>
-          {loading ? 'Searching...' : `${results.total} ${activeTab} available`}
-        </div>
-
-        <div className={styles.dropdownWrapper}>
-          <button className={styles.sortBtn} onClick={() => toggleDropdown('sort')}>
-            Sort: {filters.sort} <ChevronDown size={14} />
-          </button>
-          {openDropdown === 'sort' && (
-            <div className={styles.dropdown} style={{ right: 0, left: 'auto' }}>
-              {(activeTab === 'artists' ? ARTIST_SORT : EVENT_SORT).map(s => (
-                <button key={s} className={styles.dropdownItem} onClick={() => handleFilterSelect('sort', s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Results Grid (Uniform Layout) ── */}
-      <section className={styles.results}>
-        {!loading && results.data.length > 0 ? (
-          <div className={styles.uniformGrid}>
-            {results.data.map((item: any, i: number) => {
-              // Race condition safety check
-              const isArtistData = !!item.user;
-              const isEventData = !!item.event;
-
-              if (activeTab === 'artists' && !isArtistData) return null;
-              if (activeTab === 'events' && !isEventData) return null;
-
-              return (
-                <div key={i} className={styles.cardReveal} style={{ '--delay': `${i * 40}ms` } as any}>
-                  {activeTab === 'artists' ? (
-                    <ArtistCard artist={item} />
-                  ) : (
-                    <EventCard item={item} />
+            {/* Event: Type & Date */}
+            {activeTab === 'events' && (
+              <>
+                <div className={styles.dropdownWrapper}>
+                  <button 
+                    className={`${styles.filterBtn} ${filters.type !== 'All' ? styles.activeBtn : ''}`}
+                    onClick={() => toggleDropdown('type')}
+                  >
+                    <Filter size={14} />
+                    {filters.type === 'All' ? 'Type' : filters.type}
+                    <ChevronDown size={14} className={styles.chevron} />
+                  </button>
+                  {openDropdown === 'type' && (
+                    <div className={styles.dropdown}>
+                      {EVENT_TYPES.map(t => (
+                        <button key={t} className={styles.dropdownItem} onClick={() => handleFilterSelect('type', t)}>
+                          {t}
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        ) : !loading && results.data.length === 0 ? (
-          <div className={styles.empty}>
-            <p>No results found for your selection.</p>
-          </div>
-        ) : (
-          <div className={styles.empty}>
-            <p>Searching...</p>
-          </div>
-        )}
-      </section>
+                <div className={styles.dropdownWrapper}>
+                  <button 
+                    className={`${styles.filterBtn} ${filters.date !== 'Any' ? styles.activeBtn : ''}`}
+                    onClick={() => toggleDropdown('date')}
+                  >
+                    <span className={styles.monoLabel}>DATE:</span>
+                    {filters.date === 'Any' ? 'ANYTIME' : filters.date}
+                    <ChevronDown size={14} className={styles.chevron} />
+                  </button>
+                  {openDropdown === 'date' && (
+                    <div className={styles.dropdown}>
+                      {EVENT_DATES.map(d => (
+                        <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('date', d)}>
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
-      {/* ── Discipline Scrollable Row (Below results) ── */}
-      {activeTab === 'artists' && (
-        <section className={styles.disciplineSection}>
-          <div className={styles.disciplineScrollWrapper}>
-            <div className={styles.disciplineGrid}>
-              {DISCIPLINES.map((d, i) => {
-                const colorClass = 
-                  d === 'Music' ? styles.cardYellow :
-                  d === 'Printmaking' ? styles.cardGreen :
-                  d === 'Fashion' ? styles.cardCyan :
-                  d === 'Photography' ? styles.cardYellow :
-                  styles.cardNeutral;
+            <div className={styles.dropdownWrapper}>
+              <button className={styles.filterBtn} onClick={() => toggleDropdown('sort')}>
+                <span className={styles.monoLabel}>SORT:</span> {filters.sort.toUpperCase()} 
+                <ChevronDown size={14} className={styles.chevron} />
+              </button>
+              {openDropdown === 'sort' && (
+                <div className={styles.dropdown}>
+                  {(activeTab === 'artists' ? ARTIST_SORT : EVENT_SORT).map(s => (
+                    <button key={s} className={styles.dropdownItem} onClick={() => handleFilterSelect('sort', s)}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
-                const counts: Record<string, number> = {
-                  'Music': 4, 'Printmaking': 3, 'Street Art': 6, '3D Art': 5,
-                  'Fashion': 8, 'Calligraphy': 4, 'Visual Arts': 12, 'Photography': 7
-                };
+          <div className={styles.sidebarFooter}>
+            <div className={styles.statusLine}>
+              <span className={styles.statusDot} />
+              {loading ? 'SYNCING ARCHIVE...' : `${results.total} ${activeTab.toUpperCase()} ONLINE`}
+            </div>
+            
+            {activeTab === 'events' && (
+              <button className={styles.surpriseBtn} onClick={handleSurpriseMe}>
+                Surprise me
+              </button>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* ── RIGHT PANE: RESULTS ──────────────────────── */}
+      <section className={styles.resultsPane}>
+        <div className={styles.resultsHeader}>
+          <div className={styles.resultsMeta}>
+            // {activeTab.toUpperCase()} / {filters.city.toUpperCase()} / {filters.sort.toUpperCase()}
+          </div>
+        </div>
+
+        <div className={styles.resultsScrollArea}>
+          {!loading && results.data.length > 0 ? (
+            <div className={styles.uniformGrid}>
+              {results.data.map((item: any, i: number) => {
+                const isArtistData = !!item.user;
+                const isEventData = !!item.event;
+                if (activeTab === 'artists' && !isArtistData) return null;
+                if (activeTab === 'events' && !isEventData) return null;
 
                 return (
-                  <button 
-                    key={d} 
-                    className={`${styles.disciplineCard} ${colorClass}`}
-                    onClick={() => handleFilterSelect('discipline', d)}
-                  >
-                    <span className={styles.cardMeta}>// {counts[d] || 0}</span>
-                    <h3 className={styles.cardTitle}>{d}</h3>
-                  </button>
+                  <div key={i} className={styles.cardReveal} style={{ '--delay': `${i * 40}ms` } as any}>
+                    {activeTab === 'artists' ? (
+                      <ArtistCard artist={item} />
+                    ) : (
+                      <EventCard item={item} />
+                    )}
+                  </div>
                 );
               })}
             </div>
-          </div>
-        </section>
-      )}
+          ) : !loading && results.data.length === 0 ? (
+            <div className={styles.empty}>
+              <p>NO RESULTS FOUND FOR YOUR SELECTION.</p>
+            </div>
+          ) : (
+            <div className={styles.empty}>
+              <p>SEARCHING...</p>
+            </div>
+          )}
+
+        </div>
+      </section>
     </div>
   );
 }
@@ -325,26 +309,27 @@ function ArtistCard({ artist }: { artist: any }) {
   if (!artist?.user) return null;
 
   return (
-    <Link href={`/${artist.user.username}`} className="event-card" style={{ display: 'block' }}>
-      <div className="event-card__cover" style={{ position: 'relative', width: '100%', aspectRatio: '4/5' }}>
+    <Link href={`/${artist.user.username}`} className={styles.technicalCard}>
+      <div className={styles.cardCover}>
         <Image
-          src={artist.user.avatar_url || '/images/default-avatar.png'}
+          src={artist.user.avatar_url || '/images/mairaj_ulhaq.png'}
           alt={artist.user.full_name}
           fill
-          className="avatar"
+          className={styles.cardImg}
           sizes="33vw"
-          style={{ objectFit: 'cover' }}
         />
-        <div className="event-card__top">
-          <span className="chip chip-ink">{artist.profile?.disciplines?.[0] || 'Artist'}</span>
-          {artist.profile?.verified && <span className="chip chip-yellow">VERIFIED</span>}
+        <div className={styles.cardBadge}>
+          <span className={styles.tag}>{artist.profile?.disciplines?.[0] || 'ARTIST'}</span>
         </div>
-        <div className="event-card__body">
-          <span className="event-card__meta">{artist.user.city}</span>
-          <h3 className="event-card__title">
-            {artist.user.full_name}
-          </h3>
+      </div>
+      <div className={styles.cardInfo}>
+        <div className={styles.cardMeta}>
+          <span>{artist.user.city.toUpperCase()}</span>
+          <span>{artist.profile?.verified ? '// VERIFIED' : ''}</span>
         </div>
+        <h3 className={styles.cardName}>
+          {artist.user.full_name}
+        </h3>
       </div>
     </Link>
   );
@@ -355,26 +340,28 @@ function EventCard({ item }: { item: any }) {
   if (!event) return null;
 
   return (
-    <Link href={`/events/${event.id}`} className="event-card" style={{ display: 'block' }}>
-      <div className="event-card__cover" style={{ position: 'relative', width: '100%', aspectRatio: '1/1' }}>
+    <Link href={`/events/${event.id}`} className={styles.technicalCard}>
+      <div className={styles.cardCover}>
         <Image
           src={event.cover_image_url ?? ""}
           alt={event.title}
           fill
-          className="avatar"
+          className={styles.cardImg}
           sizes="33vw"
-          style={{ objectFit: 'cover' }}
         />
-        <div className="event-card__top">
-          <span className={`chip chip-${event.event_type.toLowerCase()}`}>{event.event_type}</span>
-          <span className="chip chip-price">{event.is_free ? 'FREE' : formatPKR(event.min_price)}</span>
+        <div className={styles.cardBadge}>
+          <span className={styles.tag}>{event.event_type.toUpperCase()}</span>
         </div>
-        <div className="event-card__body">
-          <span className="event-card__meta">{formatDate(event.starts_at)} · {event.venue_name}</span>
-          <h3 className="event-card__title">
-            {event.title}
-          </h3>
+      </div>
+      <div className={styles.cardInfo}>
+        <div className={styles.cardMeta}>
+          <span>{formatDate(event.starts_at).toUpperCase()}</span>
+          <span>{event.is_free ? 'FREE' : formatPKR(event.min_price)}</span>
         </div>
+        <h3 className={styles.cardName}>
+          {event.title}
+        </h3>
+        <p className={styles.cardVenue}>{event.venue_name.toUpperCase()}</p>
       </div>
     </Link>
   );

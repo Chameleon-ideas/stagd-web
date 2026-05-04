@@ -2,33 +2,103 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Header } from '@/components/layout/Header';
 import Image from 'next/image';
 import { Search, Send, Plus, MoreVertical, Paperclip } from 'lucide-react';
 import styles from './page.module.css';
 
 // Mock Data for Messages
 const MOCK_CHATS = [
-  { id: '1', user: { full_name: 'Lyari Underground', avatar_url: '/images/lyari.png', status: 'online' }, lastMessage: 'The brief looks great, let\'s talk details.', time: '12:45 PM', unread: 2 },
-  { id: '2', user: { full_name: 'Risograph Karachi', avatar_url: '/images/riso.png', status: 'offline' }, lastMessage: 'Sure, I can have the prints ready by Friday.', time: 'Yesterday', unread: 0 },
-  { id: 'mairaj_ulhaq', user: { full_name: 'Mairaj Ulhaq', avatar_url: '/images/mairaj/profile.jpg', status: 'online' }, lastMessage: 'New Commission Enquiry', time: 'Just now', unread: 1 },
+  { 
+    id: 'mairaj_ulhaq', 
+    user: { full_name: 'Mairaj Ulhaq', avatar_url: '/images/mairaj_ulhaq.png', status: 'online' }, 
+    lastMessage: '// NEW COMMISSION ENQUIRY', 
+    time: 'JUST NOW', 
+    unread: 1,
+    online: true,
+    avatar: '/images/mairaj_ulhaq.png',
+    name: 'Mairaj Ulhaq',
+    messages: [
+      { id: 'm1', text: 'Hey — saw your work on the Sufi cover series. Editorial?', time: '12:46 PM', sent: true },
+      { id: 'm2', text: 'I need a high-end product shoot for a new luxury perfume. Looking for that cinematic, liquid-texture style you specialize in.', time: '12:45 PM', sent: false, isBrief: true }
+    ]
+  },
+  { 
+    id: 'lyari_underground', 
+    user: { full_name: 'Lyari Underground', avatar_url: '/images/lyari.png', status: 'online' }, 
+    lastMessage: 'The brief looks great, let\'s talk.', 
+    time: '12:45 PM', 
+    unread: 2,
+    online: true,
+    avatar: '/images/lyari.png',
+    name: 'Lyari Underground',
+    messages: [
+      { id: 'l1', text: 'The brief looks great, let\'s talk.', time: '12:45 PM', sent: false }
+    ]
+  },
+  { 
+    id: 'risograph_khi', 
+    user: { full_name: 'Risograph Karachi', avatar_url: '/images/riso.png', status: 'offline' }, 
+    lastMessage: 'Sure, I can have the prints ready.', 
+    time: 'YESTERDAY', 
+    unread: 0,
+    online: false,
+    avatar: '/images/riso.png',
+    name: 'Risograph Karachi',
+    messages: [
+      { id: 'r1', text: 'Sure, I can have the prints ready.', time: 'YESTERDAY', sent: false }
+    ]
+  },
 ];
 
 function MessagesContent() {
   const searchParams = useSearchParams();
   const recipientId = searchParams.get('recipient');
-  const [activeChat, setActiveChat] = useState<string | null>(recipientId || '1');
+  const [activeChatId, setActiveChatId] = useState<string | null>(recipientId || 'mairaj_ulhaq');
   const [messageText, setMessageText] = useState('');
+  const [conversations, setConversations] = useState<Record<string, any[]>>(() => {
+    const initial: Record<string, any[]> = {};
+    MOCK_CHATS.forEach(chat => {
+      initial[chat.id] = [...chat.messages];
+    });
+    return initial;
+  });
+  
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of chat
+  const activeChatData = MOCK_CHATS.find(c => c.id === activeChatId);
+  const activeMessages = activeChatId ? conversations[activeChatId] : [];
+
+  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [activeChat]);
+  }, [activeMessages, activeChatId]);
 
-  const activeChatData = MOCK_CHATS.find(c => c.id === activeChat);
+  const handleSendMessage = () => {
+    if (!messageText.trim() || !activeChatId) return;
+
+    const newMessage = {
+      id: Date.now().toString(),
+      text: messageText,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      sent: true
+    };
+
+    setConversations(prev => ({
+      ...prev,
+      [activeChatId]: [...prev[activeChatId], newMessage]
+    }));
+    
+    setMessageText('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
     <main className={styles.main}>
@@ -48,8 +118,8 @@ function MessagesContent() {
           {MOCK_CHATS.map(chat => (
             <div 
               key={chat.id} 
-              className={`${styles.chatItem} ${activeChat === chat.id ? styles.activeItem : ''}`}
-              onClick={() => setActiveChat(chat.id)}
+              className={`${styles.chatItem} ${activeChatId === chat.id ? styles.activeItem : ''}`}
+              onClick={() => setActiveChatId(chat.id)}
             >
               <div className={styles.avatarWrapper}>
                 <Image src={chat.user.avatar_url} alt={chat.user.full_name} width={48} height={48} className={styles.avatar} />
@@ -61,7 +131,9 @@ function MessagesContent() {
                   <span className={styles.itemTime}>{chat.time}</span>
                 </div>
                 <div className={styles.itemBottom}>
-                  <p className={styles.itemPreview}>{chat.lastMessage}</p>
+                  <p className={styles.itemPreview}>
+                    {conversations[chat.id]?.[conversations[chat.id].length - 1]?.text || chat.lastMessage}
+                  </p>
                   {chat.unread > 0 && <span className={styles.unreadBadge}>{chat.unread}</span>}
                 </div>
               </div>
@@ -88,28 +160,41 @@ function MessagesContent() {
             </header>
 
             <div className={styles.messagesContainer} ref={scrollRef}>
-              <div className={styles.dateSeparator}><span>MAY 03, 2026</span></div>
+              <div className={styles.dateSeparator}><span>// MAY 03, 2026</span></div>
 
-              {/* Example Commission Brief Message */}
-              <div className={styles.messageReceived}>
-                <div className={styles.briefCard}>
-                  <span className={styles.briefLabel}>COMMISSION BRIEF</span>
-                  <h3 className={styles.briefTitle}>Fragrance Commercial Shoot</h3>
-                  <p className={styles.briefText}>I need a high-end product shoot for a new luxury perfume. Looking for that cinematic, liquid-texture style you specialize in.</p>
-                  <div className={styles.briefMeta}>
-                    <span>BUDGET: PKR 75,000</span>
-                    <span>DEADLINE: JUN 15</span>
-                  </div>
+              {activeMessages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={msg.sent ? styles.messageSent : styles.messageReceived}
+                >
+                  {msg.isBrief && (
+                    <div className={styles.briefCard}>
+                      <div className={styles.briefHeader}>
+                        <span className={styles.briefLabel}>// PROPOSAL</span>
+                        <span className={styles.briefTo}>TO MAIRAJ</span>
+                      </div>
+                      <h3 className={styles.briefTitle}>FRAGRANCE COMMERCIAL SHOOT</h3>
+                      <p className={styles.briefText}>{msg.text}</p>
+                      <div className={styles.briefFooter}>
+                        <div className={styles.briefStat}>
+                          <span>DISCIPLINE</span>
+                          <span>MARKETING CONTENT</span>
+                        </div>
+                        <div className={styles.briefStat}>
+                          <span>EST. BUDGET</span>
+                          <span>PKR 75,000</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {!msg.isBrief && (
+                    <div className={styles.messageBubble}>
+                      {msg.text}
+                    </div>
+                  )}
+                  <span className={styles.timestamp}>{msg.time}</span>
                 </div>
-                <span className={styles.timestamp}>12:45 PM</span>
-              </div>
-
-              <div className={styles.messageSent}>
-                <div className={styles.messageBubble}>
-                  The brief looks great, let's talk details. Do you have a moodboard yet?
-                </div>
-                <span className={styles.timestamp}>12:46 PM</span>
-              </div>
+              ))}
             </div>
 
             <footer className={styles.chatInput}>
@@ -121,8 +206,14 @@ function MessagesContent() {
                   className={styles.textInput}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
+                  onKeyDown={handleKeyPress}
                 />
-                <button className={styles.sendBtn}><Send size={20} /></button>
+                <button 
+                  className={styles.sendBtn}
+                  onClick={handleSendMessage}
+                >
+                  <Send size={20} />
+                </button>
               </div>
             </footer>
           </>
@@ -136,19 +227,20 @@ function MessagesContent() {
   );
 }
 
+import { WorkstationLayout } from '@/components/layout/WorkstationLayout';
+
 export default function MessagesPage() {
   return (
-    <div className={styles.page}>
-      <Header />
+    <WorkstationLayout>
       <Suspense fallback={
         <main className={styles.main}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100vh', fontStyle: 'italic', color: '#aaa' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', fontStyle: 'italic', color: '#aaa' }}>
             Loading conversations...
           </div>
         </main>
       }>
         <MessagesContent />
       </Suspense>
-    </div>
+    </WorkstationLayout>
   );
 }
