@@ -19,7 +19,14 @@ const DISCIPLINE_COLORS: Record<string, string> = {
   'Product Photography': 'var(--color-yellow)',
   'Marketing Content': 'var(--color-cyan)',
   'Product Design': 'var(--color-lime)',
-  'Studio': 'var(--color-red)'
+  'Studio': 'var(--color-red)',
+  'Photography': 'var(--color-orange)',
+  'Fashion': 'var(--color-pink)',
+  'Textile Design': 'var(--color-cyan)',
+  'Calligraphy': 'var(--color-yellow)',
+  'Visual Arts': 'var(--color-lime)',
+  'Journalism': 'var(--color-red)',
+  'Street Art': 'var(--color-orange)'
 };
 
 const getTagColor = (d: string) => DISCIPLINE_COLORS[d] || 'var(--color-yellow)';
@@ -32,6 +39,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const [direction, setDirection] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isCommissionOpen, setIsCommissionOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   
   const projects = profile.projects || [];
 
@@ -89,22 +97,22 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   };
 
   useEffect(() => {
-    let lastWheelTime = 0;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (selectedIndex !== null) setSelectedIndex(null);
+        else if (isAboutOpen) setIsAboutOpen(false);
+      }
+      if (selectedIndex === null) return;
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+    };
+
     const handleWheel = (e: WheelEvent) => {
       if (selectedIndex === null || isAnimating) return;
-      
-      // Horizontal or Vertical flick
       if (Math.abs(e.deltaX) > 30 || Math.abs(e.deltaY) > 30) {
         if (e.deltaX > 0 || e.deltaY > 0) nextImage();
         else prevImage();
       }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedIndex === null) return;
-      if (e.key === 'ArrowRight') nextImage();
-      if (e.key === 'ArrowLeft') prevImage();
-      if (e.key === 'Escape') setSelectedIndex(null);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -113,7 +121,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [selectedIndex, nextImage, prevImage]);
+  }, [selectedIndex, isAboutOpen, isAnimating, nextImage, prevImage]);
 
   const scrollToProject = (id: string) => {
     const el = document.getElementById(id);
@@ -133,7 +141,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       opacity: 1,
       scale: 1,
       transition: {
-        x: { type: "tween", duration: 0.8, ease: [0.16, 1, 0.3, 1] }, // Custom expoOut
+        x: { type: "tween", duration: 0.8, ease: [0.16, 1, 0.3, 1] },
         opacity: { duration: 0.4 }
       }
     },
@@ -150,6 +158,45 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
   return (
     <div className={styles.container}>
+      {/* ── ABOUT OVERLAY ── */}
+      <AnimatePresence>
+        {isAboutOpen && (
+          <motion.div 
+            className={styles.aboutOverlay}
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          >
+            <button className={styles.aboutClose} onClick={() => setIsAboutOpen(false)}>
+              // CLOSE_BIOGRAPHY [ESC]
+            </button>
+            <div className={styles.aboutContent}>
+              <div className={styles.aboutHeader}>
+                <h2 className={styles.aboutTitle}>{profile.user.full_name}</h2>
+                <div className={styles.aboutMeta}>
+                  <span>// ORIGIN: {profile.user.city?.toUpperCase()}</span>
+                  <span>// JOINED: {new Date(profile.user.created_at || Date.now()).getFullYear()}</span>
+                </div>
+              </div>
+              <div className={styles.aboutBodySplit}>
+                <div className={styles.aboutText}>
+                  <p>{profile.detailed_bio || profile.profile.bio}</p>
+                </div>
+                <div className={styles.aboutPortraitWrapper}>
+                  <img 
+                    src={profile.user.avatar_url} 
+                    alt={profile.user.full_name} 
+                    className={styles.aboutPortrait}
+                  />
+                  <div className={styles.portraitLabel}>// PROFILE_ID: {profile.user.username?.toUpperCase()}</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── IMAGE LIGHTBOX (DYNAMIC) ── */}
       <AnimatePresence initial={false} custom={direction}>
         {selectedImage && (
@@ -240,24 +287,44 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
           <p className={styles.bio}>{profile.profile.bio}</p>
 
           <nav className={styles.navSection}>
-            <span className={styles.navLabel}>// Project Index</span>
+            <span className={styles.navLabel}>// Navigation Index</span>
+            <button 
+              className={styles.aboutLink}
+              onClick={() => setIsAboutOpen(true)}
+              aria-label="View artist biography and technical specifications"
+            >
+              [ ABOUT THE ARTIST ]
+            </button>
             {projects.map((project: any) => (
               <button 
                 key={project.id} 
                 className={styles.projectLink}
-                onClick={() => scrollToProject(project.id)}
+                onClick={() => {
+                  setIsAboutOpen(false);
+                  scrollToProject(project.id);
+                }}
+                aria-label={`Scroll to project: ${project.title}`}
               >
                 {project.title}
               </button>
             ))}
           </nav>
 
-          <div className={styles.navSection}>
+          <div className={styles.navSection} aria-label="Technical specifications">
             <span className={styles.navLabel}>// Technical Specs</span>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-faint)' }}>
-              <p>Rate: PKR {profile.profile.starting_rate?.toLocaleString()}+</p>
-              <p>Projects: {profile.project_count}</p>
-              <p>Location: {profile.user.city}</p>
+            <div className={styles.specsList}>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>RATE:</span>
+                <span className={styles.specValue}>PKR {profile.profile.starting_rate?.toLocaleString()}+</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>PROJECTS:</span>
+                <span className={styles.specValue}>{profile.project_count}</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>LOCATION:</span>
+                <span className={styles.specValue}>{profile.user.city?.toUpperCase()}</span>
+              </div>
             </div>
           </div>
 
@@ -306,23 +373,33 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
             <div className={styles.bentoGrid}>
               {/* Primary Hero */}
               <div 
-                className={`${styles.imageWrapper} ${styles.heroImage}`}
+                className={styles.imageWrapper}
                 onClick={() => openLightbox(project.cover_image_url)}
               >
                 <div className={styles.imageHover}><ZoomIn size={40} /></div>
-                <Image src={project.cover_image_url} alt={project.title} fill className={styles.projectImage} priority={pIndex === 0} />
+                <img 
+                  src={project.cover_image_url} 
+                  alt={project.title} 
+                  className={styles.projectImage} 
+                  loading={pIndex === 0 ? "eager" : "lazy"} 
+                />
               </div>
 
               {/* Sub items in bento pattern */}
               <div className={styles.subGrid}>
-                {project.items.map((item: any, i: number) => (
+                {project.items.map((item: any) => (
                   <div 
                     key={item.id} 
-                    className={`${styles.imageWrapper} ${i % 3 === 0 ? styles.tall : ''}`}
+                    className={styles.imageWrapper}
                     onClick={() => openLightbox(item.image_url)}
                   >
                     <div className={styles.imageHover}><Maximize2 size={24} /></div>
-                    <Image src={item.image_url} alt={item.title} fill className={styles.projectImage} />
+                    <img 
+                      src={item.image_url} 
+                      alt={item.title} 
+                      className={styles.projectImage} 
+                      loading="lazy" 
+                    />
                   </div>
                 ))}
               </div>
@@ -368,7 +445,12 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   onClick={() => openLightbox(item.image_url)}
                  >
                    <div className={styles.imageHover}><Maximize2 size={20} /></div>
-                   <Image src={item.image_url} alt={item.title} fill className={styles.projectImage} />
+                   <img 
+                     src={item.image_url} 
+                     alt={item.title} 
+                     className={styles.projectImage} 
+                     loading="lazy" 
+                   />
                  </motion.div>
                ))}
              </div>

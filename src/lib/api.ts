@@ -228,16 +228,18 @@ export async function searchArtists(params?: {
 // MOCK DATA
 // ════════════════════════════════════════════════════════════
 
+// ── MOCK DATA ────────────────────────────────────────────────
+
 const MOCK_EVENTS: Record<string, Event> = {
   event_1: {
     id: 'event_1',
-    organiser_id: 'lyari_underground',
-    organiser: { id: 'lyari_underground', full_name: 'Lyari Underground', username: 'lyari_underground', avatar_url: '/images/lyari.png' },
-    title: 'Sounds of Lyari Festival',
+    organiser_id: 'osman_malik',
+    organiser: { id: 'osman_malik', full_name: 'Osman Malik', username: 'osman_malik', avatar_url: '/images/osman_portrait.png' },
+    title: 'Glitch Heritage Live',
     event_type: 'concert',
-    cover_image_url: 'https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=1200&fit=crop',
-    venue_name: 'T2F Garden',
-    city: 'Karachi',
+    cover_image_url: '/images/osman_project.png',
+    venue_name: 'The Grid Lahore',
+    city: 'Lahore',
     starts_at: '2026-05-12T20:00:00Z',
     status: 'live',
     created_at: '',
@@ -248,12 +250,12 @@ const MOCK_EVENTS: Record<string, Event> = {
   },
   event_2: {
     id: 'event_2',
-    organiser_id: 'risograph_khi',
-    organiser: { id: 'risograph_khi', full_name: 'Risograph Karachi', username: 'risograph_khi', avatar_url: '/images/riso.png' },
-    title: 'Intro to Riso Printing',
+    organiser_id: 'hamza_qureshi',
+    organiser: { id: 'hamza_qureshi', full_name: 'Hamza Qureshi', username: 'hamza_qureshi', avatar_url: '/images/hamza_portrait.png' },
+    title: 'Modern Qalam Workshop',
     event_type: 'workshop',
-    cover_image_url: 'https://images.unsplash.com/photo-1598301257982-0cf014dabbcd?q=80&w=1200&fit=crop',
-    venue_name: 'Stagd Studio',
+    cover_image_url: '/images/hamza_project.png',
+    venue_name: 'Stagd Studio Karachi',
     city: 'Karachi',
     starts_at: '2026-05-14T14:00:00Z',
     status: 'live',
@@ -265,12 +267,12 @@ const MOCK_EVENTS: Record<string, Event> = {
   },
   event_3: {
     id: 'event_3',
-    organiser_id: 'sanki_king',
-    organiser: { id: 'sanki_king', full_name: 'Sanki King', username: 'sanki_king', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddda0d7c75?q=80&w=150&fit=crop' },
-    title: 'Street Art Jam Vol. 04',
+    organiser_id: 'bilal_ahmed',
+    organiser: { id: 'bilal_ahmed', full_name: 'Bilal Ahmed', username: 'bilal_ahmed', avatar_url: '/images/bilal_portrait.png' },
+    title: 'Street Jam Karachi',
     event_type: 'workshop',
-    cover_image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop',
-    venue_name: 'Old City Walls',
+    cover_image_url: '/images/bilal_project.png',
+    venue_name: 'Lyari Public Walls',
     city: 'Karachi',
     starts_at: '2026-05-20T17:00:00Z',
     status: 'live',
@@ -283,72 +285,197 @@ const MOCK_EVENTS: Record<string, Event> = {
 };
 
 const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
-  lyari_underground: {
-    user: { id: 'artist_1', full_name: 'Lyari Underground', username: 'lyari_underground', city: 'Karachi', avatar_url: '/images/lyari.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_1', bio: 'The sound of the streets.', disciplines: ['Music', 'Street Art'], availability: 'available', starting_rate: 50000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 4.9, review_count: 24, follower_count: 1200, project_count: 45,
+  mairaj_ulhaq: {
+    user: { id: 'm1', full_name: 'Mairaj Ulhaq', username: 'mairaj_ulhaq', city: 'Karachi', avatar_url: '/images/mairaj_ulhaq.png', role: 'creative', created_at: '2021-01-01', phone: '' },
+    profile: { id: 'p_m1', bio: 'Editorial Photographer and Product specialist based in Karachi.', disciplines: ['Photography', 'Marketing Content'], availability: 'available', starting_rate: 65000, verified: true },
+    detailed_bio: "Mairaj Ulhaq is a commercial photographer with over a decade of experience in capturing the intersection of grit and luxury. His work for brands like Khaadi and Edenrobe has defined a new cinematic standard for Pakistani product photography. Based in Karachi, he operates a boutique studio specializing in high-fidelity visual storytelling. His approach blends technical precision with an editorial soul, finding beauty in the most minimalist of subjects.",
+    portfolio: [
+       { id: 'port_m1', artist_id: 'm1', title: 'Fragrance Study', category: 'Product', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+       { id: 'port_m2', artist_id: 'm1', title: 'Watch Details', category: 'Product', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+       { id: 'port_m3', artist_id: 'm1', title: 'Minimalist Objects', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1511556820780-d912e42b4980?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
+       { id: 'port_m4', artist_id: 'm1', title: 'Leather Craft', category: 'Product', image_url: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
+       { id: 'port_m5', artist_id: 'm1', title: 'Architectural Shadow', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?q=80&w=1200&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
+       { id: 'port_m6', artist_id: 'm1', title: 'Monochrome Still', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?q=80&w=1200&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
+       { id: 'port_m7', artist_id: 'm1', title: 'Luxury Detail', category: 'Product', image_url: 'https://images.unsplash.com/photo-1526170315870-ef0d9406085a?q=80&w=1200&fit=crop', sort_order: 6, is_hidden: false, created_at: '' },
+       { id: 'port_m8', artist_id: 'm1', title: 'Urban Geometry', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&fit=crop', sort_order: 7, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { 
+        id: 'proj_m1', 
+        artist_id: 'm1', 
+        title: 'Commercial Series', 
+        description: 'A study in minimalist luxury branding and product interaction.', 
+        discipline: 'Product Photography',
+        cover_image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', 
+        items: [
+          { id: 'm-p1-1', project_id: 'proj_m1', title: 'No. 5 Study', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop' },
+          { id: 'm-p1-2', project_id: 'proj_m1', title: 'Texture Detail', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop' },
+        ], 
+        created_at: '' 
+      },
+      { 
+        id: 'proj_m2', 
+        artist_id: 'm1', 
+        title: 'Editorial Objects', 
+        description: 'Exploring the sculptural qualities of everyday retail objects.', 
+        discipline: 'Editorial',
+        cover_image_url: 'https://images.unsplash.com/photo-1511556820780-d912e42b4980?q=80&w=1200&fit=crop', 
+        items: [
+          { id: 'm-p2-1', project_id: 'proj_m2', title: 'Abstract Forms', image_url: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?q=80&w=1200&fit=crop' },
+          { id: 'm-p2-2', project_id: 'proj_m2', title: 'Shadow Play', image_url: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?q=80&w=1200&fit=crop' },
+        ], 
+        created_at: '' 
+      }
+    ],
+    past_projects: [], reviews: [], review_average: 4.9, review_count: 12, follower_count: 2400, project_count: 32,
+  },
+  hamza_qureshi: {
+    user: { id: 'h1', full_name: 'Hamza Qureshi', username: 'hamza_qureshi', city: 'Karachi', avatar_url: '/images/hamza_portrait.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'p_h1', bio: 'Contemporary Calligrapher exploring the intersection of traditional scripts and modern abstract expressionism.', disciplines: ['Calligraphy', 'Visual Arts'], availability: 'available', starting_rate: 45000, verified: true },
+    detailed_bio: "Hamza Qureshi is a Karachi-based visual artist whose work reinterprets classical Arabic calligraphy through the lens of modern minimalism. A graduate of NCA, Hamza has spent the last five years creating large-scale murals and digital installations that bring ancient scripts into the 21st-century urban environment.",
+    portfolio: [
+      { id: 'port_h1', artist_id: 'h1', title: 'Golden Scripts', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'port_h2', artist_id: 'h1', title: 'Ink Study', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+      { id: 'port_h3', artist_id: 'h1', title: 'Abstract Flow', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
+      { id: 'port_h4', artist_id: 'h1', title: 'Urban Texture', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
+      { id: 'port_h5', artist_id: 'h1', title: 'Minimalist Script', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
+      { id: 'port_h6', artist_id: 'h1', title: 'Modern Mural', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { 
+        id: 'proj_h1', 
+        artist_id: 'h1', 
+        title: 'Modern Qalam', 
+        description: 'A collection of script studies bridging traditional techniques and contemporary abstraction.', 
+        discipline: 'Calligraphy',
+        cover_image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', 
+        items: [
+          { id: 'h-p1-1', project_id: 'proj_h1', title: 'Script Study 01', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop' },
+          { id: 'h-p1-2', project_id: 'proj_h1', title: 'Script Study 02', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop' },
+        ], 
+        created_at: '' 
+      },
+      { 
+        id: 'proj_h2', 
+        artist_id: 'h1', 
+        title: 'Karachi Murals', 
+        description: 'Public installations reclaiming urban concrete across Karachi.', 
+        discipline: 'Visual Arts',
+        cover_image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', 
+        items: [
+          { id: 'h-p2-1', project_id: 'proj_h2', title: 'Wall Study 01', image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop' },
+        ], 
+        created_at: '' 
+      }
+    ],
+    past_projects: [], reviews: [], review_average: 4.9, review_count: 24, follower_count: 1200, project_count: 12,
+  },
+  zoya_khan: {
+    user: { id: 'z1', full_name: 'Zoya Khan', username: 'zoya_khan', city: 'Lahore', avatar_url: '/images/zoya_portrait.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'p_z1', bio: 'Fashion Designer specializing in architectural bridal silhouettes and sustainable luxury.', disciplines: ['Fashion', 'Textile Design'], availability: 'busy', starting_rate: 120000, verified: true },
+    detailed_bio: "Zoya Khan is an avant-garde fashion designer based in Lahore. Known for her 'Architectural Bridal' series, she fuses traditional Pakistani embroidery with structural silhouettes inspired by Mughal architecture. Zoya is a vocal advocate for sustainable fashion and works exclusively with hand-loomed fabrics from rural Punjab.",
+    portfolio: [
+      { id: 'port_z1', artist_id: 'z1', title: 'Architectural Bridal', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1594465919760-441fe5908ab0?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'port_z2', artist_id: 'z1', title: 'Loom Study', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+      { id: 'port_z3', artist_id: 'z1', title: 'Silk Draping', category: 'Textile Design', image_url: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
+      { id: 'port_z4', artist_id: 'z1', title: 'Embroidery Detail', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1605462863863-10d9e47e15ee?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
+      { id: 'port_z5', artist_id: 'z1', title: 'Modern Silhouette', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
+      { id: 'port_z6', artist_id: 'z1', title: 'Textile Pattern', category: 'Textile Design', image_url: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1200&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { 
+        id: 'proj_z1', 
+        artist_id: 'z1', 
+        title: 'Emerald Fusion', 
+        description: 'A study in high-fashion bridal silhouettes inspired by Mughal structural architecture.', 
+        discipline: 'Fashion',
+        cover_image_url: 'https://images.unsplash.com/photo-1594465919760-441fe5908ab0?q=80&w=1200&fit=crop', 
+        items: [
+          { id: 'z-p1-1', project_id: 'proj_z1', title: 'Velvet Study', image_url: 'https://images.unsplash.com/photo-1594465919760-441fe5908ab0?q=80&w=1200&fit=crop' },
+        ], 
+        created_at: '' 
+      },
+      { 
+        id: 'proj_z2', 
+        artist_id: 'z1', 
+        title: 'Digital Silhouettes', 
+        description: 'Avant-garde 3D rendered fashion concepts exploring sustainable luxury.', 
+        discipline: 'Textile Design',
+        cover_image_url: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=1200&fit=crop', 
+        items: [], 
+        created_at: '' 
+      }
+    ],
+    past_projects: [], reviews: [], review_average: 4.8, review_count: 18, follower_count: 2100, project_count: 8,
+  },
+  bilal_ahmed: {
+    user: { id: 'b1', full_name: 'Bilal Ahmed', username: 'bilal_ahmed', city: 'Karachi', avatar_url: '/images/bilal_portrait.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'p_b1', bio: 'Street Artist and Muralist blending truck art heritage with modern graffiti techniques.', disciplines: ['Street Art', 'Visual Arts'], availability: 'available', starting_rate: 25000, verified: true },
+    detailed_bio: "Bilal Ahmed is a self-taught street artist from Lyari who has become the face of Karachi's modern mural movement. His work is characterized by the vibrant patterns of Pakistani truck art, reimagined as large-scale urban interventions. Bilal's mission is to reclaim public spaces and turn every wall into a canvas for social unity.",
+    portfolio: [
+      { id: 'port_b1', artist_id: 'b1', title: 'Truck Unity', category: 'Street Art', image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'port_b2', artist_id: 'b1', title: 'Concrete Garden', category: 'Street Art', image_url: 'https://images.unsplash.com/photo-1494173853739-c21f58b16055?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+      { id: 'port_b3', artist_id: 'b1', title: 'Lyari Colors', category: 'Street Art', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
+      { id: 'port_b4', artist_id: 'b1', title: 'Urban Flow', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { 
+        id: 'proj_b1', 
+        artist_id: 'b1', 
+        title: 'Karachi Walls', 
+        description: 'Large-scale urban interventions transforming concrete into canvases for social unity.', 
+        discipline: 'Street Art',
+        cover_image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop', 
+        items: [], 
+        created_at: '' 
+      }
+    ],
+    past_projects: [], reviews: [], review_average: 5.0, review_count: 32, follower_count: 5500, project_count: 45,
+  },
+  sara_siddiqui: {
+    user: { id: 's1', full_name: 'Sara Siddiqui', username: 'sara_siddiqui', city: 'Islamabad', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&fit=crop', role: 'creative', created_at: '2023-01-01', phone: '' },
+    profile: { id: 'p_s1', bio: 'Documentary Photographer focusing on high-contrast street visual storytelling.', disciplines: ['Photography', 'Journalism'], availability: 'available', starting_rate: 65000, verified: true },
+    detailed_bio: "Sara Siddiqui is an Islamabad-based documentary photographer whose lens captures the quiet, cinematic soul of Pakistan's streets. A former photojournalist, Sara transitioned to independent visual storytelling to focus on long-form projects documenting the lives of the working class. Her work is exclusively black and white, emphasizing light, shadow, and raw emotion.",
+    portfolio: [
+      { id: 'port_s1', artist_id: 's1', title: 'Lyari Chronicles', category: 'Photography', image_url: 'https://images.unsplash.com/photo-1554080353-a576cf803bda?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'port_s2', artist_id: 's1', title: 'Shadow Play', category: 'Photography', image_url: 'https://images.unsplash.com/photo-1554080353-a576cf803bda?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { 
+        id: 'proj_s1', 
+        artist_id: 's1', 
+        title: 'Street Studies', 
+        description: 'Cinematic documentary studies focusing on light, shadow, and raw urban emotion.', 
+        discipline: 'Photography',
+        cover_image_url: 'https://images.unsplash.com/photo-1554080353-a576cf803bda?q=80&w=1200&fit=crop', 
+        items: [], 
+        created_at: '' 
+      }
+    ],
+    past_projects: [], reviews: [], review_average: 4.7, review_count: 15, follower_count: 850, project_count: 22,
+  },
+  osman_malik: {
+    user: { id: 'o1', full_name: 'Osman Malik', username: 'osman_malik', city: 'Lahore', avatar_url: '/images/osman_portrait.png', role: 'creative', created_at: '', phone: '' },
+    profile: { id: 'p_o1', bio: 'Electronic Music Producer blending traditional sitar with futuristic glitch textures.', disciplines: ['Music', 'Sound Design'], availability: 'available', starting_rate: 80000, verified: true },
+    detailed_bio: "Osman Malik is a sound architect based in Lahore. His work, which he calls 'Glitch Heritage', involves sampling classical Pakistani instruments—sitar, rubab, and tabla—and deconstructing them through digital granular synthesis. Osman's live performances are immersive audiovisual experiences that bridge the gap between ancient melody and modern electronics.",
+    portfolio: [
+      { id: 'port_o1', artist_id: 'o1', title: 'Glitch Heritage', category: 'Digital Art', image_url: '/images/osman_project.png', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'port_o2', artist_id: 'o1', title: 'Sonic Textures', category: 'Digital Art', image_url: 'https://images.unsplash.com/photo-1514525253344-96467a3608d0?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+    ], 
+    projects: [
+      { id: 'proj_o1', artist_id: 'o1', title: 'Sonic Architecture', description: 'Visual studies of sound.', cover_image_url: '/images/osman_project.png', items: [], created_at: '' },
+      { id: 'proj_o2', artist_id: 'o1', title: 'Electronic Punjab', description: 'A concept album visualizer.', cover_image_url: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1200&fit=crop', items: [], created_at: '' }
+    ],
+    past_projects: [], reviews: [], review_average: 4.9, review_count: 21, follower_count: 12000, project_count: 32,
   },
   risograph_khi: {
-    user: { id: 'artist_2', full_name: 'Risograph Karachi', username: 'risograph_khi', city: 'Karachi', avatar_url: '/images/riso_new.png', role: 'creative', created_at: '', phone: '' },
+    user: { id: 'artist_2', full_name: 'Risograph Karachi', username: 'risograph_khi', city: 'Karachi', avatar_url: '/images/riso.png', role: 'creative', created_at: '', phone: '' },
     profile: { id: 'artist_2', bio: 'Independent print studio specializing in risograph techniques.', disciplines: ['Printmaking', 'Visual Arts'], availability: 'available', starting_rate: 15000, verified: true },
+    detailed_bio: "Risograph Karachi is a community-focused print lab and experimental studio. We specialize in the unique aesthetic of risograph printing—a process that combines the speed of a photocopier with the tactile quality of screen printing. Our mission is to provide an accessible platform for local zine-makers, illustrators, and activists to bring their physical visions to life.",
     portfolio: [
        { id: 'r1', artist_id: 'artist_2', title: 'Riso Study 01', category: 'Print', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-       { id: 'r2', artist_id: 'artist_2', title: 'Texture 02', category: 'Print', image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+       { id: 'r2', artist_id: 'artist_2', title: 'Zine Culture', category: 'Print', image_url: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
     ], 
-    projects: [
-      {
-        id: 'proj_riso_01', artist_id: 'artist_2', title: 'Mechanical Texture', description: 'Exploring granular imperfections.', cover_image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', items: [], created_at: ''
-      }
-    ], 
-    past_projects: [], reviews: [], review_average: 5.0, review_count: 8, follower_count: 850, project_count: 12,
-  },
-  mairaj_ulhaq: {
-    user: { id: 'artist_3', full_name: 'Mairaj Ulhaq', username: 'mairaj_ulhaq', city: 'Karachi', avatar_url: '/images/mairaj_ulhaq.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_3', bio: 'Food and Product photographer specializing in high-fidelity Marketing Content.', disciplines: ['Photography', 'Marketing Content'], availability: 'available', starting_rate: 65000, verified: true },
-    portfolio: [
-      { id: 'm1', artist_id: 'artist_3', title: 'Fragrance Study', category: 'Product', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'm2', artist_id: 'artist_3', title: 'Coffee Ritual', category: 'Lifestyle', image_url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-      { id: 'm3', artist_id: 'artist_3', title: 'Modern Texture', category: 'Abstract', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
-      { id: 'm4', artist_id: 'artist_3', title: 'Culinary Art', category: 'Food', image_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
-    ], 
-    projects: [
-      { id: 'p1', artist_id: 'artist_3', title: 'Edenrobe Fragrance', description: 'Visual campaign.', cover_image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', items: [], created_at: '' }
-    ],
-    past_projects: [], reviews: [], review_average: 5.0, review_count: 12, follower_count: 2400, project_count: 32,
-  },
-  ali_rez: {
-    user: { id: 'artist_7', full_name: 'Ali Rez', username: 'ali_rez', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_creative_director_portrait_1777893345611.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_7', bio: 'Award-winning creative director focusing on social impact.', disciplines: ['Marketing Content', 'Visual Arts'], availability: 'busy', starting_rate: 250000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 102, follower_count: 15000, project_count: 240,
-  },
-  sana_nasir: {
-    user: { id: 'artist_10', full_name: 'Sana Nasir', username: 'sana_nasir', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_female_illustrator_portrait_1777893367977.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_10', bio: 'Illustrator and art director specializing in dark, surreal world-building.', disciplines: ['Digital Art', 'Visual Arts'], availability: 'available', starting_rate: 55000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 4.9, review_count: 18, follower_count: 2100, project_count: 42,
-  },
-  zulfiqar_zulfi: {
-    user: { id: 'artist_12', full_name: 'Zulfiqar Ali Zulfi', username: 'zulfiqar_zulfi', city: 'Lahore', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_master_painter_portrait_1777893384772.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_12', bio: 'Master landscape painter capturing the light and haze of the Punjab.', disciplines: ['Visual Arts'], availability: 'available', starting_rate: 200000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 88, follower_count: 9000, project_count: 150,
-  },
-  abdullah_syed: {
-    user: { id: 'artist_9', full_name: 'Abdullah M.I. Syed', username: 'abdullah_syed', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_male_scholar_artist_portrait_1777893415330.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_9', bio: 'Visual artist and scholar investigating the relationship between text and body.', disciplines: ['Visual Arts', 'Calligraphy'], availability: 'available', starting_rate: 120000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 31, follower_count: 3200, project_count: 88,
-  },
-  babar_sheikh: {
-    user: { id: 'artist_11', full_name: 'Babar Sheikh', username: 'babar_sheikh', city: 'Karachi', avatar_url: '/Users/macbook/.gemini/antigravity/brain/5cf43a23-7749-4760-99a3-caf0b153db87/pakistani_male_filmmaker_portrait_1777893434096.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_11', bio: 'Film director and musician exploring the avant-garde in Pakistani cinema.', disciplines: ['Music', 'Marketing Content'], availability: 'available', starting_rate: 150000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 27, follower_count: 4300, project_count: 52,
-  },
-  zainab_baloch: {
-    user: { id: 'artist_4', full_name: 'Zainab Baloch', username: 'zainab_baloch', city: 'Karachi', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddda0d7c75?q=80&w=150&fit=crop', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_4', bio: 'Contemporary textile artist exploring traditional weaving.', disciplines: ['Textile Design', 'Visual Arts'], availability: 'available', starting_rate: 40000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 4.8, review_count: 15, follower_count: 1800, project_count: 28,
-  },
-  sanki_king: {
-    user: { id: 'artist_5', full_name: 'Sanki King', username: 'sanki_king', city: 'Karachi', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&fit=crop', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_5', bio: 'Graffiti pioneer and street artist.', disciplines: ['Street Art', 'Calligraphy'], availability: 'available', starting_rate: 80000, verified: true },
-    portfolio: [], projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 42, follower_count: 5500, project_count: 120,
+    projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 8, follower_count: 850, project_count: 12,
   }
 };

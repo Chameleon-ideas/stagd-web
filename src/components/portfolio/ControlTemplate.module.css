@@ -115,6 +115,58 @@
   padding-left: var(--space-4);
 }
 
+.aboutLink {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-large);
+  text-transform: uppercase;
+  padding: var(--space-4);
+  background-color: var(--color-ink);
+  color: var(--color-yellow);
+  margin-bottom: var(--space-4);
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.aboutLink:hover {
+  background-color: #000;
+  color: #fff;
+  padding-left: var(--space-6);
+}
+
+.navButton:focus-visible, .projectLink:focus-visible, .aboutLink:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.specsList {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-color);
+}
+
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.specLabel {
+  color: var(--text-muted);
+}
+
+.specValue {
+  color: var(--text);
+  font-weight: 700;
+}
+
 /* ── RIGHT SECTION: STAGE ────────────────────────── */
 .stage {
   flex: 1;
@@ -135,12 +187,17 @@
 .imageWrapper {
   width: 100%;
   position: relative;
-  aspect-ratio: 16/10;
   background-color: var(--bg-surface);
+  background-image: var(--stripe-bg);
   border: 1.5px solid var(--border-color);
   overflow: hidden;
   margin-bottom: var(--space-6);
   cursor: zoom-in;
+  align-self: start; /* Ensure box matches image height in grid */
+}
+
+[data-theme="dark"] .imageWrapper {
+  background-image: var(--stripe-bg-dark);
 }
 
 .imageHover {
@@ -165,8 +222,8 @@
 
 .projectImage {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  display: block;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -316,7 +373,7 @@
   font-family: var(--font-mono);
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-faint);
+  color: var(--text-muted);
 }
 
 .verticalTitle {
@@ -338,7 +395,7 @@
 }
 
 .heroImage {
-  aspect-ratio: 16/9;
+  margin-bottom: var(--space-8);
 }
 
 .subGrid {
@@ -348,8 +405,7 @@
 }
 
 .tall {
-  grid-row: span 2;
-  aspect-ratio: 3/4;
+  /* Dynamic height now */
 }
 
 /* ── PROJECT INFO FOOTER ───────────────────────── */
@@ -417,9 +473,34 @@
 }
 
 .denseGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  column-count: 4;
+  column-gap: 16px;
+  width: 100%;
+}
+
+.denseGrid .imageWrapper {
+  break-inside: avoid;
+  margin-bottom: 16px;
+  display: block;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .denseGrid {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 900px) {
+  .denseGrid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .denseGrid {
+    column-count: 1;
+  }
 }
 
 .actionFooter {
@@ -479,11 +560,125 @@
     height: auto;
     border-right: none;
     border-bottom: 1.5px solid var(--border-color);
-    background-image: none; /* Remove grid on mobile for clarity */
+    background-image: none;
   }
   
   .stage {
     padding: var(--space-6);
     gap: var(--space-12);
   }
+}
+
+/* ── ABOUT OVERLAY ── */
+.aboutOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg);
+  z-index: 100;
+  padding: var(--space-12) var(--space-8);
+  overflow-y: auto;
+  background-image: 
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.aboutHeader {
+  margin-bottom: var(--space-12);
+  border-bottom: 1.5px solid var(--border-color);
+  padding-bottom: var(--space-6);
+}
+
+.aboutTitle {
+  font-family: var(--font-display);
+  font-size: 64px;
+  text-transform: uppercase;
+  line-height: 0.9;
+  margin-bottom: var(--space-4);
+}
+
+.aboutMeta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: flex;
+  gap: var(--space-6);
+}
+
+.aboutBodySplit {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--space-12);
+  margin-top: var(--space-8);
+}
+
+.aboutText {
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.aboutPortraitWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.aboutPortrait {
+  width: 100%;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg-surface);
+  background-image: var(--stripe-bg);
+}
+
+[data-theme="dark"] .aboutPortrait {
+  background-image: var(--stripe-bg-dark);
+}
+
+.portraitLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 1024px) {
+  .aboutBodySplit {
+    grid-template-columns: 1fr;
+  }
+  .aboutPortraitWrapper {
+    order: -1;
+    max-width: 300px;
+  }
+}
+
+.aboutClose {
+  position: sticky;
+  top: 0;
+  margin-bottom: var(--space-8);
+  background: var(--color-ink);
+  color: var(--color-yellow);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 8px 16px;
+  text-transform: uppercase;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 101;
+}
+
+.navButton {
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
 }

@@ -62,16 +62,16 @@ export default async function HomePage() {
               <div className={styles.collage}>
                 {/* Artist Peek */}
                 <div className={`${styles.collageCard} ${styles.artistPeek}`}>
-                  <Image src="/images/zainab_baloch.png" alt="Artist Profile" fill style={{ objectFit: 'cover' }} />
+                  <Image src="/images/zoya_portrait.png" alt="Zoya Khan" fill style={{ objectFit: 'cover' }} />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', color: '#fff' }}>
                     <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>Discovery</p>
-                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px' }}>Zainab Baloch</p>
+                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px' }}>Zoya Khan</p>
                   </div>
                 </div>
 
                 {/* Event Peek */}
                 <div className={`${styles.collageCard} ${styles.eventPeek}`}>
-                  <Image src="/images/lyari.png" alt="Event" fill style={{ objectFit: 'cover' }} />
+                  <Image src="/images/osman_project.png" alt="Event" fill style={{ objectFit: 'cover' }} />
                   <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
                     <span className="chip chip-yellow" style={{ fontSize: '9px' }}>Event</span>
                   </div>
@@ -80,7 +80,7 @@ export default async function HomePage() {
                 {/* Commission Peek */}
                 <div className={`${styles.collageCard} ${styles.commPeek}`}>
                   <span className={styles.commLabel}>Commissions</span>
-                  <p className={styles.commTitle}>Riso Printing Vol. 3</p>
+                  <p className={styles.commTitle}>Modern Qalam Mural</p>
                   <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>In progress</span>
                     <div style={{ width: '8px', height: '8px', background: 'var(--color-yellow)', borderRadius: '50%' }} />

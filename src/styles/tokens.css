@@ -152,10 +152,10 @@
   --bg-surface: #1A1A1A;
   --bg-raised:  #222222;
   --text:       #F4F1E6;
-  --text-muted: #9A9490;
-  --text-faint: #5C5854;
+  --text-muted: #BDB7B3;
+  --text-faint: #8E8884;
   --border-color: rgba(244, 241, 230, 0.22);
-  --grid-color:   rgba(244, 241, 230, 0.12);
+  --grid-color:   rgba(244, 241, 230, 0.03);
   --stripe-dark: rgba(244, 241, 230, 0.04);
   --stripe-bg-dark: repeating-linear-gradient(
     var(--stripe-angle),

@@ -19,33 +19,47 @@ const MOCK_CHATS = [
     name: 'Mairaj Ulhaq',
     messages: [
       { id: 'm1', text: 'Hey — saw your work on the Sufi cover series. Editorial?', time: '12:46 PM', sent: true },
-      { id: 'm2', text: 'I need a high-end product shoot for a new luxury perfume. Looking for that cinematic, liquid-texture style you specialize in.', time: '12:45 PM', sent: false, isBrief: true }
+      { id: 'm2', text: 'I need a high-end product shoot for a new luxury perfume. Looking for that cinematic style.', time: '12:45 PM', sent: false }
     ]
   },
   { 
-    id: 'lyari_underground', 
-    user: { full_name: 'Lyari Underground', avatar_url: '/images/lyari.png', status: 'online' }, 
+    id: 'osman_malik', 
+    user: { full_name: 'Osman Malik', avatar_url: '/images/osman_portrait.png', status: 'online' }, 
+    lastMessage: 'The new track is ready for review.', 
+    time: '5 MIN AGO', 
+    unread: 0,
+    online: true,
+    avatar: '/images/osman_portrait.png',
+    name: 'Osman Malik',
+    messages: [
+      { id: 'o1', text: 'Hey — saw your project brief for the Sonic Architecture series.', time: '12:46 PM', sent: true },
+      { id: 'o2', text: 'I have some initial soundscapes that might fit the visual direction.', time: '12:45 PM', sent: false }
+    ]
+  },
+  { 
+    id: 'hamza_qureshi', 
+    user: { full_name: 'Hamza Qureshi', avatar_url: '/images/hamza_portrait.png', status: 'online' }, 
     lastMessage: 'The brief looks great, let\'s talk.', 
     time: '12:45 PM', 
     unread: 2,
     online: true,
-    avatar: '/images/lyari.png',
-    name: 'Lyari Underground',
+    avatar: '/images/hamza_portrait.png',
+    name: 'Hamza Qureshi',
     messages: [
-      { id: 'l1', text: 'The brief looks great, let\'s talk.', time: '12:45 PM', sent: false }
+      { id: 'h1', text: 'The brief looks great, let\'s talk about the calligraphy mural.', time: '12:45 PM', sent: false }
     ]
   },
   { 
-    id: 'risograph_khi', 
-    user: { full_name: 'Risograph Karachi', avatar_url: '/images/riso.png', status: 'offline' }, 
-    lastMessage: 'Sure, I can have the prints ready.', 
+    id: 'bilal_ahmed', 
+    user: { full_name: 'Bilal Ahmed', avatar_url: '/images/bilal_portrait.png', status: 'offline' }, 
+    lastMessage: 'I can start the mural next week.', 
     time: 'YESTERDAY', 
     unread: 0,
     online: false,
-    avatar: '/images/riso.png',
-    name: 'Risograph Karachi',
+    avatar: '/images/bilal_portrait.png',
+    name: 'Bilal Ahmed',
     messages: [
-      { id: 'r1', text: 'Sure, I can have the prints ready.', time: 'YESTERDAY', sent: false }
+      { id: 'b1', text: 'I can start the mural next week. Just need the wall measurements.', time: 'YESTERDAY', sent: false }
     ]
   },
 ];
