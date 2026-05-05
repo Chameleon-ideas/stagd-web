@@ -596,8 +596,40 @@
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .heroInner { grid-template-columns: 1fr; }
-  .heroRight { display: none; }
+  .hero {
+    height: auto;
+    min-height: auto;
+    padding-top: var(--space-4);
+  }
+
+  .heroLayout { 
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .heroVisual {
+    order: -1;
+    width: 100vw;
+    margin-left: calc(-1 * var(--gutter));
+    margin-right: calc(-1 * var(--gutter));
+    height: 350px;
+  }
+
+  .heroContent {
+    padding-bottom: var(--space-12);
+  }
+
+  .heroHeading { 
+    font-size: clamp(48px, 12vw, 80px); 
+    line-height: 0.9;
+  }
+
+  .heroBody {
+    font-size: 18px;
+  }
+
   .claimInner { grid-template-columns: 1fr; }
   .pillar { grid-template-columns: 1fr; }
   .pillarFlip .pillarLeft,
@@ -606,7 +638,9 @@
 }
 
 @media (max-width: 640px) {
-  .heroHeading { font-size: clamp(52px, 14vw, 80px); }
+  .heroVisual {
+    height: 300px;
+  }
   .heroCtas { flex-direction: column; width: 100%; }
   .heroCtas .btn { width: 100%; justify-content: center; }
   .finalHeading { font-size: clamp(52px, 14vw, 80px); }

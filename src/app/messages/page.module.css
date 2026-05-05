@@ -13,6 +13,8 @@
   overflow: hidden; /* Ensure only panes scroll */
 }
 
+.hasActiveChat {}
+
 /* ── SIDEBAR: INBOX ─────────────────────────────── */
 .chatList {
   width: 380px;
@@ -171,6 +173,8 @@
   flex-direction: column;
   background-color: var(--bg);
 }
+
+.activeThread {}
 
 .threadHeader {
   height: 80px;
@@ -429,12 +433,57 @@
   letter-spacing: 0.1em;
 }
 
+.mobileBackBtn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0;
+  margin-right: var(--space-2);
+  cursor: pointer;
+}
+
 /* ── RESPONSIVE ────────────────────────────────────── */
 @media (max-width: 1024px) {
   .chatList { width: 300px; }
 }
 
 @media (max-width: 768px) {
-  .chatList { display: none; }
-  .chatThread { width: 100%; }
+  .main {
+    position: relative;
+  }
+
+  .chatList {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 5;
+    background-color: var(--bg);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .chatThread {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 10;
+    background-color: var(--bg);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(100%);
+  }
+
+  /* When a chat is selected, slide it in */
+  .main.hasActiveChat .chatThread {
+    transform: translateX(0);
+  }
+
+  .mobileBackBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }

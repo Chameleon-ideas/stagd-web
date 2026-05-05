@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { Search, Send, Plus, MoreVertical, Paperclip } from 'lucide-react';
+import { Search, Send, Plus, MoreVertical, Paperclip, ChevronLeft } from 'lucide-react';
 import styles from './page.module.css';
 
 // Mock Data for Messages
@@ -67,7 +67,21 @@ const MOCK_CHATS = [
 function MessagesContent() {
   const searchParams = useSearchParams();
   const recipientId = searchParams.get('recipient');
-  const [activeChatId, setActiveChatId] = useState<string | null>(recipientId || 'mairaj_ulhaq');
+  const [activeChatId, setActiveChatId] = useState<string | null>(recipientId);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Default to first chat on desktop if none selected
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    if (window.innerWidth > 768 && !activeChatId && !recipientId) {
+      setActiveChatId('mairaj_ulhaq');
+    }
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [recipientId]);
   const [messageText, setMessageText] = useState('');
   const [conversations, setConversations] = useState<Record<string, any[]>>(() => {
     const initial: Record<string, any[]> = {};
@@ -115,7 +129,7 @@ function MessagesContent() {
   };
 
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${activeChatId ? styles.hasActiveChat : ''}`}>
       {/* ── LEFT PANEL: CHAT LIST ───────────────────────── */}
       <section className={styles.chatList}>
         <div className={styles.listHeader}>
@@ -157,11 +171,18 @@ function MessagesContent() {
       </section>
 
       {/* ── RIGHT PANEL: CHAT THREAD ────────────────────── */}
-      <section className={styles.chatThread}>
+      <section className={`${styles.chatThread} ${activeChatId ? styles.activeThread : ''}`}>
         {activeChatData ? (
           <>
             <header className={styles.threadHeader}>
               <div className={styles.headerInfo}>
+                <button 
+                  className={styles.mobileBackBtn} 
+                  onClick={() => setActiveChatId(null)}
+                  aria-label="Back to inbox"
+                >
+                  <ChevronLeft size={24} />
+                </button>
                 <Image src={activeChatData.user.avatar_url} alt={activeChatData.user.full_name} width={40} height={40} className={styles.avatar} />
                 <div className={styles.headerText}>
                   <span className={styles.headerName}>{activeChatData.user.full_name}</span>

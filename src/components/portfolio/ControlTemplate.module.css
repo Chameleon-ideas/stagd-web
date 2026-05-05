@@ -567,6 +567,45 @@
     padding: var(--space-6);
     gap: var(--space-12);
   }
+
+  .projectBlock {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-16);
+  }
+
+  .projectIdentity {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 0 var(--space-4) 0;
+    margin-bottom: var(--space-4);
+  }
+
+  .verticalTitle {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 32px;
+  }
+
+  .projectNumberWrapper {
+    flex-direction: row;
+    gap: var(--space-4);
+  }
+
+  .projectInfoFooter {
+    grid-column: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+  }
+
+  .projectSpecs {
+    text-align: left;
+  }
 }
 
 /* ── ABOUT OVERLAY ── */

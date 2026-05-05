@@ -2,12 +2,22 @@
   display: flex;
   justify-content: center;
   gap: var(--space-6);
-  height: 600px;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   position: relative;
   /* Hard linear gradient mask for the cinematic fade out at edges */
   mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
   -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
+
+@media (max-width: 768px) {
+  .marqueeContainer {
+    gap: var(--space-4);
+  }
+  .columnWrapper {
+    width: 200px;
+  }
 }
 
 .columnWrapper {

@@ -21,11 +21,6 @@ export default function SignupPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authBox}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoStag}>STAG</span>
-          <span className={styles.logoD}>D</span>
-        </Link>
-        
         <div className={styles.authHeader}>
           <h1>Join Stagd</h1>
           <p>The home for Pakistan's creative economy</p>

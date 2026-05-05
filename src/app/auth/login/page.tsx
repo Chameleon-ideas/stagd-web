@@ -17,11 +17,6 @@ export default function LoginPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authBox}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoStag}>STAG</span>
-          <span className={styles.logoD}>D</span>
-        </Link>
-        
         <div className={styles.authHeader}>
           <h1>Welcome back</h1>
           <p>Login to your Stagd account</p>

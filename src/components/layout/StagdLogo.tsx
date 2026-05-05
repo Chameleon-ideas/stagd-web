@@ -12,8 +12,7 @@ interface StagdLogoProps {
 
 /**
  * StagdLogo
- * Uses the user-provided SVG "as is" but applies a clever CSS filter 
- * in Light Mode to flip the white text to black while preserving the yellow 'e'.
+ * Uses the original wordmark SVG file.
  */
 export function StagdLogo({ className, width = 110, height = 44 }: StagdLogoProps) {
   return (

@@ -47,7 +47,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const [isCommissionOpen, setIsCommissionOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   
-  const projects = profile.projects || [];
+  const projects: Project[] = profile.projects || [];
 
   // Create a flat list of all gallery images for navigation
   const allMedia = useMemo(() => {

@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Search, MoreVertical, Paperclip, Send } from 'lucide-react';
 import styles from './inbox.module.css';
 
@@ -191,20 +189,16 @@ function InboxClient() {
 
 export default function InboxPage() {
   return (
-    <>
-      <Header />
-      <main className={styles.inboxPage}>
-        <Suspense fallback={
-          <div className={styles.inboxContainer} style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ color: 'var(--text-faint)', fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>
-              Hydrating secure thread...
-            </p>
-          </div>
-        }>
-          <InboxClient />
-        </Suspense>
-      </main>
-      <Footer />
-    </>
+    <main className={styles.inboxPage}>
+      <Suspense fallback={
+        <div className={styles.inboxContainer} style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: 'var(--text-faint)', fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>
+            Hydrating secure thread...
+          </p>
+        </div>
+      }>
+        <InboxClient />
+      </Suspense>
+    </main>
   );
 }

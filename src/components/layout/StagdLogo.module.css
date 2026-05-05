@@ -14,18 +14,16 @@
 
 /* 
   DYNAMIC THEME FILTER:
+  - The original SVG is white wordmark with a yellow 'e'.
   - In Light Mode, we need to flip the WHITE letters to BLACK.
-  - invert(1) turns White -> Black.
-  - However, invert(1) turns Yellow -> Blue.
+  - invert(1) turns White -> Black, but also Yellow -> Blue.
   - hue-rotate(180deg) turns Blue back to Yellow.
-  - This preserves the yellow 'e' while flipping the STAG and D characters.
+  - This preserves the brand yellow 'e' while flipping the rest.
 */
 [data-theme="light"] .logoImage {
-  /* Flip white wordmark text to black for light mode */
   filter: invert(1) hue-rotate(180deg);
 }
 
 [data-theme="dark"] .logoImage {
-  /* Maintain native white wordmark for dark mode visibility */
   filter: none;
 }
