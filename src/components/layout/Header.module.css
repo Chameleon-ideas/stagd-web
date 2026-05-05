@@ -40,9 +40,7 @@
   transition: filter var(--duration-page) var(--ease-expo);
 }
 
-[data-theme="dark"] .logoImg {
-  filter: invert(1);
-}
+/* Theme handled inside StagdLogo component */
 
 .backBtn {
   display: flex;

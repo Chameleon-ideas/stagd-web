@@ -21,7 +21,7 @@ export default async function HomePage() {
 
   return (
     <EditorialLayout>
-      <main id="main-content" className={styles.gridBackground}>
+      <div className={styles.gridBackground}>
 
         <section className={styles.hero} aria-labelledby="hero-heading">
           <div className={`container ${styles.heroLayout}`}>
@@ -252,7 +252,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-      </main>
+      </div>
     </EditorialLayout>
   );
 }

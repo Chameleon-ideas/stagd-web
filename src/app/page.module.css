@@ -109,8 +109,10 @@
 
 .heroVisual {
   height: 100%;
+  max-height: 800px;
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
 }
 
 .focalBlock {
