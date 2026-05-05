@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Anton, DM_Sans, JetBrains_Mono, Playfair_Display } from 'next/font/google';
+import React, { Suspense } from 'react';
 import Script from 'next/script';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
@@ -87,7 +88,9 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <div className="flex flex-col min-h-screen">
-              <Header />
+              <Suspense fallback={<div style={{ height: '60px' }} />}>
+                <Header />
+              </Suspense>
               <main className="flex-1">
                 {children}
               </main>
