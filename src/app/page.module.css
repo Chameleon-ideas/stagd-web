@@ -643,6 +643,15 @@
   .heroVisual {
     height: 300px;
   }
+  .heroActions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+  }
+  .miniStoreLink img {
+    height: 44px !important;
+    width: auto !important;
+  }
   .heroCtas { flex-direction: column; width: 100%; }
   .heroCtas .btn { width: 100%; justify-content: center; }
   .finalHeading { font-size: clamp(52px, 14vw, 80px); }
