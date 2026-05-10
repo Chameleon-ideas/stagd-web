@@ -7,7 +7,7 @@ import { AuthProvider } from '@/lib/auth';
 import '@/styles/globals.css';
 import '@/styles/components.css';
 import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { ConditionalFooter } from '@/components/layout/ConditionalFooter';
 
 const anton = Anton({
   weight: '400',
@@ -94,7 +94,7 @@ export default function RootLayout({
               <main className="flex-1">
                 {children}
               </main>
-              <Footer />
+              <ConditionalFooter />
             </div>
           </AuthProvider>
         </ThemeProvider>

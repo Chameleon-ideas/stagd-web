@@ -1,16 +1,8 @@
-.page {
-  height: 100%;
-  background-color: var(--bg);
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; 
-}
 
 .main {
-  flex: 1;
   display: flex;
-  overflow: hidden; /* Ensure only panes scroll */
+  height: calc(100vh - 60px); /* 60px = header height */
+  overflow: hidden; /* Only panes scroll, never the page */
 }
 
 .hasActiveChat {}
