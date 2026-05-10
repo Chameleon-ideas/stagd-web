@@ -12,12 +12,16 @@ import { Footer } from "./Footer";
  *   - /:username  (artist portfolio pages)
  */
 const NO_FOOTER_ROUTES = ["/explore", "/messages"];
+const NO_FOOTER_PREFIXES = ["/events/"];
 
 export function ConditionalFooter() {
   const pathname = usePathname();
 
   // Hide on exact matches
   if (NO_FOOTER_ROUTES.includes(pathname)) return null;
+
+  // Hide on prefix matches (e.g. /events/event_1)
+  if (NO_FOOTER_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return null;
 
   // Hide on dynamic artist profile pages (single path segment, not a known top-level route)
   const knownTopLevel = new Set([
