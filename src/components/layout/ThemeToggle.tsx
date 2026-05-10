@@ -1,10 +1,19 @@
 'use client';
 
+import React from 'react';
 import { useTheme } from '@/lib/theme';
 import styles from './ThemeToggle.module.css';
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <div className={styles.toggle} style={{ width: 18, height: 18 }} />;
+
   const isDark = theme === 'dark';
 
   return (

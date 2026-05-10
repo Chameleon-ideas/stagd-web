@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { Anton, DM_Sans, JetBrains_Mono, Playfair_Display } from 'next/font/google';
+import { anton, dmSans, jetbrainsMono, playfair } from '@/styles/fonts';
 import React, { Suspense } from 'react';
-import Script from 'next/script';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
 import '@/styles/globals.css';
@@ -9,31 +8,6 @@ import '@/styles/components.css';
 import { Header } from '@/components/layout/Header';
 import { ConditionalFooter } from '@/components/layout/ConditionalFooter';
 
-const anton = Anton({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-display',
-});
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-body',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-mono',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  display: 'swap',
-  style: ['normal', 'italic'],
-  variable: '--font-editorial',
-});
 
 export const metadata: Metadata = {
   title: {
