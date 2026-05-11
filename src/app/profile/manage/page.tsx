@@ -998,7 +998,7 @@ function SortableProjectImageThumb({ item, isCover, onSetCover, onRemove }: Sort
   };
 
   return (
-    <div ref={setNodeRef} style={style} className={styles.projectImageThumb} style={{ ...style, position: 'relative' }}>
+    <div ref={setNodeRef} style={{ ...style, position: 'relative' }} className={styles.projectImageThumb}>
       <img src={item.image_url} alt="" />
       
       {/* Drag handle for the image */}
