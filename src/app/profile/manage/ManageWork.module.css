@@ -706,3 +706,43 @@
   padding-top: 14px;
   padding-bottom: 14px;
 }
+
+.thumbDragHandle {
+  position: absolute;
+  top: 4px;
+  left: 32px;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  color: #fff;
+  cursor: grab;
+  padding: 3px;
+  line-height: 0;
+  border-radius: 2px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.thumbDragHandle:hover {
+  background: var(--color-yellow);
+  color: var(--color-ink);
+}
+
+.thumbDragHandle:active {
+  cursor: grabbing;
+}
+
+.projectHeaderMain {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+.projectMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

@@ -1021,6 +1021,10 @@ export async function reorderProjects(projectIds: string[]): Promise<{ error: st
   return dbWrite('reorderProjects', { projectIds });
 }
 
+export async function reorderProjectItems(itemIds: string[]): Promise<{ error: string | null }> {
+  return dbWrite('reorderProjectItems', { itemIds });
+}
+
 export async function removeImageFromProject(
   _projectId: string,
   itemId: string,

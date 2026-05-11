@@ -55,6 +55,7 @@ import {
   linkPortfolioItemToProject,
   removeImageFromProject,
   reorderProjects,
+  reorderProjectItems,
 } from '@/lib/api';
 import type { PortfolioItem, Project } from '@/lib/types';
 import styles from './ManageWork.module.css';
@@ -139,6 +140,25 @@ export default function ManageWorkPage() {
       const { error } = await reorderProjects(newProjects.map(p => p.id));
       if (error) {
         console.error('Reorder failed:', error);
+      }
+    }
+  };
+
+  const handleItemDragEnd = async (projectId: string, event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const project = projects.find(p => p.id === projectId);
+      if (!project || !project.items) return;
+      
+      const oldIndex = project.items.findIndex(i => i.id === active.id);
+      const newIndex = project.items.findIndex(i => i.id === over.id);
+      const newItems = arrayMove(project.items, oldIndex, newIndex);
+      
+      setProjects(prev => prev.map(p => p.id === projectId ? { ...p, items: newItems } : p));
+      
+      const { error } = await reorderProjectItems(newItems.map(i => i.id));
+      if (error) {
+        console.error('Item reorder failed:', error);
       }
     }
   };
@@ -623,6 +643,7 @@ export default function ManageWorkPage() {
                           handleSetCover={handleSetCover}
                           handleRemoveImageFromProject={handleRemoveImageFromProject}
                           startEditingProject={startEditingProject}
+                          handleItemDragEnd={handleItemDragEnd}
                         />
                       ))}
                     </SortableContext>
@@ -752,6 +773,7 @@ interface SortableProjectCardProps {
   handleSetCover: (projectId: string, imageUrl: string) => Promise<void>;
   handleRemoveImageFromProject: (projectId: string, itemId: string) => Promise<void>;
   startEditingProject: (project: Project) => void;
+  handleItemDragEnd: (projectId: string, event: DragEndEvent) => Promise<void>;
 }
 
 function SortableProjectCard({
@@ -768,6 +790,7 @@ function SortableProjectCard({
   handleSetCover,
   handleRemoveImageFromProject,
   startEditingProject,
+  handleItemDragEnd,
 }: SortableProjectCardProps) {
   const {
     attributes,
@@ -785,10 +808,25 @@ function SortableProjectCard({
     opacity: isDragging ? 0.6 : 1,
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
   return (
     <div ref={setNodeRef} style={style} className={styles.projectCard}>
       {isEditing ? (
         <div className={styles.newProjectForm}>
+          {/* Header for editing mode - also includes drag handle for the project itself */}
+          <div className={styles.projectCardHeader} style={{ borderBottom: 'none', paddingBottom: 0 }}>
+            <div className={styles.projectHeaderMain}>
+              <div className={styles.dragHandle} {...attributes} {...listeners}>
+                <GripVertical size={20} />
+              </div>
+              <h3 className={styles.projectName} style={{ fontSize: 18 }}>EDITING: {project.title}</h3>
+            </div>
+          </div>
+
           <div className={styles.formGrid}>
             <div className={styles.fieldFull}>
               <label className={styles.label}>Title *</label>
@@ -864,52 +902,50 @@ function SortableProjectCard({
                 <Upload size={14} /> UPLOAD
               </button>
             </div>
-            <div className={styles.projectImageGrid} style={{ background: 'none', padding: 0 }}>
-              {(project.items || []).map(item => {
-                const isCover = project.cover_image_url === item.image_url;
-                return (
-                  <div key={item.id} className={styles.projectImageThumb} style={{ position: 'relative' }}>
-                    <img src={item.image_url} alt="" />
-                    {isCover ? (
-                      <div style={{ position: 'absolute', top: 4, left: 4, background: 'var(--color-yellow)', color: 'var(--color-ink)', padding: '2px 5px', fontSize: 8, fontFamily: 'var(--font-mono)', fontWeight: 900, pointerEvents: 'none' }}>
-                        COVER
-                      </div>
-                    ) : (
-                      <button
-                        title="Set as cover"
-                        style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.55)', border: 'none', color: '#fff', cursor: 'pointer', padding: 3, lineHeight: 0, borderRadius: 2 }}
-                        onClick={() => handleSetCover(project.id, item.image_url)}
-                      >
-                        <Star size={10} />
-                      </button>
-                    )}
-                    <button
-                      className={styles.deleteBtn}
-                      style={{ position: 'absolute', top: 4, right: 4 }}
-                      onClick={() => handleRemoveImageFromProject(project.id, item.id)}
-                    >
-                      <X size={10} />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+            
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(e) => handleItemDragEnd(project.id, e)}
+            >
+              <SortableContext
+                items={(project.items || []).map(i => i.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className={styles.projectImageGrid} style={{ background: 'none', padding: 0 }}>
+                  {(project.items || []).map(item => {
+                    const isCover = project.cover_image_url === item.image_url;
+                    return (
+                      <SortableProjectImageThumb
+                        key={item.id}
+                        item={item}
+                        isCover={isCover}
+                        onSetCover={() => handleSetCover(project.id, item.image_url)}
+                        onRemove={() => handleRemoveImageFromProject(project.id, item.id)}
+                      />
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
         </div>
       ) : (
         <>
           <div className={styles.projectCardHeader}>
-            <div className={styles.dragHandle} {...attributes} {...listeners}>
-              <GripVertical size={20} />
-            </div>
-            <div className={styles.projectMeta}>
-              <h3 className={styles.projectName}>{project.title}</h3>
-              <div className={styles.projectTags}>
-                {project.discipline && <span className={styles.tag}>{project.discipline}</span>}
-                {project.location && <span className={styles.tagLocation}><MapPin size={10} /> {project.location}</span>}
-                {project.year && <span className={styles.tagLocation}>· {project.year}</span>}
+            <div className={styles.projectHeaderMain}>
+              <div className={styles.dragHandle} {...attributes} {...listeners}>
+                <GripVertical size={20} />
               </div>
-              {project.description && <p className={styles.projectDesc}>{project.description}</p>}
+              <div className={styles.projectMeta}>
+                <h3 className={styles.projectName}>{project.title}</h3>
+                <div className={styles.projectTags}>
+                  {project.discipline && <span className={styles.tag}>{project.discipline}</span>}
+                  {project.location && <span className={styles.tagLocation}><MapPin size={10} /> {project.location}</span>}
+                  {project.year && <span className={styles.tagLocation}>· {project.year}</span>}
+                </div>
+                {project.description && <p className={styles.projectDesc}>{project.description}</p>}
+              </div>
             </div>
             <div className={styles.projectActions}>
               <button className="btn btn-secondary btn-sm" onClick={() => startEditingProject(project)}>
@@ -931,6 +967,69 @@ function SortableProjectCard({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+// ── SORTABLE PROJECT IMAGE THUMB ─────────────────────────────
+
+interface SortableProjectImageThumbProps {
+  item: any;
+  isCover: boolean;
+  onSetCover: () => void;
+  onRemove: () => void;
+}
+
+function SortableProjectImageThumb({ item, isCover, onSetCover, onRemove }: SortableProjectImageThumbProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={styles.projectImageThumb} style={{ ...style, position: 'relative' }}>
+      <img src={item.image_url} alt="" />
+      
+      {/* Drag handle for the image */}
+      <div 
+        className={styles.thumbDragHandle} 
+        {...attributes} 
+        {...listeners}
+      >
+        <GripVertical size={12} />
+      </div>
+
+      {isCover ? (
+        <div style={{ position: 'absolute', top: 4, left: 4, background: 'var(--color-yellow)', color: 'var(--color-ink)', padding: '2px 5px', fontSize: 8, fontFamily: 'var(--font-mono)', fontWeight: 900, pointerEvents: 'none' }}>
+          COVER
+        </div>
+      ) : (
+        <button
+          title="Set as cover"
+          style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.55)', border: 'none', color: '#fff', cursor: 'pointer', padding: 3, lineHeight: 0, borderRadius: 2 }}
+          onClick={onSetCover}
+        >
+          <Star size={10} />
+        </button>
+      )}
+      <button
+        className={styles.deleteBtn}
+        style={{ position: 'absolute', top: 4, right: 4 }}
+        onClick={onRemove}
+      >
+        <X size={10} />
+      </button>
     </div>
   );
 }

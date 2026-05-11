@@ -637,6 +637,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: null });
       }
 
+      case 'reorderProjectItems': {
+        const { itemIds } = body;
+        for (let i = 0; i < itemIds.length; i++) {
+          const { error } = await supabaseAdmin
+            .from('project_items')
+            .update({ sort_order: i })
+            .eq('id', itemIds[i]);
+          if (error) return NextResponse.json({ error: error.message });
+        }
+        return NextResponse.json({ error: null });
+      }
+
       default:
         return NextResponse.json({ error: `Unknown op: ${op}` }, { status: 400 });
     }
