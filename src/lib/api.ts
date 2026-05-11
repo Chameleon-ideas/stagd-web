@@ -516,11 +516,16 @@ export interface Message {
   attachment_size?: number | null;
 }
 
+export async function hideConversation(commissionId: string, userId: string): Promise<void> {
+  await supabase.rpc('hide_commission_for_user', { p_commission_id: commissionId, p_user_id: userId });
+}
+
 export async function getConversations(userId: string): Promise<Conversation[]> {
   const { data: commissions, error } = await supabase
     .from('commissions')
-    .select('id, status, brief_what, client_id, artist_id, created_at, client:profiles!client_id(id, full_name, username, avatar_url)')
+    .select('id, status, brief_what, client_id, artist_id, created_at, hidden_for, client:profiles!client_id(id, full_name, username, avatar_url)')
     .or(`client_id.eq.${userId},artist_id.eq.${userId}`)
+    .not('hidden_for', 'cs', `{${userId}}`)
     .order('created_at', { ascending: false });
 
   if (error || !commissions?.length) return [];

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { getConversations, getMessages, sendMessage, uploadMessageAttachment, type Conversation, type Message } from '@/lib/api';
+import { getConversations, getMessages, sendMessage, uploadMessageAttachment, hideConversation, type Conversation, type Message } from '@/lib/api';
 import { setViewingConv } from '@/lib/viewState';
 import styles from './page.module.css';
 
@@ -265,9 +265,8 @@ function MessagesContent() {
   };
 
   const handleDeleteThread = async () => {
-    if (!activeConvId) return;
-    await supabase.from('messages').delete().eq('commission_id', activeConvId);
-    await supabase.from('commissions').delete().eq('id', activeConvId);
+    if (!activeConvId || !user) return;
+    await hideConversation(activeConvId, user.id);
     setConversations(prev => prev.filter(c => c.commissionId !== activeConvId));
     setActiveConvId(null);
     setMessages([]);
