@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { CommissionDetails } from '@/lib/types';
 import styles from './BriefCard.module.css';
 
@@ -16,6 +17,7 @@ function formatDate(iso: string | undefined): string {
 }
 
 export function BriefCard({ commission: c }: BriefCardProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const [referenceExpanded, setReferenceExpanded] = useState(false);
   const [briefExpanded, setBriefExpanded] = useState(false);
 
@@ -35,14 +37,20 @@ export function BriefCard({ commission: c }: BriefCardProps) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.header}>
+      <button className={styles.header} onClick={() => setCollapsed(v => !v)}>
         <span className={styles.label}>// COMMISSION BRIEF</span>
-        <span className={`${styles.statusPill} ${styles[`status_${c.status}`]}`}>
-          {c.status.replace('_', ' ').toUpperCase()}
-        </span>
-      </div>
+        <div className={styles.headerRight}>
+          {collapsed && discipline && (
+            <span className={styles.collapsedMeta}>{discipline}{budget != null ? ` · PKR ${budget.toLocaleString()}` : ''}</span>
+          )}
+          <span className={`${styles.statusPill} ${styles[`status_${c.status}`]}`}>
+            {c.status.replace('_', ' ').toUpperCase()}
+          </span>
+          {collapsed ? <ChevronDown size={12} className={styles.chevron} /> : <ChevronUp size={12} className={styles.chevron} />}
+        </div>
+      </button>
 
-      <div className={styles.body}>
+      {!collapsed && <div className={styles.body}>
         <div className={styles.row}>
           <span className={styles.key}>Discipline</span>
           <span className={styles.val}>{discipline || '—'}</span>
@@ -100,7 +108,7 @@ export function BriefCard({ commission: c }: BriefCardProps) {
             <span className={styles.val}>PKR {budget.toLocaleString()}</span>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

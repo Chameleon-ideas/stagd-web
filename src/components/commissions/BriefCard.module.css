@@ -11,6 +11,33 @@
   justify-content: space-between;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-top: none;
+  border-right: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 8px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.collapsedMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+}
+
+.chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .label {
