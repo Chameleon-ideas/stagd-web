@@ -1,16 +1,28 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import {
   Search, Send, Plus, MoreVertical, Paperclip, ChevronLeft,
-  X, PanelRight, Music, Film, User, Flag, Trash2,
+  X, PanelRight, Music, Film, User, Flag, Trash2, Star,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { getConversations, getMessages, sendMessage, uploadMessageAttachment, hideConversation, type Conversation, type Message } from '@/lib/api';
+import {
+  getConversations, getMessages, sendMessage, uploadMessageAttachment,
+  hideConversation, getCommissionDetails, getProposalsForCommission,
+  sendProposal, acceptProposal, declineProposal,
+  updatePaymentStatus, updateCommissionStatus,
+  requestCompletion, confirmCompletion, rejectCompletion,
+  sendInvoice, submitCommissionReview,
+  type Conversation, type Message,
+} from '@/lib/api';
+import type { CommissionDetails, Proposal, PaymentStatus } from '@/lib/types';
 import { setViewingConv } from '@/lib/viewState';
+import { BriefCard } from '@/components/commissions/BriefCard';
+import { ProposalCard } from '@/components/commissions/ProposalCard';
+import { ProposalForm, type ProposalFormData } from '@/components/commissions/ProposalForm';
 import styles from './page.module.css';
 
 const ACCEPTED_TYPES = [
@@ -72,6 +84,7 @@ function MessagesContent() {
   const recipientParam = searchParams.get('recipient') || searchParams.get('with');
   const { user } = useAuth();
 
+  // ── Conversation list ────────────────────────────────────
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -88,13 +101,48 @@ function MessagesContent() {
   const [reportReason, setReportReason] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
 
+  // ── Commission flow state ────────────────────────────────
+  const [commissionDetails, setCommissionDetails] = useState<CommissionDetails | null>(null);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [showPlusMenu, setShowPlusMenu] = useState(false);
+  const [showProposalForm, setShowProposalForm] = useState(false);
+  const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [declineProposalId, setDeclineProposalId] = useState<string | null>(null);
+  const [declineMessage, setDeclineMessage] = useState('');
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [showInvoiceSent, setShowInvoiceSent] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewBody, setReviewBody] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewDone, setReviewDone] = useState(false);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const notifyChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const threadMenuRef = useRef<HTMLDivElement>(null);
+  const plusMenuRef = useRef<HTMLDivElement>(null);
   const activeConvIdRef = useRef<string | null>(null);
 
-  // Load conversations
+  // ── Derived state ────────────────────────────────────────
+  const activeConv = conversations.find(c => c.commissionId === activeConvId);
+  const isCreative = !!(user && activeConv && activeConv.artistId === user.id);
+  const isClient = !!(user && activeConv && activeConv.clientId === user.id);
+
+  const activeProposal = proposals.filter(p => p.status !== 'superseded').slice(-1)[0] ?? null;
+  const pinnedCard = activeProposal?.status === 'accepted' ? 'proposal' : 'brief';
+
+  const isReviewUnlocked =
+    commissionDetails?.status === 'completed' &&
+    commissionDetails?.payment_status === 'fully_paid';
+
+  const completionRequestedByOther =
+    commissionDetails?.completion_requested_by !== null &&
+    commissionDetails?.completion_requested_by !== undefined &&
+    commissionDetails?.completion_requested_by !== user?.id;
+
+  // ── Load conversations ───────────────────────────────────
   useEffect(() => {
     if (!user) return;
     getConversations(user.id).then(convs => {
@@ -109,20 +157,27 @@ function MessagesContent() {
     });
   }, [user, recipientParam]);
 
-  // Keep ref + global view state in sync
   useEffect(() => {
     activeConvIdRef.current = activeConvId;
     setViewingConv(activeConvId);
   }, [activeConvId]);
 
-  // Load messages when conversation changes
+  // ── Load messages + commission details on thread open ────
   useEffect(() => {
-    if (!activeConvId) return;
+    if (!activeConvId) {
+      setCommissionDetails(null);
+      setProposals([]);
+      return;
+    }
     getMessages(activeConvId).then(setMessages);
+    getCommissionDetails(activeConvId).then(d => {
+      if (d) setCommissionDetails(d);
+    });
+    getProposalsForCommission(activeConvId).then(setProposals);
     setPreviewAsset(null);
   }, [activeConvId]);
 
-  // Subscribe to incoming broadcast messages (real-time from other user's send)
+  // ── Realtime: new messages ───────────────────────────────
   useEffect(() => {
     if (!user) return;
     const ch = supabase
@@ -137,11 +192,6 @@ function MessagesContent() {
     return () => { supabase.removeChannel(ch); };
   }, [user]);
 
-  const activeConv = conversations.find(c => c.commissionId === activeConvId);
-
-  // Maintain TWO outgoing broadcast channels for the recipient:
-  // 1. notify-user-${id}        → recipient's header badge
-  // 2. notify-user-${id}-inbox  → recipient's open thread (real-time message delivery)
   useEffect(() => {
     if (!activeConv || !user) return;
     const rid = activeConv.otherParty.id;
@@ -155,7 +205,6 @@ function MessagesContent() {
     };
   }, [activeConv?.commissionId, user]);
 
-  // Realtime incoming messages
   useEffect(() => {
     if (!activeConvId) return;
     const channel = supabase
@@ -167,7 +216,23 @@ function MessagesContent() {
     return () => { supabase.removeChannel(channel); };
   }, [activeConvId]);
 
-  // Mobile detection
+  // ── Realtime: commission status changes ──────────────────
+  useEffect(() => {
+    if (!activeConvId) return;
+    const ch = supabase
+      .channel(`commission:${activeConvId}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'commissions', filter: `id=eq.${activeConvId}` }, (payload) => {
+        setCommissionDetails(prev => prev ? { ...prev, ...payload.new as Partial<CommissionDetails> } : null);
+        setConversations(prev => prev.map(c => c.commissionId === activeConvId
+          ? { ...c, status: (payload.new as any).status, paymentStatus: (payload.new as any).payment_status ?? c.paymentStatus }
+          : c
+        ));
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [activeConvId]);
+
+  // ── Mobile, autoscroll, close menus ─────────────────────
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
     check();
@@ -175,46 +240,41 @@ function MessagesContent() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, activeConvId]);
 
-  // Close thread menu on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (threadMenuRef.current && !threadMenuRef.current.contains(e.target as Node)) {
         setShowThreadMenu(false);
+      }
+      if (plusMenuRef.current && !plusMenuRef.current.contains(e.target as Node)) {
+        setShowPlusMenu(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // ── File handling ────────────────────────────────────────
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      alert('Unsupported type. Use images, audio, or video files.');
-      return;
-    }
-    if (file.size > MAX_SIZE) {
-      alert('File exceeds 20MB limit.');
-      return;
-    }
+    if (!ACCEPTED_TYPES.includes(file.type)) { alert('Unsupported type.'); return; }
+    if (file.size > MAX_SIZE) { alert('File exceeds 20MB limit.'); return; }
     setPendingFile(file);
     e.target.value = '';
   };
 
+  // ── Send regular message ─────────────────────────────────
   const handleSendMessage = async () => {
     if (!messageText.trim() && !pendingFile) return;
     if (!activeConvId || !user) return;
-
     const text = messageText;
     const file = pendingFile;
     setMessageText('');
     setPendingFile(null);
-
     try {
       let attachment: { url: string; type: string; name: string; size: number } | null = null;
       if (file) {
@@ -224,34 +284,23 @@ function MessagesContent() {
         attachment = { url, type: mediaType, name: file.name, size: file.size };
         setUploading(false);
       }
-
       await sendMessage(activeConvId, user.id, text, attachment);
-
-      const outgoingMsg: Message = {
+      const outgoing: Message = {
         id: `opt-${Date.now()}`,
-        body: text,
-        type: 'text',
-        sender_id: user.id,
+        body: text, type: 'text', sender_id: user.id,
         created_at: new Date().toISOString(),
         attachment_url: attachment?.url ?? null,
         attachment_type: attachment?.type ?? null,
         attachment_name: attachment?.name ?? null,
         attachment_size: attachment?.size ?? null,
       };
-
-      // Broadcast: header badge (notify channel) + inline message (inbox channel)
-      const chans = notifyChannelRef.current as unknown as { headerCh: ReturnType<typeof supabase.channel>; inboxCh: ReturnType<typeof supabase.channel> } | null;
-      const broadcastPayload = { commission_id: activeConvId, message: outgoingMsg };
-      chans?.headerCh?.send({ type: 'broadcast', event: 'new_message', payload: broadcastPayload });
-      chans?.inboxCh?.send({ type: 'broadcast', event: 'new_message', payload: broadcastPayload });
-
-      setMessages(prev => [...prev, outgoingMsg]);
-    } catch (err: unknown) {
-      const msg = err instanceof Error
-        ? err.message
-        : (typeof err === 'object' && err !== null && 'message' in err)
-          ? String((err as { message: unknown }).message)
-          : 'Upload failed. Please try again.';
+      const chans = notifyChannelRef.current as unknown as { headerCh: any; inboxCh: any } | null;
+      const payload = { commission_id: activeConvId, message: outgoing };
+      chans?.headerCh?.send({ type: 'broadcast', event: 'new_message', payload });
+      chans?.inboxCh?.send({ type: 'broadcast', event: 'new_message', payload });
+      setMessages(prev => [...prev, outgoing]);
+    } catch (err: any) {
+      const msg = err instanceof Error ? err.message : 'Upload failed.';
       console.error('[send error]', err);
       alert(msg);
       setMessageText(text);
@@ -262,6 +311,160 @@ function MessagesContent() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
+  };
+
+  // ── Proposal flow ────────────────────────────────────────
+  const handleSendProposal = useCallback(async (data: ProposalFormData) => {
+    if (!activeConvId || !user) throw new Error('Not authenticated');
+    const { proposalId, error } = await sendProposal(activeConvId, user.id, data);
+    if (error) throw new Error(error);
+    // Refresh proposals and messages
+    const [newProposals, newMessages] = await Promise.all([
+      getProposalsForCommission(activeConvId),
+      getMessages(activeConvId),
+    ]);
+    setProposals(newProposals);
+    setMessages(newMessages);
+    // Update conversation status in list
+    if (commissionDetails?.status === 'enquiry') {
+      setConversations(prev => prev.map(c =>
+        c.commissionId === activeConvId ? { ...c, status: 'in_discussion' } : c
+      ));
+      setCommissionDetails(prev => prev ? { ...prev, status: 'in_discussion' } : null);
+    }
+  }, [activeConvId, user, commissionDetails]);
+
+  const handleAcceptProposal = useCallback(async (proposalId: string) => {
+    if (!activeConvId) return;
+    const { error } = await acceptProposal(activeConvId, proposalId);
+    if (error) { alert(error); return; }
+    const [newProposals, newMessages, newDetails] = await Promise.all([
+      getProposalsForCommission(activeConvId),
+      getMessages(activeConvId),
+      getCommissionDetails(activeConvId),
+    ]);
+    setProposals(newProposals);
+    setMessages(newMessages);
+    if (newDetails) setCommissionDetails(newDetails);
+    setConversations(prev => prev.map(c =>
+      c.commissionId === activeConvId ? { ...c, status: 'in_progress' } : c
+    ));
+  }, [activeConvId]);
+
+  const openDeclineModal = (proposalId: string) => {
+    setDeclineProposalId(proposalId);
+    setDeclineMessage('');
+    setShowDeclineModal(true);
+  };
+
+  const handleDeclineProposal = async () => {
+    if (!activeConvId || !declineProposalId || !user) return;
+    await declineProposal(activeConvId, declineProposalId);
+    // Send the explanation as a regular message if provided
+    if (declineMessage.trim()) {
+      await sendMessage(activeConvId, user.id, declineMessage.trim());
+    }
+    const [newProposals, newMessages] = await Promise.all([
+      getProposalsForCommission(activeConvId),
+      getMessages(activeConvId),
+    ]);
+    setProposals(newProposals);
+    setMessages(newMessages);
+    setShowDeclineModal(false);
+    setDeclineProposalId(null);
+    setDeclineMessage('');
+  };
+
+  const handleUpdatePayment = useCallback(async (status: 'partially_paid' | 'fully_paid') => {
+    if (!activeConvId) return;
+    const { error } = await updatePaymentStatus(activeConvId, status);
+    if (error) { alert(error); return; }
+    const [newMessages, newDetails] = await Promise.all([
+      getMessages(activeConvId),
+      getCommissionDetails(activeConvId),
+    ]);
+    setMessages(newMessages);
+    if (newDetails) setCommissionDetails(newDetails);
+    setConversations(prev => prev.map(c =>
+      c.commissionId === activeConvId ? { ...c, paymentStatus: status } : c
+    ));
+  }, [activeConvId]);
+
+  const handleUpdateStatus = async (newStatus: 'delivered') => {
+    if (!activeConvId) return;
+    setShowStatusMenu(false);
+    const { error } = await updateCommissionStatus(activeConvId, newStatus);
+    if (error) { alert(error); return; }
+    const [newMessages, newDetails] = await Promise.all([
+      getMessages(activeConvId),
+      getCommissionDetails(activeConvId),
+    ]);
+    setMessages(newMessages);
+    if (newDetails) setCommissionDetails(newDetails);
+    setConversations(prev => prev.map(c =>
+      c.commissionId === activeConvId ? { ...c, status: newStatus } : c
+    ));
+  };
+
+  const handleRequestCompletion = async () => {
+    if (!activeConvId) return;
+    setShowStatusMenu(false);
+    const { error } = await requestCompletion(activeConvId);
+    if (error) { alert(error); return; }
+    const [newMessages, newDetails] = await Promise.all([
+      getMessages(activeConvId),
+      getCommissionDetails(activeConvId),
+    ]);
+    setMessages(newMessages);
+    if (newDetails) setCommissionDetails(newDetails);
+  };
+
+  const handleConfirmCompletion = async () => {
+    if (!activeConvId) return;
+    const { error } = await confirmCompletion(activeConvId);
+    if (error) { alert(error); return; }
+    const [newMessages, newDetails] = await Promise.all([
+      getMessages(activeConvId),
+      getCommissionDetails(activeConvId),
+    ]);
+    setMessages(newMessages);
+    if (newDetails) setCommissionDetails(newDetails);
+    setConversations(prev => prev.map(c =>
+      c.commissionId === activeConvId ? { ...c, status: 'completed' } : c
+    ));
+  };
+
+  const handleRejectCompletion = async () => {
+    if (!activeConvId) return;
+    const { error } = await rejectCompletion(activeConvId);
+    if (error) { alert(error); return; }
+    const [newMessages, newDetails] = await Promise.all([
+      getMessages(activeConvId),
+      getCommissionDetails(activeConvId),
+    ]);
+    setMessages(newMessages);
+    if (newDetails) setCommissionDetails(newDetails);
+  };
+
+  const handleSendInvoice = async () => {
+    if (!activeConvId) return;
+    setShowPlusMenu(false);
+    const { invoiceNumber, error } = await sendInvoice(activeConvId);
+    if (error) { alert(error); return; }
+    const newMessages = await getMessages(activeConvId);
+    setMessages(newMessages);
+    setShowInvoiceSent(true);
+    setTimeout(() => setShowInvoiceSent(false), 3000);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!activeConvId || !user || !activeConv || reviewRating === 0) return;
+    const revieweeId = isCreative ? activeConv.clientId : activeConv.artistId;
+    setReviewSubmitting(true);
+    const { error } = await submitCommissionReview(activeConvId, revieweeId, reviewRating, reviewBody || undefined);
+    setReviewSubmitting(false);
+    if (error) { alert(error); return; }
+    setReviewDone(true);
   };
 
   const handleDeleteThread = async () => {
@@ -285,22 +488,73 @@ function MessagesContent() {
     setReportSubmitting(false);
     setShowReportModal(false);
     setReportReason('');
-    alert('Report submitted. We\'ll review it shortly.');
+    alert('Report submitted.');
   };
 
-  const openPreview = (msg: Message) => {
-    setPreviewAsset(msg);
-    setShowPreviewPane(true);
+  const openPreview = (msg: Message) => { setPreviewAsset(msg); setShowPreviewPane(true); };
+
+  // ── Render message ───────────────────────────────────────
+  const renderMessage = (msg: Message) => {
+    if (msg.type === 'proposal') {
+      const proposal = proposals.find(p => p.id === msg.body);
+      if (!proposal) return null;
+      const isActive = proposal.status !== 'superseded';
+      return (
+        <ProposalCard
+          key={msg.id}
+          proposal={proposal}
+          commission={commissionDetails!}
+          isCreative={isCreative}
+          isActive={isActive && pinnedCard === 'proposal'}
+          paymentStatus={commissionDetails?.payment_status as PaymentStatus}
+          onAccept={isClient && proposal.status === 'pending' ? () => handleAcceptProposal(proposal.id) : undefined}
+          onDecline={isClient && proposal.status === 'pending' ? () => openDeclineModal(proposal.id) : undefined}
+          onEdit={isCreative && proposal.status === 'pending' ? () => { setEditingProposal(proposal); setShowProposalForm(true); } : undefined}
+          onUpdatePayment={isCreative && proposal.status === 'accepted' ? handleUpdatePayment : undefined}
+        />
+      );
+    }
+
+    if (msg.type === 'status_update' || msg.type === 'payment_confirmation') {
+      return (
+        <div key={msg.id} className={styles.systemMessage}>
+          <span className={styles.systemText}>{msg.body}</span>
+          <span className={styles.systemTime}>{formatTime(msg.created_at)}</span>
+        </div>
+      );
+    }
+
+    const isMine = msg.sender_id === user?.id;
+    return (
+      <div key={msg.id} className={isMine ? styles.messageSent : styles.messageReceived}>
+        {msg.attachment_url ? (
+          <AttachmentBubble msg={msg} onClick={() => openPreview(msg)} />
+        ) : (
+          <div className={styles.messageBubble}>{msg.body}</div>
+        )}
+        <span className={styles.timestamp}>{formatTime(msg.created_at)}</span>
+      </div>
+    );
   };
+
+  // ── Plus menu options ────────────────────────────────────
+  const canMarkDelivered = isCreative && commissionDetails?.status === 'in_progress';
+  const canRequestComplete = commissionDetails?.status === 'delivered' &&
+    !commissionDetails?.completion_requested_by;
+  const canSendInvoice = isCreative && (
+    commissionDetails?.status === 'in_progress' ||
+    commissionDetails?.status === 'delivered' ||
+    commissionDetails?.status === 'completed'
+  ) && activeProposal?.status === 'accepted';
 
   return (
     <>
       <main className={`${styles.main} ${activeConvId ? styles.hasActiveChat : ''}`}>
+
         {/* ── LEFT: CHAT LIST ─────────────────────── */}
         <section className={styles.chatList}>
           <div className={styles.listHeader}>
             <h1 className={styles.title}>MESSAGES</h1>
-            <button className={styles.iconBtn}><Plus size={20} /></button>
           </div>
           <div className={styles.searchWrapper}>
             <Search size={16} className={styles.searchIcon} />
@@ -331,6 +585,7 @@ function MessagesContent() {
                   </div>
                   <div className={styles.itemBottom}>
                     <p className={styles.itemPreview}>{conv.lastMessage}</p>
+                    <span className={styles.statusTag}>{conv.status.replace('_', ' ').toUpperCase()}</span>
                   </div>
                 </div>
               </div>
@@ -342,6 +597,7 @@ function MessagesContent() {
         <section className={`${styles.chatThread} ${activeConvId ? styles.activeThread : ''}`}>
           {activeConv ? (
             <>
+              {/* Thread header */}
               <header className={styles.threadHeader}>
                 <div className={styles.headerInfo}>
                   <button className={styles.mobileBackBtn} onClick={() => setActiveConvId(null)} aria-label="Back">
@@ -356,11 +612,17 @@ function MessagesContent() {
                   )}
                   <div className={styles.headerText}>
                     <span className={styles.headerName}>{activeConv.otherParty.full_name}</span>
-                    <span className={styles.headerStatus}>{activeConv.status.toUpperCase()}</span>
+                    <div className={styles.headerMeta}>
+                      <span className={styles.headerStatus}>{activeConv.status.replace('_', ' ').toUpperCase()}</span>
+                      {activeConv.paymentStatus && activeConv.paymentStatus !== 'unpaid' && (
+                        <span className={`${styles.payTag} ${styles[`pay_${activeConv.paymentStatus}`]}`}>
+                          {activeConv.paymentStatus === 'fully_paid' ? 'PAID' : 'PARTIAL'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className={styles.headerActions}>
-                  {/* 3-dot menu */}
                   <div className={styles.threadMenuWrap} ref={threadMenuRef}>
                     <button className={styles.iconBtn} onClick={() => setShowThreadMenu(v => !v)} aria-label="More options">
                       <MoreVertical size={20} />
@@ -368,56 +630,118 @@ function MessagesContent() {
                     {showThreadMenu && (
                       <div className={styles.threadMenu}>
                         <button className={`${styles.threadMenuItem} ${styles.threadMenuDanger}`} onClick={() => { setShowThreadMenu(false); setShowDeleteConfirm(true); }}>
-                          <Trash2 size={14} />
-                          <span>Delete Thread</span>
+                          <Trash2 size={14} /><span>Delete Thread</span>
                         </button>
                         <button className={styles.threadMenuItem} onClick={() => { setShowThreadMenu(false); setShowReportModal(true); }}>
-                          <Flag size={14} />
-                          <span>Report User</span>
+                          <Flag size={14} /><span>Report User</span>
                         </button>
                       </div>
                     )}
                   </div>
-                  {/* Preview pane toggle */}
                   <button
                     className={`${styles.iconBtn} ${showPreviewPane ? styles.iconBtnActive : ''}`}
                     onClick={() => setShowPreviewPane(v => !v)}
                     aria-label="Toggle preview pane"
-                    title="Asset preview"
                   >
                     <PanelRight size={18} />
                   </button>
                 </div>
               </header>
 
-              <div className={styles.messagesContainer} ref={scrollRef}>
-                {activeConv.briefWhat && (
-                  <div className={styles.messageReceived}>
-                    <div className={styles.briefCard}>
-                      <div className={styles.briefHeader}>
-                        <span className={styles.briefLabel}>// COMMISSION BRIEF</span>
-                        <span className={styles.briefTo}>{activeConv.status.toUpperCase()}</span>
-                      </div>
-                      <p className={styles.briefText}>{activeConv.briefWhat}</p>
+              {/* ── PINNED CARD ── */}
+              <div className={styles.pinnedArea}>
+                {commissionDetails ? (
+                  pinnedCard === 'proposal' && activeProposal ? (
+                    <ProposalCard
+                      proposal={activeProposal}
+                      commission={commissionDetails}
+                      isCreative={isCreative}
+                      isActive={true}
+                      paymentStatus={commissionDetails.payment_status as PaymentStatus}
+                      onUpdatePayment={isCreative ? handleUpdatePayment : undefined}
+                    />
+                  ) : (
+                    <BriefCard commission={commissionDetails} />
+                  )
+                ) : (
+                  <div className={styles.pinnedLoading}>Loading brief...</div>
+                )}
+
+                {/* Completion confirmation banner */}
+                {completionRequestedByOther && (
+                  <div className={styles.completionBanner}>
+                    <p className={styles.completionBannerText}>
+                      {activeConv.otherParty.full_name} has marked this project as complete.
+                    </p>
+                    <div className={styles.completionBannerActions}>
+                      <button className={styles.btnConfirmCompletion} onClick={handleConfirmCompletion}>
+                        Confirm Completion
+                      </button>
+                      <button className={styles.btnNotYet} onClick={handleRejectCompletion}>
+                        Not yet
+                      </button>
                     </div>
                   </div>
                 )}
-                {messages.length === 0 && !activeConv.briefWhat && (
-                  <div className={styles.emptyThread}>No messages yet. Say something.</div>
-                )}
-                {messages.map(msg => (
-                  <div key={msg.id} className={msg.sender_id === user?.id ? styles.messageSent : styles.messageReceived}>
-                    {msg.attachment_url ? (
-                      <AttachmentBubble msg={msg} onClick={() => openPreview(msg)} />
+
+                {/* Review prompt */}
+                {isReviewUnlocked && !reviewDone && (
+                  <div className={styles.reviewPrompt}>
+                    <p className={styles.reviewPromptLabel}>// PROJECT COMPLETE</p>
+                    {!showReviewForm ? (
+                      <button className={styles.btnLeaveReview} onClick={() => setShowReviewForm(true)}>
+                        Leave a Review for {activeConv.otherParty.full_name}
+                      </button>
                     ) : (
-                      <div className={styles.messageBubble}>{msg.body}</div>
+                      <div className={styles.reviewForm}>
+                        <div className={styles.starRow}>
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <button key={s} className={styles.starBtn} onClick={() => setReviewRating(s)}>
+                              <Star size={20} fill={s <= reviewRating ? 'var(--color-yellow)' : 'none'} color={s <= reviewRating ? 'var(--color-yellow)' : 'var(--text-faint)'} />
+                            </button>
+                          ))}
+                        </div>
+                        <textarea
+                          className={styles.reviewTextarea}
+                          placeholder="A short review (150 chars max)"
+                          maxLength={150}
+                          value={reviewBody}
+                          onChange={e => setReviewBody(e.target.value)}
+                          rows={2}
+                        />
+                        <div className={styles.reviewActions}>
+                          <button className={styles.btnDismissReview} onClick={() => setShowReviewForm(false)}>
+                            Later
+                          </button>
+                          <button
+                            className={styles.btnSubmitReview}
+                            onClick={handleSubmitReview}
+                            disabled={reviewRating === 0 || reviewSubmitting}
+                          >
+                            {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+                          </button>
+                        </div>
+                      </div>
                     )}
-                    <span className={styles.timestamp}>{formatTime(msg.created_at)}</span>
                   </div>
-                ))}
+                )}
+
+                {isReviewUnlocked && reviewDone && (
+                  <div className={styles.reviewDone}>
+                    Review submitted.
+                  </div>
+                )}
               </div>
 
-              {/* Pending file preview strip */}
+              {/* ── MESSAGES ── */}
+              <div className={styles.messagesContainer} ref={scrollRef}>
+                {messages.length === 0 && (
+                  <div className={styles.emptyThread}>No messages yet. Say something.</div>
+                )}
+                {messages.map(msg => renderMessage(msg))}
+              </div>
+
+              {/* Pending file strip */}
               {pendingFile && (
                 <div className={styles.pendingStrip}>
                   <div className={styles.pendingFile}>
@@ -438,10 +762,16 @@ function MessagesContent() {
                 </div>
               )}
 
+              {showInvoiceSent && (
+                <div className={styles.invoiceToast}>Invoice sent.</div>
+              )}
+
+              {/* ── INPUT BAR ── */}
               <footer className={styles.chatInput}>
                 <div className={styles.inputWrapper}>
+                  {/* Paperclip for attachments */}
                   <button className={styles.attachBtn} onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                    <Paperclip size={20} />
+                    <Paperclip size={18} />
                   </button>
                   <input
                     ref={fileInputRef}
@@ -450,6 +780,7 @@ function MessagesContent() {
                     style={{ display: 'none' }}
                     onChange={handleFileSelect}
                   />
+
                   <input
                     type="text"
                     placeholder={uploading ? 'Uploading…' : 'Type a message...'}
@@ -459,7 +790,70 @@ function MessagesContent() {
                     onKeyDown={handleKeyDown}
                     disabled={uploading}
                   />
-                  <button className={styles.sendBtn} onClick={handleSendMessage} disabled={uploading || (!messageText.trim() && !pendingFile)}>
+
+                  {/* + menu for creative */}
+                  {isCreative && (
+                    <div className={styles.plusMenuWrap} ref={plusMenuRef}>
+                      <button
+                        className={styles.plusBtn}
+                        onClick={() => setShowPlusMenu(v => !v)}
+                        aria-label="Actions"
+                      >
+                        <Plus size={18} />
+                      </button>
+                      {showPlusMenu && (
+                        <div className={styles.plusMenu}>
+                          <button
+                            className={styles.plusMenuItem}
+                            onClick={() => { setShowPlusMenu(false); setEditingProposal(null); setShowProposalForm(true); }}
+                          >
+                            Send Proposal
+                          </button>
+                          {canMarkDelivered && (
+                            <button
+                              className={styles.plusMenuItem}
+                              onClick={() => handleUpdateStatus('delivered')}
+                            >
+                              Mark as Delivered
+                            </button>
+                          )}
+                          {canRequestComplete && (
+                            <button
+                              className={styles.plusMenuItem}
+                              onClick={handleRequestCompletion}
+                            >
+                              Request Completion
+                            </button>
+                          )}
+                          {canSendInvoice && (
+                            <button
+                              className={styles.plusMenuItem}
+                              onClick={handleSendInvoice}
+                            >
+                              Send Invoice
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Client can also request completion if delivered */}
+                  {isClient && canRequestComplete && (
+                    <button
+                      className={styles.completionBtn}
+                      onClick={handleRequestCompletion}
+                      title="Mark as Complete"
+                    >
+                      Mark Complete
+                    </button>
+                  )}
+
+                  <button
+                    className={styles.sendBtn}
+                    onClick={handleSendMessage}
+                    disabled={uploading || (!messageText.trim() && !pendingFile)}
+                  >
                     <Send size={20} />
                   </button>
                 </div>
@@ -509,13 +903,49 @@ function MessagesContent() {
                 </a>
               </div>
             ) : (
-              <div className={styles.previewEmpty}>Click an attachment in the chat to preview it here.</div>
+              <div className={styles.previewEmpty}>Click an attachment to preview it here.</div>
             )}
           </aside>
         )}
       </main>
 
-      {/* ── DELETE CONFIRM ─────────────────────────── */}
+      {/* ── PROPOSAL FORM ────────────────────────── */}
+      {showProposalForm && (
+        <ProposalForm
+          existingProposal={editingProposal}
+          nextVersion={(proposals.filter(p => p.status !== 'superseded').length) + 1}
+          onSubmit={handleSendProposal}
+          onClose={() => { setShowProposalForm(false); setEditingProposal(null); }}
+        />
+      )}
+
+      {/* ── DECLINE MODAL ────────────────────────── */}
+      {showDeclineModal && (
+        <div className={styles.modalBackdrop} onClick={() => setShowDeclineModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalTitle}>// DECLINE PROPOSAL</span>
+              <button className={styles.iconBtn} onClick={() => setShowDeclineModal(false)}><X size={18} /></button>
+            </div>
+            <p className={styles.modalSub}>Would you like to explain what you'd like changed?</p>
+            <textarea
+              className={styles.reportInput}
+              placeholder="Tell them what needs adjusting (optional)..."
+              value={declineMessage}
+              onChange={e => setDeclineMessage(e.target.value)}
+              rows={3}
+            />
+            <div className={styles.confirmActions}>
+              <button className={styles.confirmCancel} onClick={() => setShowDeclineModal(false)}>Back</button>
+              <button className={styles.confirmDelete} onClick={handleDeclineProposal}>
+                Decline{declineMessage.trim() ? ' & Send Message' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DELETE CONFIRM ───────────────────────── */}
       {showDeleteConfirm && (
         <div className={styles.modalBackdrop} onClick={() => setShowDeleteConfirm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -523,7 +953,7 @@ function MessagesContent() {
               <span className={styles.modalTitle}>// DELETE THREAD</span>
               <button className={styles.iconBtn} onClick={() => setShowDeleteConfirm(false)}><X size={18} /></button>
             </div>
-            <p className={styles.modalSub}>This will permanently delete all messages with <strong>{activeConv?.otherParty.full_name}</strong>. This cannot be undone.</p>
+            <p className={styles.modalSub}>This will permanently remove this conversation from your inbox. <strong>{activeConv?.otherParty.full_name}</strong> will not be notified.</p>
             <div className={styles.confirmActions}>
               <button className={styles.confirmCancel} onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
               <button className={styles.confirmDelete} onClick={handleDeleteThread}>Delete</button>
@@ -532,7 +962,7 @@ function MessagesContent() {
         </div>
       )}
 
-      {/* ── REPORT MODAL ───────────────────────────── */}
+      {/* ── REPORT MODAL ─────────────────────────── */}
       {showReportModal && (
         <div className={styles.modalBackdrop} onClick={() => setShowReportModal(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>

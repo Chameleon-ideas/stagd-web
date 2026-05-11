@@ -11,10 +11,11 @@ export type City = 'Karachi' | 'Lahore' | 'Islamabad';
 export type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
 export type EventType = 'concert' | 'workshop' | 'gallery' | 'spoken_word' | 'exhibition' | 'talk' | 'other';
 export type EventStatus = 'draft' | 'live' | 'cancelled' | 'completed';
-export type CommissionStatus = 'enquiry' | 'in_discussion' | 'in_progress' | 'completed' | 'cancelled';
-export type ProposalStatus = 'pending' | 'accepted' | 'tweaking' | 'superseded';
+export type CommissionStatus = 'enquiry' | 'in_discussion' | 'in_progress' | 'delivered' | 'completed' | 'cancelled';
+export type ProposalStatus = 'pending' | 'accepted' | 'declined' | 'superseded';
 export type MessageType = 'text' | 'proposal' | 'payment_confirmation' | 'status_update';
 export type PaymentType = 'deposit' | 'balance';
+export type PaymentStatus = 'unpaid' | 'partially_paid' | 'fully_paid';
 
 // ── User / Profile ──────────────────────────────────────────
 
@@ -36,6 +37,7 @@ export interface ArtistProfile {
   detailed_bio?: string;
   disciplines: string[];
   availability: AvailabilityStatus;
+  available_from?: string; // date — ISO YYYY-MM-DD
   starting_rate?: number; // PKR
   rates_on_request?: boolean;
   travel_available?: boolean;
@@ -48,6 +50,12 @@ export interface ArtistProfile {
   linkedin_url?: string;
   twitter_url?: string;
   verified: boolean;
+  // Commission preferences
+  invoice_auto_send?: boolean;
+  bank_account_title?: string;
+  bank_name?: string;
+  bank_account_number?: string;
+  bank_iban?: string;
 }
 
 export interface PortfolioItem {
@@ -222,10 +230,37 @@ export interface Commission {
   artist_id: string;
   artist: Pick<User, 'id' | 'full_name' | 'username' | 'avatar_url'>;
   status: CommissionStatus;
+  payment_status: PaymentStatus;
   brief_what?: string;
   brief_budget?: string;
   brief_timeline?: string;
+  brief_discipline?: string;
+  brief_deliverable?: string;
+  brief_description?: string;
+  brief_deadline?: string;
+  brief_duration?: string;
+  brief_budget_amount?: number;
   brief_reference?: string;
+  completion_requested_by?: string | null;
+  created_at: string;
+}
+
+// Lightweight version for conversations list / thread context
+export interface CommissionDetails {
+  id: string;
+  client_id: string;
+  artist_id: string;
+  status: CommissionStatus;
+  payment_status: PaymentStatus;
+  brief_discipline?: string;
+  brief_deliverable?: string;
+  brief_description?: string;
+  brief_deadline?: string;
+  brief_duration?: string;
+  brief_budget_amount?: number;
+  brief_reference?: string;
+  brief_what?: string;
+  completion_requested_by?: string | null;
   created_at: string;
 }
 
@@ -240,7 +275,18 @@ export interface Proposal {
   revisions?: number;
   deliverables?: string;
   status: ProposalStatus;
+  version: number;
   created_at: string;
+}
+
+export interface Invoice {
+  id: string;
+  commission_id: string;
+  invoice_number: string;
+  issued_at: string;
+  sent_to_email: string;
+  total_amount: number;
+  pdf_url?: string;
 }
 
 // ── Search ──────────────────────────────────────────────────

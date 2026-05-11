@@ -310,6 +310,317 @@ export async function POST(req: NextRequest) {
           isOrganiser: event?.organiser_id === userId,
         });
       }
+
+      // ── COMMISSIONS FLOW ──────────────────────────────────
+
+      case 'sendProposal': {
+        const { commissionId, data: propData } = body;
+        // Verify caller is the artist on this commission
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id, status').eq('id', commissionId).single();
+        if (!commission || commission.artist_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        // Supersede previous pending proposals
+        await supabaseAdmin
+          .from('proposals')
+          .update({ status: 'superseded' })
+          .eq('commission_id', commissionId)
+          .eq('status', 'pending');
+
+        const { data: proposal, error: propError } = await supabaseAdmin
+          .from('proposals')
+          .insert({ commission_id: commissionId, ...propData })
+          .select('id')
+          .single();
+        if (propError || !proposal)
+          return NextResponse.json({ error: propError?.message ?? 'Failed to create proposal' });
+
+        // Insert proposal message
+        await supabaseAdmin.from('messages').insert({
+          commission_id: commissionId,
+          sender_id: userId,
+          body: proposal.id,
+          type: 'proposal',
+        });
+
+        // Insert system message for revisions (version > 1)
+        if (propData.version > 1) {
+          const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', userId).single();
+          const msgs: any[] = [{
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `${profile?.full_name ?? 'The creative'} sent a revised proposal`,
+            type: 'status_update',
+          }];
+          // Soft nudge on 3rd+ proposal
+          if (propData.version >= 3) {
+            msgs.push({
+              commission_id: commissionId,
+              sender_id: userId,
+              body: `This is proposal revision ${propData.version}. Consider locking scope before starting.`,
+              type: 'status_update',
+            });
+          }
+          await supabaseAdmin.from('messages').insert(msgs);
+        }
+
+        // Update commission status to in_discussion if still enquiry
+        if (commission.status === 'enquiry') {
+          await supabaseAdmin.from('commissions').update({ status: 'in_discussion' }).eq('id', commissionId);
+        }
+
+        return NextResponse.json({ proposalId: proposal.id, error: null });
+      }
+
+      case 'acceptProposal': {
+        const { commissionId, proposalId } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id').eq('id', commissionId).single();
+        if (!commission || commission.client_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', userId).single();
+
+        await Promise.all([
+          supabaseAdmin.from('proposals').update({ status: 'accepted' }).eq('id', proposalId),
+          supabaseAdmin.from('commissions').update({ status: 'in_progress' }).eq('id', commissionId),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `${profile?.full_name ?? 'The client'} accepted the proposal. Project is now In Progress.`,
+            type: 'status_update',
+          }),
+        ]);
+
+        // Check if artist has invoice auto-send enabled
+        const { data: artistProfile } = await supabaseAdmin
+          .from('artist_profiles').select('invoice_auto_send').eq('id', commission.artist_id).single();
+
+        if (artistProfile?.invoice_auto_send) {
+          // Auto-send invoice — generate invoice number
+          const { data: proposal } = await supabaseAdmin
+            .from('proposals').select('total_price').eq('id', proposalId).single();
+          const { data: clientUser } = await supabaseAdmin
+            .from('profiles').select('email, full_name').eq('id', commission.client_id).single();
+          if (proposal && clientUser?.email) {
+            const year = new Date().getFullYear();
+            const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+            const invoiceNumber = `INV-${year}-${rand}`;
+            await supabaseAdmin.from('invoices').insert({
+              commission_id: commissionId,
+              invoice_number: invoiceNumber,
+              sent_to_email: clientUser.email,
+              total_amount: proposal.total_price,
+            });
+            await supabaseAdmin.from('messages').insert({
+              commission_id: commissionId,
+              sender_id: commission.artist_id,
+              body: `Invoice ${invoiceNumber} sent to ${clientUser.email}`,
+              type: 'payment_confirmation',
+            });
+          }
+        }
+
+        return NextResponse.json({ error: null });
+      }
+
+      case 'declineProposal': {
+        const { commissionId, proposalId } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('client_id').eq('id', commissionId).single();
+        if (!commission || commission.client_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        await supabaseAdmin.from('proposals').update({ status: 'declined' }).eq('id', proposalId);
+        return NextResponse.json({ error: null });
+      }
+
+      case 'updatePaymentStatus': {
+        const { commissionId, status: payStatus } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id').eq('id', commissionId).single();
+        if (!commission || commission.artist_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', userId).single();
+        const label = payStatus === 'fully_paid' ? 'Fully Paid' : 'Partially Paid';
+
+        await Promise.all([
+          supabaseAdmin.from('commissions').update({ payment_status: payStatus }).eq('id', commissionId),
+          supabaseAdmin.from('payment_status_log').insert({
+            commission_id: commissionId, status: payStatus, updated_by: userId,
+          }),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `${profile?.full_name ?? 'The creative'} marked payment as ${label}`,
+            type: 'payment_confirmation',
+          }),
+        ]);
+
+        return NextResponse.json({ error: null });
+      }
+
+      case 'updateCommissionStatus': {
+        const { commissionId, status: newStatus } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id, status').eq('id', commissionId).single();
+        if (!commission) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+        // Only artist can move to delivered
+        if (newStatus === 'delivered' && commission.artist_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', userId).single();
+
+        await Promise.all([
+          supabaseAdmin.from('commissions').update({ status: newStatus }).eq('id', commissionId),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `${profile?.full_name ?? 'User'} marked the project as ${newStatus === 'delivered' ? 'Delivered' : 'Completed'}`,
+            type: 'status_update',
+          }),
+        ]);
+
+        return NextResponse.json({ error: null });
+      }
+
+      case 'requestCompletion': {
+        const { commissionId } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id, completion_requested_by').eq('id', commissionId).single();
+        if (!commission) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        if (commission.artist_id !== userId && commission.client_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', userId).single();
+        const otherId = commission.artist_id === userId ? commission.client_id : commission.artist_id;
+        const { data: other } = await supabaseAdmin.from('profiles').select('full_name').eq('id', otherId).single();
+
+        await Promise.all([
+          supabaseAdmin.from('commissions').update({ completion_requested_by: userId }).eq('id', commissionId),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `${profile?.full_name ?? 'User'} marked this project as complete. Waiting for ${other?.full_name ?? 'the other party'} to confirm.`,
+            type: 'status_update',
+          }),
+        ]);
+
+        return NextResponse.json({ error: null });
+      }
+
+      case 'confirmCompletion': {
+        const { commissionId } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id, completion_requested_by, payment_status').eq('id', commissionId).single();
+        if (!commission) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        if (commission.artist_id !== userId && commission.client_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        await Promise.all([
+          supabaseAdmin.from('commissions').update({ status: 'completed', completion_requested_by: null }).eq('id', commissionId),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: 'Project completed. Leave a review when you\'re ready.',
+            type: 'status_update',
+          }),
+        ]);
+
+        return NextResponse.json({ error: null });
+      }
+
+      case 'rejectCompletion': {
+        const { commissionId } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id').eq('id', commissionId).single();
+        if (!commission) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', userId).single();
+
+        await Promise.all([
+          supabaseAdmin.from('commissions').update({ completion_requested_by: null }).eq('id', commissionId),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `${profile?.full_name ?? 'User'} indicated the project is not yet complete.`,
+            type: 'status_update',
+          }),
+        ]);
+
+        return NextResponse.json({ error: null });
+      }
+
+      case 'sendInvoice': {
+        const { commissionId } = body;
+        const { data: commission } = await supabaseAdmin
+          .from('commissions').select('artist_id, client_id').eq('id', commissionId).single();
+        if (!commission || commission.artist_id !== userId)
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+        // Get latest accepted proposal
+        const { data: proposal } = await supabaseAdmin
+          .from('proposals').select('total_price').eq('commission_id', commissionId).eq('status', 'accepted').single();
+        const { data: clientUser } = await supabaseAdmin
+          .from('profiles').select('email').eq('id', commission.client_id).single();
+
+        if (!proposal || !clientUser?.email)
+          return NextResponse.json({ error: 'Missing proposal or client email' });
+
+        const year = new Date().getFullYear();
+        const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+        const invoiceNumber = `INV-${year}-${rand}`;
+
+        await Promise.all([
+          supabaseAdmin.from('invoices').insert({
+            commission_id: commissionId,
+            invoice_number: invoiceNumber,
+            sent_to_email: clientUser.email,
+            total_amount: proposal.total_price,
+          }),
+          supabaseAdmin.from('messages').insert({
+            commission_id: commissionId,
+            sender_id: userId,
+            body: `Invoice ${invoiceNumber} sent to ${clientUser.email}`,
+            type: 'payment_confirmation',
+          }),
+        ]);
+
+        return NextResponse.json({ invoiceNumber, error: null });
+      }
+
+      case 'submitCommissionReview': {
+        const { commissionId, revieweeId, rating, body: reviewBody } = body;
+        if (!revieweeId || !rating || rating < 1 || rating > 5)
+          return NextResponse.json({ error: 'Invalid review data' });
+        if (revieweeId === userId)
+          return NextResponse.json({ error: 'You cannot review yourself' });
+
+        const { data: commission } = await supabaseAdmin
+          .from('commissions')
+          .select('status, payment_status, artist_id, client_id')
+          .eq('id', commissionId)
+          .single();
+
+        if (!commission) return NextResponse.json({ error: 'Commission not found' });
+        if (commission.status !== 'completed' || commission.payment_status !== 'fully_paid')
+          return NextResponse.json({ error: 'Review only unlocks when project is completed and fully paid' });
+
+        const { error } = await supabaseAdmin.from('reviews').insert({
+          commission_id: commissionId,
+          reviewer_id: userId,
+          reviewee_id: revieweeId,
+          rating,
+          body: reviewBody || null,
+        });
+        if (error?.code === '23505')
+          return NextResponse.json({ error: 'You have already reviewed this person for this commission' });
+        return NextResponse.json({ error: error?.message ?? null });
+      }
+
       default:
         return NextResponse.json({ error: `Unknown op: ${op}` }, { status: 400 });
     }

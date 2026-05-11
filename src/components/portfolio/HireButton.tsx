@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { CommissionEnquiry } from './CommissionEnquiry';
+import { useAuth } from '@/lib/auth';
 import type { ArtistPublicProfile } from '@/lib/types';
 
 interface HireButtonProps {
@@ -12,35 +14,39 @@ interface HireButtonProps {
   style?: React.CSSProperties;
 }
 
-/**
- * HireButton (Client Component)
- * Handles opening the commission enquiry modal.
- * Uses a Portal to ensure the modal is rendered at the root level, 
- * bypassing any z-index or stacking context issues on the artist profile.
- */
 export function HireButton({ artist, className, label = 'Commission Work', style }: HireButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
+  const handleClick = () => {
+    if (!user) {
+      router.push(`/auth/login?redirect=/profile/${artist.user.username}`);
+      return;
+    }
+    setIsOpen(true);
+  };
+
   return (
     <>
-      <button 
+      <button
         className={className}
-        onClick={() => setIsOpen(true)}
+        onClick={handleClick}
         style={style}
       >
         {label}
       </button>
 
       {isOpen && mounted && createPortal(
-        <CommissionEnquiry 
-          artist={artist} 
-          onClose={() => setIsOpen(false)} 
+        <CommissionEnquiry
+          artist={artist}
+          onClose={() => setIsOpen(false)}
         />,
         document.body
       )}

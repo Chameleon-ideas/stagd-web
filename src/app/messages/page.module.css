@@ -849,6 +849,373 @@
 
 .confirmDelete:hover { opacity: 0.85; }
 
+/* ── STATUS TAG (sidebar) ───────────────────────────── */
+.statusTag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── HEADER META (status + pay tag) ─────────────────── */
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.payTag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+}
+
+.pay_fully_paid {
+  background: rgba(4, 152, 57, 0.15);
+  color: var(--color-green);
+}
+
+.pay_partially_paid {
+  background: rgba(255, 222, 13, 0.15);
+  color: var(--color-yellow);
+}
+
+/* ── PINNED CARD AREA ───────────────────────────────── */
+.pinnedArea {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg);
+}
+
+.pinnedLoading {
+  padding: 12px 20px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  opacity: 0.5;
+}
+
+/* ── SYSTEM MESSAGES ────────────────────────────────── */
+.systemMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.systemText {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.systemTime {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+}
+
+/* ── COMPLETION BANNER ──────────────────────────────── */
+.completionBanner {
+  padding: 12px 20px;
+  background: rgba(255, 222, 13, 0.07);
+  border-bottom: 1px solid var(--color-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.completionBannerText {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+.completionBannerActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btnConfirmCompletion {
+  height: 36px;
+  padding: 0 16px;
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnConfirmCompletion:hover { opacity: 0.85; }
+
+.btnNotYet {
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btnNotYet:hover { border-color: var(--text); }
+
+/* ── REVIEW PROMPT ──────────────────────────────────── */
+.reviewPrompt {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+
+.reviewPromptLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.btnLeaveReview {
+  height: 36px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnLeaveReview:hover {
+  border-color: var(--color-yellow);
+  color: var(--color-yellow);
+}
+
+.reviewForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.starRow {
+  display: flex;
+  gap: 4px;
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.15s;
+}
+
+.starBtn:hover { transform: scale(1.15); }
+
+.reviewTextarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  transition: border-color 0.2s;
+}
+
+.reviewTextarea:focus { border-color: var(--color-yellow); }
+
+.reviewActions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnDismissReview {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btnDismissReview:hover { border-color: var(--text); color: var(--text); }
+
+.btnSubmitReview {
+  height: 32px;
+  padding: 0 16px;
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnSubmitReview:hover:not(:disabled) { opacity: 0.85; }
+.btnSubmitReview:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.reviewDone {
+  padding: 10px 20px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-green);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ── INVOICE TOAST ──────────────────────────────────── */
+.invoiceToast {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 8px 20px;
+  pointer-events: none;
+  z-index: 20;
+  animation: fadeUp 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+/* ── PLUS MENU ──────────────────────────────────────── */
+.plusMenuWrap {
+  position: relative;
+}
+
+.plusBtn {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  transition: color 0.2s;
+}
+
+.plusBtn:hover { color: var(--color-yellow); }
+
+.plusMenu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  min-width: 180px;
+  z-index: 50;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.plusMenuItem {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.plusMenuItem:hover { background: var(--bg-surface); }
+.plusMenuItem + .plusMenuItem { border-top: 1px solid var(--border-color); }
+
+/* ── CLIENT COMPLETION BUTTON ───────────────────────── */
+.completionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.completionBtn:hover {
+  border-color: var(--color-yellow);
+  color: var(--text);
+}
+
 /* ── RESPONSIVE ────────────────────────────────────── */
 @media (max-width: 1024px) {
   .chatList { width: 300px; }

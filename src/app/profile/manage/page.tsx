@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import {
   getMyPortfolio,
   uploadPortfolioImage,
@@ -92,6 +94,35 @@ export default function ManageWorkPage() {
   const [pickerProjectId, setPickerProjectId] = useState<string | null>(null);
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
   const [isLinking, setIsLinking] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const formAreaRef = useRef<HTMLDivElement>(null);
+
+  // Animations
+  useGSAP(() => {
+    if (!containerRef.current) return;
+    const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 0.8 } });
+    tl.from(`.${styles.sidebar}`, { x: -40, opacity: 0, duration: 1 })
+      .from(`.${styles.stepMeta}`, { y: 10, opacity: 0 }, '-=0.6')
+      .from(`.${styles.title}`, { y: 10, opacity: 0 }, '-=0.6')
+      .from(`.${styles.navItem}`, { 
+        x: -10, 
+        opacity: 0, 
+        stagger: 0.05,
+        clearProps: 'all'
+      }, '-=0.4');
+
+    gsap.from(`.${styles.mediaArea}`, { x: 40, opacity: 0, duration: 1 });
+  }, { scope: containerRef });
+
+  useGSAP(() => {
+    if (formAreaRef.current) {
+      gsap.fromTo(formAreaRef.current, 
+        { y: 15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'expo.out', clearProps: 'y,opacity' }
+      );
+    }
+  }, { dependencies: [section], scope: containerRef });
 
   // Auth gate
   useEffect(() => {
@@ -292,44 +323,48 @@ export default function ManageWorkPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.inner}>
+    <div className={styles.container} ref={containerRef}>
+      {/* Column 1: Sidebar */}
+      <aside className={styles.sidebar}>
+        <Link href={`/profile/${user?.username}`} className={styles.backLink}>
+          <ArrowLeft size={14} /> Back to Profile
+        </Link>
+        
+        <div className={styles.sidebarMeta}>
+          <div className={styles.stepMeta}>// PHASE 01</div>
+          <h1 className={styles.title}>MANAGE<br/>WORK</h1>
+        </div>
 
-        {/* ── SIDEBAR ── */}
-        <aside className={styles.sidebar}>
-          <Link href={`/profile/${user?.username}`} className={styles.backLink}>
-            <ArrowLeft size={14} /> Back to Profile
-          </Link>
-          <h1 className={styles.title}>Manage<br/>Work</h1>
+        <nav className={styles.nav}>
+          <button
+            className={`${styles.navItem} ${section === 'portfolio' ? styles.navItemActive : ''}`}
+            onClick={() => { setSection('portfolio'); setEditingProjectId(null); }}
+          >
+            <div className={styles.navItemDot} />
+            <span>Portfolio</span>
+            <span className={styles.navCount}>{portfolio.length}</span>
+          </button>
+          <button
+            className={`${styles.navItem} ${section === 'projects' ? styles.navItemActive : ''}`}
+            onClick={() => setSection('projects')}
+          >
+            <div className={styles.navItemDot} />
+            <span>Projects</span>
+            <span className={styles.navCount}>{projects.length}</span>
+          </button>
+        </nav>
 
-          <nav className={styles.nav}>
-            <button
-              className={`${styles.navItem} ${section === 'portfolio' ? styles.navItemActive : ''}`}
-              onClick={() => { setSection('portfolio'); setEditingProjectId(null); }}
-            >
-              <LayoutGrid size={16} />
-              <span>Portfolio</span>
-              <span className={styles.navCount}>{portfolio.length}</span>
-            </button>
-            <button
-              className={`${styles.navItem} ${section === 'projects' ? styles.navItemActive : ''}`}
-              onClick={() => setSection('projects')}
-            >
-              <FolderOpen size={16} />
-              <span>Projects</span>
-              <span className={styles.navCount}>{projects.length}</span>
-            </button>
-          </nav>
+        <div className={styles.sidebarActions}>
+          <p className={styles.helpText}>
+            STAND-ALONE IMAGES AND CURATED PROJECTS. PROJECT ITEMS AUTOMATICALLY INDEX INTO YOUR GLOBAL PORTFOLIO GRID.
+          </p>
+        </div>
+      </aside>
 
-          <div className={styles.sideNote}>
-            Stand-alone images and curated projects. Project items automatically index into your global portfolio grid.
-          </div>
-        </aside>
-
-        {/* ── MAIN CONTENT ── */}
-        <main className={styles.main}>
-
-          {/* ════ PORTFOLIO SECTION ════ */}
+      {/* Column 2: Form Area */}
+      <section className={styles.formArea} ref={formAreaRef}>
+        <div className={styles.contentBox}>
+          {/* Portfolio Section */}
           {section === 'portfolio' && (
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
@@ -395,7 +430,7 @@ export default function ManageWorkPage() {
             </div>
           )}
 
-          {/* ════ PROJECTS SECTION ════ */}
+          {/* Projects Section */}
           {section === 'projects' && (
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
@@ -671,8 +706,36 @@ export default function ManageWorkPage() {
               )}
             </div>
           )}
-        </main>
-      </div>
+        </div>
+      </section>
+
+      {/* Column 3: Media Area (Insights / Preview) */}
+      <aside className={styles.mediaArea}>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>// WORKSTATION INSIGHTS</label>
+          <div className={styles.infoBox}>
+            // TOTAL ASSETS INDEXED: {portfolio.length}<br />
+            // ACTIVE PROJECTS: {projects.length}<br />
+            // DISCIPLINE COVERAGE: {Array.from(new Set(projects.map(p => p.discipline).filter(Boolean))).length} AREAS
+          </div>
+          
+          <label className={styles.label}>// QUICK TIPS</label>
+          <div className={styles.helpText}>
+            • PORTFOLIO IMAGES AUTOMATICALLY APPEAR IN YOUR PUBLIC GRID.<br /><br />
+            • PROJECTS ALLOW YOU TO GROUP WORK WITH TECHNICAL SPECS AND LOCATION DATA.<br /><br />
+            • USE THE 'STAR' ICON ON PROJECT ASSETS TO SET A COVER IMAGE FOR THAT COLLECTION.
+          </div>
+        </div>
+
+        <div style={{ marginTop: 'auto', borderTop: '1.5px solid var(--border-color)', paddingTop: '20px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#666', marginBottom: '12px' }}>
+            // STATUS: SYNCHRONIZED
+          </div>
+          <p className={styles.helpText}>
+            ALL CHANGES ARE PERSISTED TO YOUR GLOBAL CREATIVE PROFILE IN REAL-TIME.
+          </p>
+        </div>
+      </aside>
 
       {/* ════ PORTFOLIO PICKER MODAL ════ */}
       <AnimatePresence>

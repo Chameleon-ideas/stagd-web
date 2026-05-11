@@ -89,6 +89,7 @@ interface InitialData {
   detailedBio: string;
   disciplines: string[];
   availability: string;
+  availableFrom: string;
   startingRate: number | '';
   ratesOnRequest: boolean;
   travelAvailable: boolean;
@@ -97,6 +98,11 @@ interface InitialData {
   behance: string;
   linkedin: string;
   twitter: string;
+  invoiceAutoSend: boolean;
+  bankAccountTitle: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankIban: string;
 }
 
 export default function EditProfilePage() {
@@ -114,9 +120,17 @@ export default function EditProfilePage() {
   const [detailedBio, setDetailedBio] = useState('');
   const [disciplines, setDisciplines] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'available' | 'busy' | 'unavailable'>('available');
+  const [availableFrom, setAvailableFrom] = useState('');
   const [startingRate, setStartingRate] = useState<number | ''>('');
   const [ratesOnRequest, setRatesOnRequest] = useState(false);
   const [travelAvailable, setTravelAvailable] = useState(false);
+
+  // Commission Preferences
+  const [invoiceAutoSend, setInvoiceAutoSend] = useState(true);
+  const [bankAccountTitle, setBankAccountTitle] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [bankIban, setBankIban] = useState('');
   
   // Avatar
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -166,6 +180,7 @@ export default function EditProfilePage() {
             detailedBio: profile.detailed_bio || '',
             disciplines: p.disciplines || [],
             availability: p.availability,
+            availableFrom: p.available_from || '',
             startingRate: p.starting_rate || '',
             ratesOnRequest: p.rates_on_request || false,
             travelAvailable: p.travel_available || false,
@@ -173,15 +188,21 @@ export default function EditProfilePage() {
             website: p.website_url || '',
             behance: p.behance_url || '',
             linkedin: p.linkedin_url || '',
-            twitter: p.twitter_url || ''
+            twitter: p.twitter_url || '',
+            invoiceAutoSend: p.invoice_auto_send ?? true,
+            bankAccountTitle: p.bank_account_title || '',
+            bankName: p.bank_name || '',
+            bankAccountNumber: p.bank_account_number || '',
+            bankIban: p.bank_iban || '',
           };
 
           setInitialData(data);
-          
+
           setBio(data.bio);
           setDetailedBio(data.detailedBio);
           setDisciplines(data.disciplines);
           setAvailability(data.availability as any);
+          setAvailableFrom(data.availableFrom);
           setStartingRate(data.startingRate);
           setRatesOnRequest(data.ratesOnRequest);
           setTravelAvailable(data.travelAvailable);
@@ -190,6 +211,11 @@ export default function EditProfilePage() {
           setBehance(data.behance);
           setLinkedin(data.linkedin);
           setTwitter(data.twitter);
+          setInvoiceAutoSend(data.invoiceAutoSend);
+          setBankAccountTitle(data.bankAccountTitle);
+          setBankName(data.bankName);
+          setBankAccountNumber(data.bankAccountNumber);
+          setBankIban(data.bankIban);
         }
         setIsFetchingProfile(false);
       });
@@ -208,6 +234,7 @@ export default function EditProfilePage() {
       detailedBio !== initialData.detailedBio ||
       JSON.stringify(disciplines) !== JSON.stringify(initialData.disciplines) ||
       availability !== initialData.availability ||
+      availableFrom !== initialData.availableFrom ||
       startingRate !== initialData.startingRate ||
       ratesOnRequest !== initialData.ratesOnRequest ||
       travelAvailable !== initialData.travelAvailable ||
@@ -215,12 +242,18 @@ export default function EditProfilePage() {
       website !== initialData.website ||
       behance !== initialData.behance ||
       linkedin !== initialData.linkedin ||
-      twitter !== initialData.twitter
+      twitter !== initialData.twitter ||
+      invoiceAutoSend !== initialData.invoiceAutoSend ||
+      bankAccountTitle !== initialData.bankAccountTitle ||
+      bankName !== initialData.bankName ||
+      bankAccountNumber !== initialData.bankAccountNumber ||
+      bankIban !== initialData.bankIban
     );
   }, [
-    initialData, fullName, username, city, phone, bio, detailedBio, 
-    disciplines, availability, startingRate, ratesOnRequest, 
-    travelAvailable, instagram, website, behance, linkedin, twitter
+    initialData, fullName, username, city, phone, bio, detailedBio,
+    disciplines, availability, availableFrom, startingRate, ratesOnRequest,
+    travelAvailable, instagram, website, behance, linkedin, twitter,
+    invoiceAutoSend, bankAccountTitle, bankName, bankAccountNumber, bankIban,
   ]);
 
   const checkUsername = useCallback(async (value: string) => {
@@ -293,6 +326,7 @@ export default function EditProfilePage() {
         detailed_bio: detailedBio.trim(),
         disciplines,
         availability,
+        available_from: availableFrom || null,
         starting_rate: startingRate === '' ? null : Number(startingRate),
         rates_on_request: ratesOnRequest,
         travel_available: travelAvailable,
@@ -301,6 +335,11 @@ export default function EditProfilePage() {
         behance_url: behance.trim(),
         linkedin_url: linkedin.trim(),
         twitter_url: twitter.trim(),
+        invoice_auto_send: invoiceAutoSend,
+        bank_account_title: bankAccountTitle.trim() || null,
+        bank_name: bankName.trim() || null,
+        bank_account_number: bankAccountNumber.trim() || null,
+        bank_iban: bankIban.trim() || null,
       };
 
       const isArtist = user.role === 'creative' || user.role === 'both';
@@ -479,6 +518,16 @@ export default function EditProfilePage() {
                     </select>
                   </div>
                   <div className={styles.field}>
+                    <label className={styles.label} htmlFor="availableFrom">Available From (Optional)</label>
+                    <input
+                      id="availableFrom"
+                      type="date"
+                      className="input"
+                      value={availableFrom}
+                      onChange={e => setAvailableFrom(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.field}>
                     <label className={styles.label} htmlFor="city">Base City</label>
                     <select id="city" className="input" value={city} onChange={e => setCity(e.target.value)}>
                       <option value="">— Select city —</option>
@@ -538,7 +587,75 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            {/* ── SECTION 04: CONNECT ── */}
+            {/* ── SECTION 04: COMMISSION PREFERENCES ── */}
+            {(user?.role === 'creative' || user?.role === 'both') && (
+              <div className={styles.section}>
+                <div className={styles.sectionNumber}>04</div>
+                <div className={styles.sectionContent}>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>Commission Preferences</h2>
+                  </div>
+
+                  <div className={styles.fieldFull}>
+                    <div className={styles.toggleRow} onClick={() => setInvoiceAutoSend(!invoiceAutoSend)}>
+                      <div className={styles.toggleLabel}>
+                        <span className={styles.toggleTitle}>Auto-send invoice on proposal acceptance</span>
+                        <span className={styles.toggleDesc}>Invoice is sent automatically when client accepts your proposal</span>
+                      </div>
+                      {invoiceAutoSend ? <ToggleRight size={28} color="var(--color-yellow)" /> : <ToggleLeft size={28} color="var(--text-faint)" />}
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 'var(--space-8)' }}>
+                    <label className={styles.label}>Bank Details (for invoices)</label>
+                  </div>
+                  <div className={styles.grid}>
+                    <div className={styles.field}>
+                      <label className={styles.label} htmlFor="bankAccountTitle">Account Title</label>
+                      <input
+                        id="bankAccountTitle"
+                        className="input"
+                        value={bankAccountTitle}
+                        onChange={e => setBankAccountTitle(e.target.value)}
+                        placeholder="e.g. Hamza Qureshi"
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.label} htmlFor="bankName">Bank Name</label>
+                      <input
+                        id="bankName"
+                        className="input"
+                        value={bankName}
+                        onChange={e => setBankName(e.target.value)}
+                        placeholder="e.g. HBL, Meezan Bank"
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.label} htmlFor="bankAccountNumber">Account Number</label>
+                      <input
+                        id="bankAccountNumber"
+                        className="input"
+                        value={bankAccountNumber}
+                        onChange={e => setBankAccountNumber(e.target.value)}
+                        placeholder="Account number"
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.label} htmlFor="bankIban">IBAN (Optional)</label>
+                      <input
+                        id="bankIban"
+                        className="input"
+                        value={bankIban}
+                        onChange={e => setBankIban(e.target.value)}
+                        placeholder="PK00XXXX0000000000000000"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── SECTION 05: CONNECT ── */}
             <div className={styles.section}>
               <div className={styles.sectionNumber}>04</div>
               <div className={styles.sectionContent}>

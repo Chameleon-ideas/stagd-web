@@ -7,10 +7,12 @@
 import type {
   ArtistPublicProfile,
   ArtistSearchResult,
+  CommissionDetails,
   Event,
   EventReview,
   EventSearchResult,
   PaginatedResponse,
+  Proposal,
   VerifyResult,
 } from './types';
 import { supabase, supabaseAdmin } from './supabase';
@@ -58,9 +60,9 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
           items:project_items(id, image_url, title, description, sort_order)
         )
       ),
-      reviews!reviewee_id(
+      reviews!reviews_reviewee_id_fkey(
         id, commission_id, event_id, reviewer_id, reviewee_id, rating, body, created_at,
-        reviewer:profiles!reviewer_id(id, full_name, username, avatar_url)
+        reviewer:profiles!reviews_reviewer_id_fkey(id, full_name, username, avatar_url)
       )
     `)
     .eq('username', username)
@@ -112,12 +114,18 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       bio: profile?.bio,
       disciplines: profile?.disciplines || [],
       availability: profile?.availability ?? 'available',
+      available_from: profile?.available_from ?? undefined,
       starting_rate: profile?.starting_rate,
       rates_on_request: profile?.rates_on_request,
       travel_available: profile?.travel_available,
       verified: profile?.verified ?? false,
       instagram_handle: profile?.instagram_handle,
       accent_color: undefined,
+      invoice_auto_send: profile?.invoice_auto_send ?? true,
+      bank_account_title: profile?.bank_account_title ?? undefined,
+      bank_name: profile?.bank_name ?? undefined,
+      bank_account_number: profile?.bank_account_number ?? undefined,
+      bank_iban: profile?.bank_iban ?? undefined,
     },
     detailed_bio: profile?.detailed_bio,
     social_links: {
@@ -176,6 +184,7 @@ export async function updateArtistProfile(_userId: string, updates: {
   detailed_bio?: string | null;
   disciplines?: string[];
   availability?: 'available' | 'busy' | 'unavailable';
+  available_from?: string | null;
   starting_rate?: number | null;
   rates_on_request?: boolean;
   travel_available?: boolean;
@@ -186,6 +195,11 @@ export async function updateArtistProfile(_userId: string, updates: {
   tiktok_url?: string | null;
   linkedin_url?: string | null;
   twitter_url?: string | null;
+  invoice_auto_send?: boolean;
+  bank_account_title?: string | null;
+  bank_name?: string | null;
+  bank_account_number?: string | null;
+  bank_iban?: string | null;
 }): Promise<{ error: string | null }> {
   return dbWrite('updateArtistProfile', { updates });
 }
@@ -367,7 +381,7 @@ export async function getArtistEvents(organiserId: string): Promise<PaginatedRes
 export async function getEventReviews(eventId: string): Promise<EventReview[]> {
   const { data, error } = await supabase
     .from('reviews')
-    .select('id, event_id, reviewer_id, rating, body, created_at, reviewer:profiles!reviewer_id(id, full_name, username, avatar_url)')
+    .select('id, event_id, reviewer_id, rating, body, created_at, reviewer:profiles!reviews_reviewer_id_fkey(id, full_name, username, avatar_url)')
     .eq('event_id', eventId)
     .order('created_at', { ascending: false });
   if (error || !data) return [];
@@ -496,7 +510,10 @@ export async function verifyTicket(ticketId: string, eventId?: string): Promise<
 export interface Conversation {
   commissionId: string;
   status: string;
+  paymentStatus: string;
   briefWhat: string | null;
+  clientId: string;
+  artistId: string;
   otherParty: { id: string; full_name: string; username: string; avatar_url: string | null };
   lastMessage: string;
   lastMessageAt: string;
@@ -521,7 +538,7 @@ export async function hideConversation(commissionId: string, userId: string): Pr
 export async function getConversations(userId: string): Promise<Conversation[]> {
   const { data: commissions, error } = await supabase
     .from('commissions')
-    .select('id, status, brief_what, client_id, artist_id, created_at, hidden_for, client:profiles!client_id(id, full_name, username, avatar_url)')
+    .select('id, status, payment_status, brief_what, client_id, artist_id, created_at, hidden_for, client:profiles!client_id(id, full_name, username, avatar_url)')
     .or(`client_id.eq.${userId},artist_id.eq.${userId}`)
     .not('hidden_for', 'cs', `{${userId}}`)
     .order('created_at', { ascending: false });
@@ -556,7 +573,10 @@ export async function getConversations(userId: string): Promise<Conversation[]> 
     return {
       commissionId: c.id,
       status: c.status,
+      paymentStatus: c.payment_status ?? 'unpaid',
       briefWhat: c.brief_what,
+      clientId: c.client_id,
+      artistId: c.artist_id,
       otherParty: other,
       lastMessage: lm?.body ?? c.brief_what ?? 'Commission enquiry',
       lastMessageAt: lm?.created_at ?? c.created_at,
@@ -641,6 +661,7 @@ export async function submitCommission(
     deadline: string;
     duration: string;
     budget: number;
+    referenceImageUrl?: string;
   }
 ): Promise<string> {
   const timeout = new Promise<never>((_, reject) =>
@@ -652,17 +673,161 @@ export async function submitCommission(
       artist_id: artistProfileId,
       client_id: clientId,
       status: 'enquiry',
+      payment_status: 'unpaid',
       brief_what: `${data.discipline}: ${data.deliverable}${data.brief ? '\n\n' + data.brief : ''}`,
       brief_budget: `PKR ${data.budget.toLocaleString()}`,
       brief_timeline: `${data.deadline} (${data.duration})`,
+      brief_discipline: data.discipline,
+      brief_deliverable: data.deliverable,
+      brief_description: data.brief || null,
+      brief_deadline: data.deadline || null,
+      brief_duration: data.duration,
+      brief_budget_amount: data.budget,
+      brief_reference: data.referenceImageUrl ?? null,
     })
     .select('id')
     .single()
     .then(({ data: row, error }) => {
-      if (error) throw error;
+      if (error) throw new Error(error.message ?? JSON.stringify(error));
       return row.id as string;
     });
   return Promise.race([insert, timeout]);
+}
+
+export async function uploadBriefReference(
+  userId: string,
+  file: File,
+): Promise<{ url: string | null; error: string | null }> {
+  const ext = file.name.split('.').pop();
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const uploadTimeout = new Promise<{ url: null; error: string }>((resolve) =>
+    setTimeout(() => resolve({ url: null, error: 'Upload timed out' }), 10000)
+  );
+  const uploadWork = supabase.storage
+    .from('brief-references')
+    .upload(path, file, { upsert: false, contentType: file.type })
+    .then(({ error: uploadError }) => {
+      if (uploadError) return { url: null, error: uploadError.message };
+      const { data } = supabase.storage.from('brief-references').getPublicUrl(path);
+      return { url: data.publicUrl, error: null };
+    });
+  return Promise.race([uploadWork, uploadTimeout]);
+}
+
+export async function getCommissionDetails(commissionId: string): Promise<CommissionDetails | null> {
+  const { data, error } = await supabase
+    .from('commissions')
+    .select(`
+      id, client_id, artist_id, status, payment_status,
+      brief_discipline, brief_deliverable, brief_description,
+      brief_deadline, brief_duration, brief_budget_amount, brief_reference,
+      brief_what, completion_requested_by, created_at
+    `)
+    .eq('id', commissionId)
+    .single();
+  if (error || !data) return null;
+  return data as CommissionDetails;
+}
+
+export async function getProposalsForCommission(commissionId: string): Promise<Proposal[]> {
+  const { data, error } = await supabase
+    .from('proposals')
+    .select('id, commission_id, title, description, total_price, deposit_amount, delivery_date, revisions, deliverables, status, version, created_at')
+    .eq('commission_id', commissionId)
+    .order('version', { ascending: true });
+  if (error || !data) return [];
+  return data as Proposal[];
+}
+
+export async function sendProposal(
+  commissionId: string,
+  _senderId: string,
+  data: {
+    title: string;
+    description?: string;
+    total_price: number;
+    deposit_amount?: number;
+    delivery_date?: string;
+    revisions?: number;
+    deliverables?: string;
+    version: number;
+  },
+): Promise<{ proposalId: string | null; error: string | null }> {
+  return dbWrite('sendProposal', { commissionId, data });
+}
+
+export async function acceptProposal(
+  commissionId: string,
+  proposalId: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('acceptProposal', { commissionId, proposalId });
+}
+
+export async function declineProposal(
+  commissionId: string,
+  proposalId: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('declineProposal', { commissionId, proposalId });
+}
+
+export async function updatePaymentStatus(
+  commissionId: string,
+  status: 'partially_paid' | 'fully_paid',
+): Promise<{ error: string | null }> {
+  return dbWrite('updatePaymentStatus', { commissionId, status });
+}
+
+export async function updateCommissionStatus(
+  commissionId: string,
+  status: 'delivered' | 'completed',
+): Promise<{ error: string | null }> {
+  return dbWrite('updateCommissionStatus', { commissionId, status });
+}
+
+export async function requestCompletion(
+  commissionId: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('requestCompletion', { commissionId });
+}
+
+export async function confirmCompletion(
+  commissionId: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('confirmCompletion', { commissionId });
+}
+
+export async function rejectCompletion(
+  commissionId: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('rejectCompletion', { commissionId });
+}
+
+export async function sendInvoice(
+  commissionId: string,
+): Promise<{ invoiceNumber: string | null; error: string | null }> {
+  return dbWrite('sendInvoice', { commissionId });
+}
+
+export async function submitCommissionReview(
+  commissionId: string,
+  revieweeId: string,
+  rating: number,
+  body?: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('submitCommissionReview', { commissionId, revieweeId, rating, body });
+}
+
+export async function insertSystemMessage(
+  commissionId: string,
+  senderId: string,
+  body: string,
+): Promise<void> {
+  await supabase.from('messages').insert({
+    commission_id: commissionId,
+    sender_id: senderId,
+    body,
+    type: 'status_update',
+  });
 }
 
 // ════════════════════════════════════════════════════════════
