@@ -305,19 +305,19 @@ export async function searchEvents(params?: {
   };
 }
 
-export async function getEvent(id: string): Promise<Event> {
-  const { data, error } = await supabase
-    .from('events')
-    .select(`
-      *,
-      organiser:profiles!organiser_id(
-        id, full_name, username, avatar_url,
-        artist_profile:artist_profiles(disciplines)
-      ),
-      ticket_tiers(id, name, price, capacity, is_door_only, sort_order)
-    `)
-    .eq('id', id)
-    .single();
+export async function getEvent(idOrSlug: string): Promise<Event> {
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+  const select = `
+    *,
+    organiser:profiles!organiser_id(
+      id, full_name, username, avatar_url,
+      artist_profile:artist_profiles(disciplines)
+    ),
+    ticket_tiers(id, name, price, capacity, is_door_only, sort_order)
+  `;
+  const { data, error } = isUUID
+    ? await supabase.from('events').select(select).eq('id', idOrSlug).single()
+    : await supabase.from('events').select(select).eq('slug', idOrSlug).single();
 
   if (error || !data) return null as unknown as Event;
 

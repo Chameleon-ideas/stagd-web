@@ -1,0 +1,60 @@
+.shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-expo);
+  position: relative;
+  overflow: hidden;
+}
+
+.shareBtn:hover {
+  background: var(--bg-raised);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .shareBtn:hover {
+  box-shadow: 4px 4px 0 var(--color-cream);
+}
+
+.shareBtn:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+
+.copied {
+  color: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+/* For the transition effect */
+.labelContainer {
+  display: flex;
+  flex-direction: column;
+  height: 14px; /* Matches font height approx */
+  overflow: hidden;
+}
+
+.label {
+  display: block;
+  line-height: 14px;
+  transition: transform 0.4s var(--ease-expo);
+}
+
+.labelActive {
+  transform: translateY(-100%);
+}

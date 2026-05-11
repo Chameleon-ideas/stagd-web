@@ -300,7 +300,7 @@ function CreateEventPage() {
 
       const result = await res.json();
       if (result.error) throw new Error(result.error);
-      router.push(`/events/${result.eventId}`);
+      router.push(`/events/${result.eventSlug ?? result.eventId}`);
     } catch (err: any) {
       setError(err.message ?? 'Failed to publish. Please try again.');
       setPublishing(false);

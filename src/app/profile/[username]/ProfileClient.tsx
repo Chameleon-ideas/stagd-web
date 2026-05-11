@@ -318,7 +318,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
             <GSAPEntrance selector={`.${styles.eventCard}`} stagger={0.08}>
               <div className={styles.eventsGrid}>
                 {events.data.map((item) => (
-                  <Link key={item.event.id} href={`/events/${item.event.id}`} className={styles.eventCardLink}>
+                  <Link key={item.event.id} href={`/events/${item.event.slug ?? item.event.id}`} className={styles.eventCardLink}>
                     <div className={styles.eventCard}>
                       <div className={styles.cardHeaderFurniture}>
                         <span className={styles.categoryBadge}>{item.event.event_type?.toUpperCase()}</span>

@@ -156,6 +156,7 @@ export interface SocialLinks {
 
 export interface Event {
   id: string;
+  slug: string;
   organiser_id: string;
   organiser: Pick<User, 'id' | 'full_name' | 'username' | 'avatar_url'>;
   organiser_disciplines?: string[];
@@ -195,7 +196,7 @@ export interface Ticket {
   id: string;
   ticket_id: string; // TKT-YYYY-XXXXX
   event_id: string;
-  event: Pick<Event, 'id' | 'title' | 'venue_name' | 'city' | 'starts_at' | 'doors_at' | 'cover_image_url'>;
+  event: Pick<Event, 'id' | 'slug' | 'title' | 'venue_name' | 'city' | 'starts_at' | 'doors_at' | 'cover_image_url'>;
   tier_id: string;
   tier: Pick<TicketTier, 'id' | 'name' | 'price'>;
   buyer_id?: string;
@@ -301,7 +302,7 @@ export interface ArtistSearchResult {
 }
 
 export interface EventSearchResult {
-  event: Pick<Event, 'id' | 'title' | 'event_type' | 'cover_image_url' | 'venue_name' | 'city' | 'starts_at' | 'min_price' | 'is_free' | 'is_sold_out'>;
+  event: Pick<Event, 'id' | 'slug' | 'title' | 'event_type' | 'cover_image_url' | 'venue_name' | 'city' | 'starts_at' | 'min_price' | 'is_free' | 'is_sold_out'>;
   organiser: Pick<User, 'id' | 'full_name' | 'username' | 'avatar_url'>;
 }
 

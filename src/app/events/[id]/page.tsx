@@ -9,6 +9,7 @@ import { TicketButton } from '@/components/event/TicketButton';
 import { AttendeeCount } from './AttendeeCount';
 import { DoorScannerButton } from './DoorScannerButton';
 import { OrganizerBar } from './OrganizerBar';
+import { ShareButton } from './ShareButton';
 import { formatPKR, eventTypeLabel } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -151,7 +152,10 @@ export default async function EventPage({ params }: EventPageProps) {
             </Link>
           </div>
 
-          <AttendeeCount eventId={event.id} initialCount={initialAttendeeCount} initialAttendees={initialAttendees} />
+          <div className={styles.actionRow}>
+            <AttendeeCount eventId={event.id} initialCount={initialAttendeeCount} initialAttendees={initialAttendees} />
+            <ShareButton slug={event.slug} />
+          </div>
 
           {/* Fact row */}
           <div className={styles.factRow}>

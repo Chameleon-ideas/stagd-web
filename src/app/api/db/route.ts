@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+async function generateEventSlug(title: string, admin: SupabaseClient): Promise<string> {
+  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const suffix = Math.random().toString(36).slice(2, 6);
+  const candidate = `${base}-${suffix}`;
+  const { data } = await admin.from('events').select('id').eq('slug', candidate).single();
+  // retry on collision (astronomically unlikely but safe)
+  return data ? generateEventSlug(title, admin) : candidate;
+}
+
 let _supabaseAdmin: SupabaseClient | null = null;
 function getAdmin(): SupabaseClient {
   if (!_supabaseAdmin) {
@@ -202,10 +211,11 @@ export async function POST(req: NextRequest) {
       case 'createEvent': {
         const { eventData, tiers, doorStaff } = body;
         console.log('[createEvent] inserting event:', eventData.title, 'for user:', userId);
+        const slug = await generateEventSlug(eventData.title, supabaseAdmin);
         const { data: event, error: eventError } = await supabaseAdmin
           .from('events')
-          .insert({ ...eventData, organiser_id: userId, status: 'live' })
-          .select('id')
+          .insert({ ...eventData, organiser_id: userId, status: 'live', slug })
+          .select('id, slug')
           .single();
         if (eventError || !event) {
           console.error('[createEvent] event insert error:', eventError?.message);
@@ -225,21 +235,23 @@ export async function POST(req: NextRequest) {
           console.log('[createEvent] inserting door staff:', doorStaff);
           await insertDoorStaff(supabaseAdmin, event.id, doorStaff);
         }
-        console.log('[createEvent] done, returning eventId:', event.id);
-        return NextResponse.json({ eventId: event.id, error: null });
+        console.log('[createEvent] done, returning eventId:', event.id, 'slug:', event.slug);
+        return NextResponse.json({ eventId: event.id, eventSlug: event.slug, error: null });
       }
       case 'saveDraftEvent': {
         const { eventData, tiers } = body;
         const placeholder = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+        const draftSlug = await generateEventSlug(eventData.title || 'draft', supabaseAdmin);
         const { data: event, error: eventError } = await supabaseAdmin
           .from('events')
           .insert({
             ...eventData,
             organiser_id: userId,
             status: 'draft',
+            slug: draftSlug,
             starts_at: eventData.starts_at ?? placeholder,
           })
-          .select('id')
+          .select('id, slug')
           .single();
         if (eventError || !event) return NextResponse.json({ error: eventError?.message ?? 'Failed to save draft' });
         if (tiers?.length > 0) {

@@ -350,7 +350,7 @@ function EventCard({ item }: { item: any }) {
   if (!event) return null;
 
   return (
-    <Link href={`/events/${event.id}`} className={styles.editorialEventCard}>
+    <Link href={`/events/${event.slug ?? event.id}`} className={styles.editorialEventCard}>
       <div className={styles.editorialCover}>
         <Image
           src={event.cover_image_url ?? ""}

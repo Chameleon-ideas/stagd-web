@@ -191,7 +191,7 @@ export default async function HomePage() {
                       };
 
                       return (
-                        <Link key={ev.id} href={`/events/${ev.id}`} className={styles.eventShowcaseCard}>
+                        <Link key={ev.id} href={`/events/${ev.slug ?? ev.id}`} className={styles.eventShowcaseCard}>
                           <div className={styles.eventShowcaseCover}>
                             <Image
                               src={ev.cover_image_url || '/images/default-event.png'}

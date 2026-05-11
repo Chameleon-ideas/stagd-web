@@ -459,7 +459,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 {events.data.map((item: any) => (
                   <Link 
                     key={item.event.id} 
-                    href={`/events/${item.event.id}`}
+                    href={`/events/${item.event.slug ?? item.event.id}`}
                     className={styles.eventSidebarCard}
                   >
                     <div className={styles.eventSidebarTop}>
