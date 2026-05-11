@@ -112,7 +112,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       rates_on_request: profile?.rates_on_request,
       travel_available: profile?.travel_available,
       verified: profile?.verified ?? false,
-      is_public: profile?.is_public ?? true,
+      is_public: (profile as any)?.is_public ?? true,
       instagram_handle: profile?.instagram_handle,
       accent_color: undefined,
       invoice_auto_send: profile?.invoice_auto_send ?? true,
