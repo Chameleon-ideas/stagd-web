@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+let _supabaseAdmin: SupabaseClient | null = null;
+function getAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+  }
+  return _supabaseAdmin;
+}
+// alias used throughout this file
+const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get(_t, prop) {
+    return (getAdmin() as any)[prop];
+  },
+});
 
 // Verify the caller's JWT and return their user ID.
 async function getUserId(req: NextRequest): Promise<string | null> {
