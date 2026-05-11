@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -308,7 +308,7 @@ export async function POST(req: NextRequest) {
 
 // Resolve usernames → user_ids and insert door_staff rows
 async function insertDoorStaff(
-  admin: ReturnType<typeof import('@supabase/supabase-js').createClient>,
+  admin: SupabaseClient,
   eventId: string,
   doorStaff: Array<{ type: 'username' | 'phone'; value: string }>,
 ) {
