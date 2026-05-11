@@ -21,31 +21,22 @@ const EVENT_SORT = ['Soonest', 'Price low-high', 'Price high-low'];
 
 // ── COMPONENTS ───────────────────────────────────────────────
 
-export default function ExploreClient({ initialData, initialTab }: { initialData: any, initialTab: string }) {
+export default function ExploreClient({ initialTab }: { initialTab: string }) {
   const router = useRouter();
-  
+
   const [activeTab, setActiveTab] = useState(initialTab);
   const [filters, setFilters] = useState<any>({
     city: 'All',
     discipline: 'All',
     type: 'All',
     date: 'Any',
-    sort: activeTab === 'artists' ? 'Relevance' : 'Soonest'
+    sort: initialTab === 'artists' ? 'Relevance' : 'Soonest'
   });
-  
-  const [results, setResults] = useState(initialData);
-  const [loading, setLoading] = useState(false);
+
+  const [results, setResults] = useState<any>({ data: [], total: 0 });
+  const [loading, setLoading] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const isFirstRender = useRef(true);
-
-  // Skip the initial fetch — SSR already provided initialData.
-  // Re-fetch only when the user actually changes a filter or tab.
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
@@ -132,11 +123,11 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
           <div className={styles.navLabel}>// DISCOVERY TYPE</div>
           {/* Segmented Tab Switcher */}
           <div className={styles.segmentedControl}>
-            <button 
+            <button
               className={`${styles.segment} ${activeTab === 'artists' ? styles.activeSegment : ''}`}
               onClick={() => handleTabChange('artists')}
             >
-              Artists
+              Creatives
             </button>
             <button 
               className={`${styles.segment} ${activeTab === 'events' ? styles.activeSegment : ''}`}
@@ -257,7 +248,7 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
           <div className={styles.sidebarFooter}>
             <div className={styles.statusLine}>
               <span className={styles.statusDot} />
-              {loading ? 'SYNCING ARCHIVE...' : `${results.total} ${activeTab.toUpperCase()} ONLINE`}
+              {loading ? 'SYNCING ARCHIVE...' : `${results.total} ${activeTab === 'artists' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
             </div>
             
             {activeTab === 'events' && (
@@ -273,29 +264,22 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
       <section className={styles.resultsPane}>
         <div className={styles.resultsHeader}>
           <div className={styles.resultsMeta}>
-            // {activeTab.toUpperCase()} / {filters.city.toUpperCase()} / {filters.sort.toUpperCase()}
+            // {activeTab === 'artists' ? 'CREATIVES' : activeTab.toUpperCase()} / {filters.city.toUpperCase()} / {filters.sort.toUpperCase()}
           </div>
         </div>
 
         <div className={styles.resultsScrollArea}>
           {!loading && results.data.length > 0 ? (
-            <div className={styles.uniformGrid}>
-              {results.data.map((item: any, i: number) => {
-                const isArtistData = !!item.user;
-                const isEventData = !!item.event;
-                if (activeTab === 'artists' && !isArtistData) return null;
-                if (activeTab === 'events' && !isEventData) return null;
-
-                return (
-                  <div key={i} className={styles.cardReveal} style={{ '--delay': `${i * 40}ms` } as any}>
-                    {activeTab === 'artists' ? (
-                      <ArtistCard artist={item} />
-                    ) : (
-                      <EventCard item={item} />
-                    )}
-                  </div>
-                );
-              })}
+            <div className={activeTab === 'artists' ? styles.uniformGrid : styles.eventEditorialGrid}>
+              {results.data.map((item: any, i: number) => (
+                <div key={i} className={styles.cardReveal} style={{ '--delay': `${i * 40}ms` } as any}>
+                  {activeTab === 'artists' ? (
+                    <ArtistCard artist={item} />
+                  ) : (
+                    <EventCard item={item} />
+                  )}
+                </div>
+              ))}
             </div>
           ) : !loading && results.data.length === 0 ? (
             <div className={styles.empty}>
@@ -332,7 +316,7 @@ function ArtistCard({ artist }: { artist: any }) {
       </div>
       <div className={styles.cardInfo}>
         <div className={styles.cardMeta}>
-          <span>{artist.user.city.toUpperCase()}</span>
+          <span>{artist.user.city?.toUpperCase() ?? ''}</span>
           <span>{artist.profile?.verified ? '// VERIFIED' : ''}</span>
         </div>
         <h3 className={styles.cardName}>
@@ -348,28 +332,36 @@ function EventCard({ item }: { item: any }) {
   if (!event) return null;
 
   return (
-    <Link href={`/events/${event.id}`} className={styles.technicalCard}>
-      <div className={styles.cardCover}>
+    <Link href={`/events/${event.id}`} className={styles.editorialEventCard}>
+      <div className={styles.editorialCover}>
         <Image
           src={event.cover_image_url ?? ""}
           alt={event.title}
           fill
-          className={styles.cardImg}
-          sizes="33vw"
+          className={styles.editorialImg}
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
-        <div className={styles.cardBadge}>
-          <span className={styles.tag}>{event.event_type.toUpperCase()}</span>
+        
+        {/* Top Badges */}
+        <div className={styles.editorialTopLeft}>
+          <span className={styles.editorialTag}>{event.event_type.toUpperCase()}</span>
         </div>
-      </div>
-      <div className={styles.cardInfo}>
-        <div className={styles.cardMeta}>
-          <span>{formatDate(event.starts_at).toUpperCase()}</span>
-          <span>{event.is_free ? 'FREE' : formatPKR(event.min_price)}</span>
+        <div className={styles.editorialTopRight}>
+          <span className={styles.editorialPrice}>
+            {event.is_free ? 'FREE' : formatPKR(event.min_price)}
+          </span>
         </div>
-        <h3 className={styles.cardName}>
-          {event.title}
-        </h3>
-        <p className={styles.cardVenue}>{event.venue_name.toUpperCase()}</p>
+
+        {/* Bottom Content Overlay */}
+        <div className={styles.editorialOverlay}>
+          <div className={styles.editorialStatus}>// LIVE EVENT</div>
+          <h3 className={styles.editorialTitle}>{event.title}</h3>
+          <div className={styles.editorialMeta}>
+            <span>{formatDate(event.starts_at).toUpperCase()}</span>
+            <span className={styles.editorialDot}>·</span>
+            <span>{event.venue_name.toUpperCase()}</span>
+          </div>
+        </div>
       </div>
     </Link>
   );

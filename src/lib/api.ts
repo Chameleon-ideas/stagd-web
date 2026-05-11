@@ -216,8 +216,7 @@ export async function searchArtists(params?: {
     .select(`
       id, full_name, username, avatar_url, city,
       profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified),
-      reviews(rating),
-      hero:portfolio_items(image_url)
+      reviews!reviews_reviewee_id_fkey(rating)
     `)
     .in('role', ['creative', 'both']);
 
@@ -246,7 +245,6 @@ export async function searchArtists(params?: {
     return {
       user: { id: a.id, full_name: a.full_name, username: a.username, avatar_url: a.avatar_url, city: a.city },
       profile,
-      hero_image: a.hero?.[0]?.image_url,
       review_average: Math.round(reviewAverage * 10) / 10,
       review_count: reviews.length,
       project_count: 0,

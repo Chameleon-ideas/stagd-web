@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(profile);
     }
     setIsLoading(false);
-    router.push('/explore');
+    router.push('/explore?tab=artists');
   };
 
   const signup = async (data: { fullName: string; email: string; password: string; role: 'creative' | 'visitor' }) => {
