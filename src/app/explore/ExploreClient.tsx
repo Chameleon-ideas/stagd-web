@@ -30,7 +30,8 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
     discipline: 'All',
     type: 'All',
     date: 'Any',
-    sort: initialTab === 'artists' ? 'Relevance' : 'Soonest'
+    sort: initialTab === 'artists' ? 'Relevance' : 'Soonest',
+    query: '',
   });
 
   const [results, setResults] = useState<any>({ data: [], total: 0 });
@@ -44,7 +45,8 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
           const data = await searchArtists({
             city: filters.city !== 'All' ? filters.city : undefined,
             discipline: filters.discipline !== 'All' ? filters.discipline : undefined,
-            sort: filters.sort
+            sort: filters.sort,
+            query: filters.query || undefined,
           });
           setResults(data);
         } else {
@@ -52,7 +54,8 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
             city: filters.city !== 'All' ? filters.city : undefined,
             type: filters.type !== 'All' ? filters.type : undefined,
             date: filters.date !== 'Any' ? filters.date : undefined,
-            sort: filters.sort
+            sort: filters.sort,
+            query: filters.query || undefined,
           });
           setResults(data);
         }
@@ -74,7 +77,8 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
       discipline: 'All',
       type: 'All',
       date: 'Any',
-      sort: tab === 'artists' ? 'Relevance' : 'Soonest'
+      sort: tab === 'artists' ? 'Relevance' : 'Soonest',
+      query: '',
     });
   };
 
@@ -112,10 +116,12 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
           <div className={styles.searchContainer}>
             <div className={styles.searchInputWrapper}>
               <Search size={16} className={styles.searchIcon} />
-              <input 
-                type="text" 
-                placeholder="SEARCH ARCHIVE..." 
+              <input
+                type="text"
+                placeholder="SEARCH ARCHIVE..."
                 className={styles.searchInput}
+                value={filters.query}
+                onChange={e => setFilters((prev: any) => ({ ...prev, query: e.target.value }))}
               />
             </div>
           </div>

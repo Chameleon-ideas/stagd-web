@@ -205,6 +205,7 @@ export async function searchArtists(params?: {
   discipline?: string;
   city?: string;
   sort?: string;
+  query?: string;
 }): Promise<PaginatedResponse<ArtistSearchResult>> {
 
 
@@ -219,6 +220,11 @@ export async function searchArtists(params?: {
 
   if (params?.city && params.city !== 'All') {
     query = query.eq('city', params.city);
+  }
+
+  if (params?.query?.trim()) {
+    const q = params.query.trim();
+    query = query.or(`full_name.ilike.%${q}%,username.ilike.%${q}%`);
   }
 
   const { data, error } = await query.limit(50);
@@ -264,6 +270,7 @@ export async function searchEvents(params?: {
   page?: number;
   per_page?: number;
   sort?: string;
+  query?: string;
 }): Promise<PaginatedResponse<EventSearchResult>> {
 
 
@@ -278,6 +285,7 @@ export async function searchEvents(params?: {
 
   if (params?.city && params.city !== 'All') query = query.eq('city', params.city);
   if (params?.type && params.type !== 'All') query = query.eq('event_type', params.type);
+  if (params?.query?.trim()) query = query.ilike('title', `%${params.query.trim()}%`);
 
   const limit = params?.per_page || 20;
   const { data, error } = await query.limit(limit);
