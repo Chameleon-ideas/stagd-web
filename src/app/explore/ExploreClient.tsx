@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,10 +36,17 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
   const [results, setResults] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const isFirstRender = useRef(true);
 
-  // Fetch results
+  // Skip the initial fetch — SSR already provided initialData.
+  // Re-fetch only when the user actually changes a filter or tab.
   useEffect(() => {
-    async function updateResults() {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const timer = setTimeout(async () => {
       setLoading(true);
       try {
         if (activeTab === 'artists') {
@@ -63,8 +70,9 @@ export default function ExploreClient({ initialData, initialTab }: { initialData
       } finally {
         setLoading(false);
       }
-    }
-    updateResults();
+    }, 150);
+
+    return () => clearTimeout(timer);
   }, [filters, activeTab]);
 
   const handleTabChange = (tab: string) => {
