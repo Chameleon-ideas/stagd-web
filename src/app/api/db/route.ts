@@ -621,6 +621,22 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: error?.message ?? null });
       }
 
+      case 'reorderProjects': {
+        const { projectIds } = body;
+        
+        for (let i = 0; i < projectIds.length; i++) {
+          const { error } = await supabaseAdmin
+            .from('projects')
+            .update({ sort_order: i })
+            .eq('id', projectIds[i])
+            .eq('artist_id', userId); // Security check
+            
+          if (error) return NextResponse.json({ error: error.message });
+        }
+          
+        return NextResponse.json({ error: null });
+      }
+
       default:
         return NextResponse.json({ error: `Unknown op: ${op}` }, { status: 400 });
     }

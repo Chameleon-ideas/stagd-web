@@ -19,7 +19,25 @@ import {
   Pencil,
   Save,
   Star,
+  GripVertical,
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import gsap from 'gsap';
@@ -36,6 +54,7 @@ import {
   deleteProject,
   linkPortfolioItemToProject,
   removeImageFromProject,
+  reorderProjects,
 } from '@/lib/api';
 import type { PortfolioItem, Project } from '@/lib/types';
 import styles from './ManageWork.module.css';
@@ -97,6 +116,32 @@ export default function ManageWorkPage() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const formAreaRef = useRef<HTMLDivElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = projects.findIndex((p) => p.id === active.id);
+      const newIndex = projects.findIndex((p) => p.id === over.id);
+      const newProjects = arrayMove(projects, oldIndex, newIndex);
+      setProjects(newProjects);
+      
+      const { error } = await reorderProjects(newProjects.map(p => p.id));
+      if (error) {
+        console.error('Reorder failed:', error);
+      }
+    }
+  };
 
   // Animations
   useGSAP(() => {
@@ -553,155 +598,35 @@ export default function ManageWorkPage() {
                 </div>
               ) : (
                 <div className={styles.projectList}>
-                  {projects.map(project => {
-                    const isEditing = editingProjectId === project.id;
-                    return (
-                      <div key={project.id} className={styles.projectCard}>
-                        {isEditing ? (
-                          <div className={styles.newProjectForm}>
-                            <div className={styles.formGrid}>
-                              <div className={styles.fieldFull}>
-                                <label className={styles.label}>Title *</label>
-                                <input
-                                  className="input"
-                                  value={editForm.title}
-                                  onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
-                                  required
-                                />
-                              </div>
-                              <div className={styles.field}>
-                                <label className={styles.label}>Discipline</label>
-                                <select className="input" value={editForm.discipline} onChange={e => setEditForm(f => ({ ...f, discipline: e.target.value }))}>
-                                  <option value="">— SELECT —</option>
-                                  {DISCIPLINE_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
-                                </select>
-                              </div>
-                              <div className={styles.field}>
-                                <label className={styles.label}>Location</label>
-                                <input
-                                  className="input"
-                                  value={editForm.location}
-                                  onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))}
-                                />
-                              </div>
-                              <div className={styles.field}>
-                                <label className={styles.label}>Format</label>
-                                <input
-                                  className="input"
-                                  value={editForm.format}
-                                  onChange={e => setEditForm(f => ({ ...f, format: e.target.value }))}
-                                />
-                              </div>
-                              <div className={styles.field}>
-                                <label className={styles.label}>Year</label>
-                                <input
-                                  className="input"
-                                  type="number"
-                                  value={editForm.year}
-                                  onChange={e => setEditForm(f => ({ ...f, year: e.target.value }))}
-                                />
-                              </div>
-                              <div className={styles.fieldFull}>
-                                <label className={styles.label}>Description</label>
-                                <textarea
-                                  className={`input ${styles.textarea}`}
-                                  value={editForm.description}
-                                  onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
-                                  rows={2}
-                                />
-                              </div>
-                            </div>
-
-                            <div className={styles.formActions} style={{ marginTop: 24, justifyContent: 'space-between', gap: 12 }}>
-                              <button className={styles.deleteProjectBtn} onClick={() => handleDeleteProject(project.id)}>
-                                <Trash2 size={16} /> DELETE PROJECT
-                              </button>
-                              <div style={{ display: 'flex', gap: 12 }}>
-                                <button className="btn btn-ghost btn-md" onClick={() => setEditingProjectId(null)} style={{ minWidth: 140 }}>DISCARD</button>
-                                <button className="btn btn-primary btn-md" onClick={handleUpdateProject} disabled={isUpdating} style={{ minWidth: 140 }}>
-                                  {isUpdating ? 'SAVING...' : 'SAVE SPECS'}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div style={{ marginTop: 24, borderTop: '1.5px solid var(--border-color)', paddingTop: 16 }}>
-                                <label className={styles.label} style={{ marginBottom: 12 }}>PROJECT MEDIA MANAGEMENT</label>
-                                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                                    <button className="btn btn-secondary btn-sm" onClick={() => openPortfolioPicker(project.id)}>
-                                        <ImageIcon size={14} /> CHOOSE FROM PORTFOLIO
-                                    </button>
-                                    <button className="btn btn-secondary btn-sm" onClick={() => openUploadPicker(project.id)}>
-                                        <Upload size={14} /> UPLOAD
-                                    </button>
-                                </div>
-                                <div className={styles.projectImageGrid} style={{ background: 'none', padding: 0 }}>
-                                    {(project.items || []).map(item => {
-                                        const isCover = project.cover_image_url === item.image_url;
-                                        return (
-                                            <div key={item.id} className={styles.projectImageThumb} style={{ position: 'relative' }}>
-                                                <img src={item.image_url} alt="" />
-                                                {isCover ? (
-                                                    <div style={{ position: 'absolute', top: 4, left: 4, background: 'var(--color-yellow)', color: 'var(--color-ink)', padding: '2px 5px', fontSize: 8, fontFamily: 'var(--font-mono)', fontWeight: 900, pointerEvents: 'none' }}>
-                                                        COVER
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        title="Set as cover"
-                                                        style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.55)', border: 'none', color: '#fff', cursor: 'pointer', padding: 3, lineHeight: 0, borderRadius: 2 }}
-                                                        onClick={() => handleSetCover(project.id, item.image_url)}
-                                                    >
-                                                        <Star size={10} />
-                                                    </button>
-                                                )}
-                                                <button
-                                                    className={styles.deleteBtn}
-                                                    style={{ position: 'absolute', top: 4, right: 4 }}
-                                                    onClick={() => handleRemoveImageFromProject(project.id, item.id)}
-                                                >
-                                                    <X size={10} />
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className={styles.projectCardHeader}>
-                              <div className={styles.projectMeta}>
-                                <h3 className={styles.projectName}>{project.title}</h3>
-                                <div className={styles.projectTags}>
-                                  {project.discipline && <span className={styles.tag}>{project.discipline}</span>}
-                                  {project.location && <span className={styles.tagLocation}><MapPin size={10} /> {project.location}</span>}
-                                  {project.year && <span className={styles.tagLocation}>· {project.year}</span>}
-                                </div>
-                                {project.description && <p className={styles.projectDesc}>{project.description}</p>}
-                              </div>
-                              <div className={styles.projectActions}>
-                                <button className="btn btn-secondary btn-sm" onClick={() => startEditingProject(project)}>
-                                  <Pencil size={14} /> EDIT
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Project images */}
-                            <div className={styles.projectImageGrid}>
-                              {(project.items || []).map(item => (
-                                <div key={item.id} className={styles.projectImageThumb}>
-                                  <img src={item.image_url} alt={item.title || ''} />
-                                </div>
-                              ))}
-                              <button className={styles.addImageThumb} onClick={() => startEditingProject(project)}>
-                                <Plus size={20} />
-                                <span>ADD ASSET</span>
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={projects.map(p => p.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {projects.map(project => (
+                        <SortableProjectCard
+                          key={project.id}
+                          project={project}
+                          isEditing={editingProjectId === project.id}
+                          editForm={editForm}
+                          setEditForm={setEditForm}
+                          isUpdating={isUpdating}
+                          handleUpdateProject={handleUpdateProject}
+                          setEditingProjectId={setEditingProjectId}
+                          handleDeleteProject={handleDeleteProject}
+                          openPortfolioPicker={openPortfolioPicker}
+                          openUploadPicker={openUploadPicker}
+                          handleSetCover={handleSetCover}
+                          handleRemoveImageFromProject={handleRemoveImageFromProject}
+                          startEditingProject={startEditingProject}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 </div>
               )}
             </div>
@@ -807,6 +732,205 @@ export default function ManageWorkPage() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// ── SORTABLE PROJECT CARD ────────────────────────────────────
+
+interface SortableProjectCardProps {
+  project: Project;
+  isEditing: boolean;
+  editForm: ProjectForm;
+  setEditForm: React.Dispatch<React.SetStateAction<ProjectForm>>;
+  isUpdating: boolean;
+  handleUpdateProject: () => Promise<void>;
+  setEditingProjectId: (id: string | null) => void;
+  handleDeleteProject: (id: string) => Promise<void>;
+  openPortfolioPicker: (id: string) => void;
+  openUploadPicker: (id: string) => void;
+  handleSetCover: (projectId: string, imageUrl: string) => Promise<void>;
+  handleRemoveImageFromProject: (projectId: string, itemId: string) => Promise<void>;
+  startEditingProject: (project: Project) => void;
+}
+
+function SortableProjectCard({
+  project,
+  isEditing,
+  editForm,
+  setEditForm,
+  isUpdating,
+  handleUpdateProject,
+  setEditingProjectId,
+  handleDeleteProject,
+  openPortfolioPicker,
+  openUploadPicker,
+  handleSetCover,
+  handleRemoveImageFromProject,
+  startEditingProject,
+}: SortableProjectCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={styles.projectCard}>
+      {isEditing ? (
+        <div className={styles.newProjectForm}>
+          <div className={styles.formGrid}>
+            <div className={styles.fieldFull}>
+              <label className={styles.label}>Title *</label>
+              <input
+                className="input"
+                value={editForm.title}
+                onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
+                required
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>Discipline</label>
+              <select className="input" value={editForm.discipline} onChange={e => setEditForm(f => ({ ...f, discipline: e.target.value }))}>
+                <option value="">— SELECT —</option>
+                {DISCIPLINE_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>Location</label>
+              <input
+                className="input"
+                value={editForm.location}
+                onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>Format</label>
+              <input
+                className="input"
+                value={editForm.format}
+                onChange={e => setEditForm(f => ({ ...f, format: e.target.value }))}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>Year</label>
+              <input
+                className="input"
+                type="number"
+                value={editForm.year}
+                onChange={e => setEditForm(f => ({ ...f, year: e.target.value }))}
+              />
+            </div>
+            <div className={styles.fieldFull}>
+              <label className={styles.label}>Description</label>
+              <textarea
+                className={`input ${styles.textarea}`}
+                value={editForm.description}
+                onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                rows={2}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formActions} style={{ marginTop: 24, justifyContent: 'space-between', gap: 12 }}>
+            <button className={styles.deleteProjectBtn} onClick={() => handleDeleteProject(project.id)}>
+              <Trash2 size={16} /> DELETE PROJECT
+            </button>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-ghost btn-md" onClick={() => setEditingProjectId(null)} style={{ minWidth: 140 }}>DISCARD</button>
+              <button className="btn btn-primary btn-md" onClick={handleUpdateProject} disabled={isUpdating} style={{ minWidth: 140 }}>
+                {isUpdating ? 'SAVING...' : 'SAVE SPECS'}
+              </button>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 24, borderTop: '1.5px solid var(--border-color)', paddingTop: 16 }}>
+            <label className={styles.label} style={{ marginBottom: 12 }}>PROJECT MEDIA MANAGEMENT</label>
+            <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => openPortfolioPicker(project.id)}>
+                <ImageIcon size={14} /> CHOOSE FROM PORTFOLIO
+              </button>
+              <button className="btn btn-secondary btn-sm" onClick={() => openUploadPicker(project.id)}>
+                <Upload size={14} /> UPLOAD
+              </button>
+            </div>
+            <div className={styles.projectImageGrid} style={{ background: 'none', padding: 0 }}>
+              {(project.items || []).map(item => {
+                const isCover = project.cover_image_url === item.image_url;
+                return (
+                  <div key={item.id} className={styles.projectImageThumb} style={{ position: 'relative' }}>
+                    <img src={item.image_url} alt="" />
+                    {isCover ? (
+                      <div style={{ position: 'absolute', top: 4, left: 4, background: 'var(--color-yellow)', color: 'var(--color-ink)', padding: '2px 5px', fontSize: 8, fontFamily: 'var(--font-mono)', fontWeight: 900, pointerEvents: 'none' }}>
+                        COVER
+                      </div>
+                    ) : (
+                      <button
+                        title="Set as cover"
+                        style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.55)', border: 'none', color: '#fff', cursor: 'pointer', padding: 3, lineHeight: 0, borderRadius: 2 }}
+                        onClick={() => handleSetCover(project.id, item.image_url)}
+                      >
+                        <Star size={10} />
+                      </button>
+                    )}
+                    <button
+                      className={styles.deleteBtn}
+                      style={{ position: 'absolute', top: 4, right: 4 }}
+                      onClick={() => handleRemoveImageFromProject(project.id, item.id)}
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className={styles.projectCardHeader}>
+            <div className={styles.dragHandle} {...attributes} {...listeners}>
+              <GripVertical size={20} />
+            </div>
+            <div className={styles.projectMeta}>
+              <h3 className={styles.projectName}>{project.title}</h3>
+              <div className={styles.projectTags}>
+                {project.discipline && <span className={styles.tag}>{project.discipline}</span>}
+                {project.location && <span className={styles.tagLocation}><MapPin size={10} /> {project.location}</span>}
+                {project.year && <span className={styles.tagLocation}>· {project.year}</span>}
+              </div>
+              {project.description && <p className={styles.projectDesc}>{project.description}</p>}
+            </div>
+            <div className={styles.projectActions}>
+              <button className="btn btn-secondary btn-sm" onClick={() => startEditingProject(project)}>
+                <Pencil size={14} /> EDIT
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.projectImageGrid}>
+            {(project.items || []).map(item => (
+              <div key={item.id} className={styles.projectImageThumb}>
+                <img src={item.image_url} alt={item.title || ''} />
+              </div>
+            ))}
+            <button className={styles.addImageThumb} onClick={() => startEditingProject(project)}>
+              <Plus size={20} />
+              <span>ADD ASSET</span>
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

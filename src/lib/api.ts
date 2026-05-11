@@ -1017,6 +1017,10 @@ export async function updateProjectCover(
   return dbWrite('updateProjectCover', { projectId, coverImageUrl });
 }
 
+export async function reorderProjects(projectIds: string[]): Promise<{ error: string | null }> {
+  return dbWrite('reorderProjects', { projectIds });
+}
+
 export async function removeImageFromProject(
   _projectId: string,
   itemId: string,
