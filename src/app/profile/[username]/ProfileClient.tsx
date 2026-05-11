@@ -6,6 +6,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   Globe, ExternalLink, CheckCircle, Star, MapPin,
   Edit3, Calendar, MessageSquare, ArrowRight, Image as ImageIcon,
+  User,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { ArtistPublicProfile, PaginatedResponse, EventSearchResult } from '@/lib/types';
