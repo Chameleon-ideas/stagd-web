@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import styles from './CreateModal.module.css';
 
 interface Option {
@@ -65,7 +65,7 @@ export function CreateModal({ onClose }: { onClose: () => void }) {
     router.push(href);
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -83,7 +83,7 @@ export function CreateModal({ onClose }: { onClose: () => void }) {
     }
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { y: 20, opacity: 0, scale: 0.98 },
     visible: { 
       y: 0, 
