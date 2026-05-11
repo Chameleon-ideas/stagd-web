@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getArtistProfile, getArtistEvents } from '@/lib/api';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import ProfileClient from './ProfileClient';
 
 interface ProfilePageProps {
@@ -11,7 +11,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
 
   // Lightweight lookup so getArtistProfile and getArtistEvents can run in parallel.
-  const { data: ref } = await supabase
+  // Uses admin client to bypass RLS — this is a server component with no session cookies.
+  const { data: ref } = await supabaseAdmin
     .from('profiles')
     .select('id')
     .eq('username', username)

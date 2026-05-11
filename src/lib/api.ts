@@ -41,7 +41,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       id, full_name, username, city, avatar_url, role, created_at, phone,
       profile:artist_profiles(
         id, bio, detailed_bio, disciplines, availability, available_from,
-        starting_rate, rates_on_request, travel_available, verified, is_public,
+        starting_rate, rates_on_request, travel_available, verified,
         featured_item_id, instagram_handle,
         invoice_auto_send, bank_account_title, bank_name, bank_account_number, bank_iban,
         behance_url, website_url, youtube_url, tiktok_url, linkedin_url, twitter_url,
@@ -216,13 +216,13 @@ export async function searchArtists(params?: {
     .from('profiles')
     .select(`
       id, full_name, username, avatar_url, city,
-      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified, is_public),
+      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified),
       reviews!reviews_reviewee_id_fkey(rating)
     `)
     .in('role', ['creative', 'both']);
 
-  // Only show public profiles in Explore
-  query = query.filter('profile.is_public', 'eq', true);
+  // TODO: uncomment after running: ALTER TABLE artist_profiles ADD COLUMN IF NOT EXISTS is_public boolean NOT NULL DEFAULT true;
+  // query = query.filter('profile.is_public', 'eq', true);
 
   if (params?.city && params.city !== 'All') {
     query = query.eq('city', params.city);
