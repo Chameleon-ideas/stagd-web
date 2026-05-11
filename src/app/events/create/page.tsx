@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { X, ImageIcon, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
@@ -33,7 +33,7 @@ interface Tier {
   capacity: string;
 }
 
-export default function CreateEventPage() {
+function CreateEventPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading } = useAuth();
@@ -785,5 +785,13 @@ export default function CreateEventPage() {
         )}
       </aside>
     </div>
+  );
+}
+
+export default function CreateEventPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <CreateEventPage />
+    </Suspense>
   );
 }
