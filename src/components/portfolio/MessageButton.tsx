@@ -13,8 +13,6 @@ export function MessageButton({ artist, className, label = 'MESSAGE' }: MessageB
   const router = useRouter();
 
   const handleMessage = () => {
-    // In a real app, this would create a conversation or redirect to an existing one
-    // For now, we'll redirect to a mock messages page
     router.push(`/messages?recipient=${artist.user.id}`);
   };
 

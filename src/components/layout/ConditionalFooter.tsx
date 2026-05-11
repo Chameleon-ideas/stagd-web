@@ -11,7 +11,7 @@ import { Footer } from "./Footer";
  *   - /messages
  *   - /:username  (artist portfolio pages)
  */
-const NO_FOOTER_ROUTES = ["/explore", "/messages"];
+const NO_FOOTER_ROUTES = ["/explore", "/messages", "/scanner"];
 const NO_FOOTER_PREFIXES = ["/events/", "/auth/", "/profile/"];
 
 export function ConditionalFooter() {

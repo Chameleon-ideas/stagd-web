@@ -1,7 +1,6 @@
 // ============================================================
 // STAGD — API Client
 // Typed Supabase wrappers for all data access.
-// Set MOCK_ENABLED = true to work with local mock data.
 // ============================================================
 
 import type {
@@ -16,8 +15,6 @@ import type {
   VerifyResult,
 } from './types';
 import { supabase, supabaseAdmin } from './supabase';
-
-const MOCK_ENABLED = false;
 
 // Server-side write proxy — keeps service key out of browser.
 async function dbWrite(op: string, params: Record<string, unknown>): Promise<any> {
@@ -38,11 +35,6 @@ async function dbWrite(op: string, params: Record<string, unknown>): Promise<any
 // ════════════════════════════════════════════════════════════
 
 export async function getArtistProfile(username: string): Promise<ArtistPublicProfile> {
-  if (MOCK_ENABLED) {
-    const mock = MOCK_ARTISTS[username.toLowerCase()];
-    if (mock) return mock;
-  }
-
   const { data, error } = await supabase
     .from('profiles')
     .select(`
@@ -214,17 +206,7 @@ export async function searchArtists(params?: {
   city?: string;
   sort?: string;
 }): Promise<PaginatedResponse<ArtistSearchResult>> {
-  if (MOCK_ENABLED) {
-    let artists = Object.values(MOCK_ARTISTS);
-    if (params?.city && params.city !== 'All')
-      artists = artists.filter(a => a.user.city?.toLowerCase() === params.city?.toLowerCase());
-    if (params?.discipline && params.discipline !== 'All')
-      artists = artists.filter(a => a.profile.disciplines.some(d => d.toLowerCase() === params.discipline?.toLowerCase()));
-    return {
-      data: artists.map(a => ({ user: a.user, profile: a.profile, review_average: a.review_average, review_count: a.review_count, project_count: a.project_count })),
-      total: artists.length, page: 1, per_page: 20, has_more: false,
-    };
-  }
+
 
   let query = supabase
     .from('profiles')
@@ -283,20 +265,7 @@ export async function searchEvents(params?: {
   per_page?: number;
   sort?: string;
 }): Promise<PaginatedResponse<EventSearchResult>> {
-  if (MOCK_ENABLED) {
-    let events = Object.values(MOCK_EVENTS);
-    if (params?.city && params.city !== 'All')
-      events = events.filter(e => e.city?.toLowerCase() === params.city?.toLowerCase());
-    if (params?.type && params.type !== 'All')
-      events = events.filter(e => e.event_type.toLowerCase() === params.type?.toLowerCase());
-    if (params?.is_free) events = events.filter(e => e.is_free);
-    if (params?.sort === 'Soonest')
-      events = events.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
-    return {
-      data: events.map(e => ({ event: e, organiser: e.organiser })),
-      total: events.length, page: 1, per_page: 20, has_more: false,
-    };
-  }
+
 
   let query = supabase
     .from('events')
@@ -323,11 +292,6 @@ export async function searchEvents(params?: {
 }
 
 export async function getEvent(id: string): Promise<Event> {
-  if (MOCK_ENABLED) {
-    const mock = MOCK_EVENTS[id];
-    if (mock) return mock;
-  }
-
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -355,11 +319,6 @@ export async function getEvent(id: string): Promise<Event> {
 }
 
 export async function getArtistEvents(organiserId: string): Promise<PaginatedResponse<EventSearchResult>> {
-  if (MOCK_ENABLED) {
-    const events = Object.values(MOCK_EVENTS).filter(e => e.organiser_id === organiserId);
-    return { data: events.map(e => ({ event: e, organiser: e.organiser })), total: events.length, page: 1, per_page: 20, has_more: false };
-  }
-
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -408,11 +367,6 @@ export async function purchaseTicket(
   eventId: string,
   payload: { tier_id: string; quantity: number; buyer_name: string; buyer_email: string; payment_token?: string },
 ): Promise<{ ticket_id: string; qr_url: string; total_paid: number }> {
-  if (MOCK_ENABLED) {
-    const ticket_id = `TKT-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    return { ticket_id, qr_url: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticket_id}`, total_paid: 1500 * payload.quantity };
-  }
-
   const { data: tier, error: tierError } = await supabase
     .from('ticket_tiers')
     .select('price, capacity')
@@ -451,57 +405,7 @@ export async function purchaseTicket(
 }
 
 export async function verifyTicket(ticketId: string, eventId?: string): Promise<VerifyResult> {
-  if (MOCK_ENABLED) {
-    if (ticketId === 'TKT-VALID')
-      return { status: 'valid', ticket_id: 'TKT-2026-X8392', buyer_name: 'Zia Ahmed', tier_name: 'General Admission', quantity: 1, event_title: 'Sounds of Lyari Festival' };
-    return { status: 'not_recognised' };
-  }
-
-  const { data, error } = await supabaseAdmin
-    .from('tickets')
-    .select(`
-      id, ticket_id, buyer_name, quantity, scanned_at, event_id,
-      tier:ticket_tiers(name),
-      event:events(title)
-    `)
-    .eq('ticket_id', ticketId)
-    .single();
-
-  if (error || !data) return { status: 'not_recognised' };
-
-  if (eventId && data.event_id !== eventId) {
-    const event = Array.isArray(data.event) ? data.event[0] : data.event;
-    return { status: 'wrong_event', event_title: event?.title };
-  }
-
-  const tier = Array.isArray(data.tier) ? data.tier[0] : data.tier;
-  const event = Array.isArray(data.event) ? data.event[0] : data.event;
-
-  if (data.scanned_at) {
-    return {
-      status: 'already_used',
-      ticket_id: data.ticket_id,
-      buyer_name: data.buyer_name,
-      tier_name: tier?.name,
-      quantity: data.quantity,
-      event_title: event?.title,
-      scanned_at: data.scanned_at,
-    };
-  }
-
-  await supabaseAdmin
-    .from('tickets')
-    .update({ scanned_at: new Date().toISOString() })
-    .eq('ticket_id', ticketId);
-
-  return {
-    status: 'valid',
-    ticket_id: data.ticket_id,
-    buyer_name: data.buyer_name,
-    tier_name: tier?.name,
-    quantity: data.quantity,
-    event_title: event?.title,
-  };
+  return dbWrite('verifyTicket', { ticketId, eventId });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1074,70 +978,3 @@ async function enrichTiersWithAvailability(events: any[]): Promise<any[]> {
   });
 }
 
-// ════════════════════════════════════════════════════════════
-// MOCK DATA (kept for MOCK_ENABLED = true)
-// ════════════════════════════════════════════════════════════
-
-const MOCK_EVENTS: Record<string, Event> = {
-  event_1: {
-    id: 'event_1', organiser_id: 'osman_malik',
-    organiser: { id: 'osman_malik', full_name: 'Osman Malik', username: 'osman_malik', avatar_url: '/images/osman_portrait.png' },
-    organiser_disciplines: ['Music', 'Sound Design'],
-    title: 'Glitch Heritage Live',
-    description: 'An immersive live set blending granular synthesis with classical sitar and tabla samples.',
-    event_type: 'concert', cover_image_url: '/images/osman_project.png',
-    venue_name: 'The Grid Lahore', city: 'Lahore',
-    starts_at: '2026-05-12T20:00:00+05:00', doors_at: '2026-05-12T19:00:00+05:00',
-    status: 'live', created_at: '',
-    ticket_tiers: [
-      { id: 'ga', event_id: 'event_1', name: 'General Admission', price: 1500, capacity: 200, spots_remaining: 42, is_door_only: false, sort_order: 0 },
-      { id: 'vip', event_id: 'event_1', name: 'VIP — Front Rows', price: 3500, capacity: 40, spots_remaining: 8, is_door_only: false, sort_order: 1 },
-    ],
-    min_price: 1500, is_free: false, is_sold_out: false,
-  },
-  event_2: {
-    id: 'event_2', organiser_id: 'hamza_qureshi',
-    organiser: { id: 'hamza_qureshi', full_name: 'Hamza Qureshi', username: 'hamza_qureshi', avatar_url: '/images/hamza_portrait.png' },
-    organiser_disciplines: ['Calligraphy', 'Visual Arts'],
-    title: 'Modern Qalam Workshop', description: 'A hands-on calligraphy workshop.',
-    event_type: 'workshop', cover_image_url: '/images/hamza_project.png',
-    venue_name: 'Stagd Studio Karachi', city: 'Karachi',
-    starts_at: '2026-05-14T14:00:00+05:00', doors_at: '2026-05-14T13:30:00+05:00',
-    status: 'live', created_at: '',
-    ticket_tiers: [{ id: 'ws', event_id: 'event_2', name: 'Workshop Seat', price: 3500, capacity: 20, spots_remaining: 5, is_door_only: false, sort_order: 0 }],
-    min_price: 3500, is_free: false, is_sold_out: false,
-  },
-  event_3: {
-    id: 'event_3', organiser_id: 'bilal_ahmed',
-    organiser: { id: 'bilal_ahmed', full_name: 'Bilal Ahmed', username: 'bilal_ahmed', avatar_url: '/images/bilal_portrait.png' },
-    title: 'Street Jam Karachi', event_type: 'workshop', cover_image_url: '/images/bilal_project.png',
-    venue_name: 'Lyari Public Walls', city: 'Karachi',
-    starts_at: '2026-05-20T17:00:00Z', status: 'live', created_at: '',
-    ticket_tiers: [], min_price: 0, is_free: true, is_sold_out: false,
-  },
-};
-
-const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
-  mairaj_ulhaq: {
-    user: { id: 'm1', full_name: 'Mairaj Ulhaq', username: 'mairaj_ulhaq', city: 'Karachi', avatar_url: '/images/mairaj_ulhaq.png', role: 'creative', created_at: '2021-01-01', phone: '' },
-    profile: { id: 'p_m1', bio: 'Editorial Photographer and Product specialist based in Karachi.', disciplines: ['Photography', 'Marketing Content'], availability: 'available', starting_rate: 65000, verified: true },
-    detailed_bio: "Mairaj Ulhaq is a commercial photographer with over a decade of experience.",
-    portfolio: [
-      { id: 'port_m1', artist_id: 'm1', title: 'Fragrance Study', category: 'Product', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'port_m2', artist_id: 'm1', title: 'Watch Details', category: 'Product', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-    ],
-    projects: [
-      { id: 'proj_m1', artist_id: 'm1', title: 'Commercial Series', description: 'A study in minimalist luxury branding.', discipline: 'Product Photography', cover_image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', items: [], created_at: '' },
-    ],
-    past_projects: [], reviews: [], review_average: 4.9, review_count: 12, follower_count: 2400, project_count: 32,
-  },
-  hamza_qureshi: {
-    user: { id: 'h1', full_name: 'Hamza Qureshi', username: 'hamza_qureshi', city: 'Karachi', avatar_url: '/images/hamza_portrait.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'p_h1', bio: 'Contemporary Calligrapher.', disciplines: ['Calligraphy', 'Visual Arts'], availability: 'available', starting_rate: 45000, verified: true },
-    detailed_bio: "Hamza Qureshi is a Karachi-based visual artist.",
-    portfolio: [
-      { id: 'port_h1', artist_id: 'h1', title: 'Golden Scripts', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-    ],
-    projects: [], past_projects: [], reviews: [], review_average: 4.9, review_count: 24, follower_count: 1200, project_count: 12,
-  },
-};

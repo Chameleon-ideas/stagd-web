@@ -30,11 +30,63 @@ async function getUserId(req: NextRequest): Promise<string | null> {
 // POST /api/db — single endpoint for all owner-gated writes.
 // Body: { op, ...params }
 export async function POST(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   const body = await req.json();
   const { op } = body;
+
+  // verifyTicket is public — door staff may not be logged in.
+  if (op === 'verifyTicket') {
+    const { ticketId, eventId: evId } = body;
+    if (!ticketId) return NextResponse.json({ status: 'not_recognised' });
+
+    const { data: ticket, error: ticketErr } = await supabaseAdmin
+      .from('tickets')
+      .select(`
+        id, ticket_id, buyer_name, quantity, scanned_at, event_id,
+        tier:ticket_tiers(name),
+        event:events(title)
+      `)
+      .eq('ticket_id', ticketId)
+      .single();
+
+    if (ticketErr || !ticket) return NextResponse.json({ status: 'not_recognised' });
+
+    if (evId && ticket.event_id !== evId) {
+      const ev = Array.isArray(ticket.event) ? ticket.event[0] : ticket.event;
+      return NextResponse.json({ status: 'wrong_event', event_title: ev?.title });
+    }
+
+    const tier = Array.isArray(ticket.tier) ? ticket.tier[0] : ticket.tier;
+    const event = Array.isArray(ticket.event) ? ticket.event[0] : ticket.event;
+
+    if (ticket.scanned_at) {
+      return NextResponse.json({
+        status: 'already_used',
+        ticket_id: ticket.ticket_id,
+        buyer_name: ticket.buyer_name,
+        tier_name: tier?.name,
+        quantity: ticket.quantity,
+        event_title: event?.title,
+        scanned_at: ticket.scanned_at,
+      });
+    }
+
+    await supabaseAdmin
+      .from('tickets')
+      .update({ scanned_at: new Date().toISOString() })
+      .eq('ticket_id', ticketId);
+
+    return NextResponse.json({
+      status: 'valid',
+      ticket_id: ticket.ticket_id,
+      buyer_name: ticket.buyer_name,
+      tier_name: tier?.name,
+      quantity: ticket.quantity,
+      event_title: event?.title,
+    });
+  }
+
+  const userId = await getUserId(req);
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
     switch (op) {
