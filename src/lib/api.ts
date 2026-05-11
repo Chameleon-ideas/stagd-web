@@ -48,9 +48,10 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
     .select(`
       id, full_name, username, city, avatar_url, role, created_at, phone,
       profile:artist_profiles(
-        id, bio, detailed_bio, disciplines, availability,
+        id, bio, detailed_bio, disciplines, availability, available_from,
         starting_rate, rates_on_request, travel_available, verified,
         featured_item_id, instagram_handle,
+        invoice_auto_send, bank_account_title, bank_name, bank_account_number, bank_iban,
         behance_url, website_url, youtube_url, tiktok_url, linkedin_url, twitter_url,
         portfolio:portfolio_items!portfolio_items_artist_id_fkey(
           id, image_url, title, description, category, sort_order, is_hidden, created_at
