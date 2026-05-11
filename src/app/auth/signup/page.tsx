@@ -12,7 +12,7 @@ export default function SignupPage() {
     fullName: '',
     email: '',
     password: '',
-    role: 'creative' as 'creative' | 'visitor',
+    role: '' as 'creative' | 'visitor' | '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,10 +21,21 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!formData.role) {
+      setError('Please select if you are a Creative or a Visitor.');
+      return;
+    }
+
     try {
-      await signup(formData);
+      await signup(formData as any);
     } catch (err: any) {
-      setError(err.message ?? 'Sign up failed. Please try again.');
+      const msg: string = err.message ?? '';
+      if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('over_email')) {
+        setError('Too many sign-up attempts. Please wait a few minutes and try again.');
+      } else {
+        setError(msg || 'Sign up failed. Please try again.');
+      }
     }
   };
 

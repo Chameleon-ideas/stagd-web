@@ -103,6 +103,8 @@ interface InitialData {
   bankName: string;
   bankAccountNumber: string;
   bankIban: string;
+  isPublic: boolean;
+  role: 'creative' | 'general';
 }
 
 export default function EditProfilePage() {
@@ -131,6 +133,10 @@ export default function EditProfilePage() {
   const [bankName, setBankName] = useState('');
   const [bankAccountNumber, setBankAccountNumber] = useState('');
   const [bankIban, setBankIban] = useState('');
+
+  // Visibility & Role
+  const [isPublic, setIsPublic] = useState(true);
+  const [role, setRole] = useState<'creative' | 'general'>('creative');
   
   // Avatar
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -194,6 +200,8 @@ export default function EditProfilePage() {
             bankName: p.bank_name || '',
             bankAccountNumber: p.bank_account_number || '',
             bankIban: p.bank_iban || '',
+            isPublic: p.is_public ?? true,
+            role: (user.role === 'creative' || user.role === 'both') ? 'creative' : 'general',
           };
 
           setInitialData(data);
@@ -216,6 +224,8 @@ export default function EditProfilePage() {
           setBankName(data.bankName);
           setBankAccountNumber(data.bankAccountNumber);
           setBankIban(data.bankIban);
+          setIsPublic(data.isPublic);
+          setRole(data.role);
         }
         setIsFetchingProfile(false);
       });
@@ -247,13 +257,16 @@ export default function EditProfilePage() {
       bankAccountTitle !== initialData.bankAccountTitle ||
       bankName !== initialData.bankName ||
       bankAccountNumber !== initialData.bankAccountNumber ||
-      bankIban !== initialData.bankIban
+      bankIban !== initialData.bankIban ||
+      isPublic !== initialData.isPublic ||
+      role !== initialData.role
     );
   }, [
     initialData, fullName, username, city, phone, bio, detailedBio,
     disciplines, availability, availableFrom, startingRate, ratesOnRequest,
     travelAvailable, instagram, website, behance, linkedin, twitter,
     invoiceAutoSend, bankAccountTitle, bankName, bankAccountNumber, bankIban,
+    isPublic, role,
   ]);
 
   const checkUsername = useCallback(async (value: string) => {
@@ -320,6 +333,7 @@ export default function EditProfilePage() {
         username: newUsername,
         city: city || null,
         phone: phone.trim() || null,
+        role: role as any,
       };
       const artistUpdates = {
         bio: bio.trim(),
@@ -340,6 +354,7 @@ export default function EditProfilePage() {
         bank_name: bankName.trim() || null,
         bank_account_number: bankAccountNumber.trim() || null,
         bank_iban: bankIban.trim() || null,
+        is_public: isPublic,
       };
 
       const isArtist = user.role === 'creative' || user.role === 'both';
@@ -352,7 +367,14 @@ export default function EditProfilePage() {
       if (artistResult.error) throw new Error(artistResult.error);
 
       // Update auth cache synchronously — no extra round trips
-      patchUser({ full_name: fullName.trim(), username: newUsername, city: city || undefined, phone: phone.trim() || undefined, ...(avatarUrl ? { avatar_url: avatarUrl } : {}) });
+      patchUser({ 
+        full_name: fullName.trim(), 
+        username: newUsername, 
+        city: city || undefined, 
+        phone: phone.trim() || undefined, 
+        role: role as any,
+        ...(avatarUrl ? { avatar_url: avatarUrl } : {}) 
+      });
 
       setSaved(true);
       setTimeout(() => router.push(`/profile/${newUsername}`), 600);

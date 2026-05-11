@@ -305,17 +305,29 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
 
 function ArtistCard({ artist }: { artist: any }) {
   if (!artist?.user) return null;
+  const initials = (artist.user.full_name as string)
+    .split(' ')
+    .slice(0, 2)
+    .map((w: string) => w[0])
+    .join('')
+    .toUpperCase();
 
   return (
     <Link href={`/${artist.user.username}`} className={styles.technicalCard}>
       <div className={styles.cardCover}>
-        <Image
-          src={artist.user.avatar_url || '/images/mairaj_ulhaq.png'}
-          alt={artist.user.full_name}
-          fill
-          className={styles.cardImg}
-          sizes="33vw"
-        />
+        {artist.user.avatar_url ? (
+          <Image
+            src={artist.user.avatar_url}
+            alt={artist.user.full_name}
+            fill
+            className={styles.cardImg}
+            sizes="33vw"
+          />
+        ) : (
+          <div className={styles.cardImgPlaceholder}>
+            <span>{initials}</span>
+          </div>
+        )}
         <div className={styles.cardBadge}>
           <span className={styles.tag}>{artist.profile?.disciplines?.[0] || 'ARTIST'}</span>
         </div>

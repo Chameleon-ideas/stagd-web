@@ -41,7 +41,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       id, full_name, username, city, avatar_url, role, created_at, phone,
       profile:artist_profiles(
         id, bio, detailed_bio, disciplines, availability, available_from,
-        starting_rate, rates_on_request, travel_available, verified,
+        starting_rate, rates_on_request, travel_available, verified, is_public,
         featured_item_id, instagram_handle,
         invoice_auto_send, bank_account_title, bank_name, bank_account_number, bank_iban,
         behance_url, website_url, youtube_url, tiktok_url, linkedin_url, twitter_url,
@@ -112,6 +112,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       rates_on_request: profile?.rates_on_request,
       travel_available: profile?.travel_available,
       verified: profile?.verified ?? false,
+      is_public: profile?.is_public ?? true,
       instagram_handle: profile?.instagram_handle,
       accent_color: undefined,
       invoice_auto_send: profile?.invoice_auto_send ?? true,
@@ -168,6 +169,7 @@ export async function updateUserProfile(_userId: string, updates: {
   city?: string | null;
   phone?: string | null;
   avatar_url?: string;
+  role?: import('./types').UserRole;
 }): Promise<{ error: string | null }> {
   return dbWrite('updateUserProfile', { updates });
 }
@@ -193,6 +195,7 @@ export async function updateArtistProfile(_userId: string, updates: {
   bank_name?: string | null;
   bank_account_number?: string | null;
   bank_iban?: string | null;
+  is_public?: boolean;
 }): Promise<{ error: string | null }> {
   return dbWrite('updateArtistProfile', { updates });
 }
@@ -213,10 +216,13 @@ export async function searchArtists(params?: {
     .from('profiles')
     .select(`
       id, full_name, username, avatar_url, city,
-      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified),
+      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified, is_public),
       reviews!reviews_reviewee_id_fkey(rating)
     `)
     .in('role', ['creative', 'both']);
+
+  // Only show public profiles in Explore
+  query = query.filter('profile.is_public', 'eq', true);
 
   if (params?.city && params.city !== 'All') {
     query = query.eq('city', params.city);

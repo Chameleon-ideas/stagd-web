@@ -50,6 +50,7 @@ export interface ArtistProfile {
   linkedin_url?: string;
   twitter_url?: string;
   verified: boolean;
+  is_public: boolean;
   // Commission preferences
   invoice_auto_send?: boolean;
   bank_account_title?: string;
