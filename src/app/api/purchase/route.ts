@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+let _admin: SupabaseClient | null = null;
+const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get(_t, prop) {
+    if (!_admin) _admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    return (_admin as any)[prop];
+  },
+});
 
 // POST /api/purchase — public endpoint, no auth required (guest checkout supported)
 export async function POST(req: NextRequest) {
