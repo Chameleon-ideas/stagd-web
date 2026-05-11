@@ -1,54 +1,41 @@
 // ============================================================
 // STAGD — API Client
-// Typed fetch wrappers for all /api/v1 endpoints.
-// Web hits the same backend as the mobile app.
+// Typed Supabase wrappers for all data access.
+// Set MOCK_ENABLED = true to work with local mock data.
 // ============================================================
 
 import type {
   ArtistPublicProfile,
   ArtistSearchResult,
   Event,
+  EventReview,
   EventSearchResult,
   PaginatedResponse,
   VerifyResult,
 } from './types';
-import { supabase } from './supabase';
+import { supabase, supabaseAdmin } from './supabase';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+const MOCK_ENABLED = false;
 
-// Switch to TRUE to work on UI/UX with local mock data
-// Switch to FALSE to use live Supabase data
-const MOCK_ENABLED = true; 
-
-// ── Fetch helper (Legacy/Mock) ──────────────────────────────
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit,
-): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+// Server-side write proxy — keeps service key out of browser.
+async function dbWrite(op: string, params: Record<string, unknown>): Promise<any> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const res = await fetch('/api/db', {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
     },
-    ...options,
+    body: JSON.stringify({ op, ...params }),
   });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body?.error ?? `API error ${res.status}: ${path}`);
-  }
-
-  return res.json() as Promise<T>;
+  return res.json();
 }
 
 // ════════════════════════════════════════════════════════════
 // USERS & PROFILES
 // ════════════════════════════════════════════════════════════
 
-export async function getArtistProfile(
-  username: string,
-): Promise<ArtistPublicProfile> {
+export async function getArtistProfile(username: string): Promise<ArtistPublicProfile> {
   if (MOCK_ENABLED) {
     const mock = MOCK_ARTISTS[username.toLowerCase()];
     if (mock) return mock;
@@ -57,31 +44,216 @@ export async function getArtistProfile(
   const { data, error } = await supabase
     .from('profiles')
     .select(`
-      *,
-      profile:artist_profiles(*),
-      portfolio:portfolio_items(*),
-      past_projects(*),
-      reviews(*)
+      id, full_name, username, city, avatar_url, role, created_at, phone,
+      profile:artist_profiles(
+        id, bio, detailed_bio, disciplines, availability,
+        starting_rate, rates_on_request, travel_available, verified,
+        featured_item_id, instagram_handle,
+        behance_url, website_url, youtube_url, tiktok_url, linkedin_url, twitter_url,
+        portfolio:portfolio_items!portfolio_items_artist_id_fkey(
+          id, image_url, title, description, category, sort_order, is_hidden, created_at
+        ),
+        projects(
+          id, title, description, discipline, location, format, year, cover_image_url, sort_order, created_at,
+          items:project_items(id, image_url, title, description, sort_order)
+        )
+      ),
+      reviews!reviewee_id(
+        id, commission_id, event_id, reviewer_id, reviewee_id, rating, body, created_at,
+        reviewer:profiles!reviewer_id(id, full_name, username, avatar_url)
+      )
     `)
     .eq('username', username)
     .single();
 
-  if (error) {
-    return apiFetch<ArtistPublicProfile>(`/users/${username}`);
-  }
-  
+  if (error || !data) return null as unknown as ArtistPublicProfile;
+
+  const { count: followerCount } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('artist_id', data.id);
+
+  const profile = Array.isArray(data.profile) ? data.profile[0] : data.profile;
+  const rawPortfolio = (profile?.portfolio || []) as any[];
+  const portfolio = rawPortfolio
+    .filter((p: any) => !p.is_hidden)
+    .sort((a: any, b: any) => a.sort_order - b.sort_order);
+  const rawProjects = (profile?.projects || []) as any[];
+  const projects = rawProjects
+    .sort((a: any, b: any) => a.sort_order - b.sort_order)
+    .map((p: any) => ({
+    ...p,
+    artist_id: data.id,
+    items: (p.items || []).sort((a: any, b: any) => a.sort_order - b.sort_order),
+  }));
+  const reviews = (data.reviews || [])
+    .filter((r: any) => !r.event_id)
+    .map((r: any) => ({
+      ...r,
+      reviewer: Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer,
+    }));
+  const reviewAverage = reviews.length > 0
+    ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length
+    : 0;
+
   return {
-    user: data as any,
-    profile: data.profile as any,
-    portfolio: data.portfolio as any,
-    projects: data.projects as any || [],
-    past_projects: data.past_projects as any,
-    reviews: data.reviews as any,
-    review_average: 5.0,
-    review_count: 0,
-    follower_count: 0,
-    project_count: data.past_projects?.length || 0,
+    user: {
+      id: data.id,
+      full_name: data.full_name,
+      username: data.username,
+      city: data.city,
+      avatar_url: data.avatar_url,
+      role: data.role,
+      created_at: data.created_at,
+      phone: data.phone || '',
+    },
+    profile: {
+      id: profile?.id ?? data.id,
+      bio: profile?.bio,
+      disciplines: profile?.disciplines || [],
+      availability: profile?.availability ?? 'available',
+      starting_rate: profile?.starting_rate,
+      rates_on_request: profile?.rates_on_request,
+      travel_available: profile?.travel_available,
+      verified: profile?.verified ?? false,
+      instagram_handle: profile?.instagram_handle,
+      accent_color: undefined,
+    },
+    detailed_bio: profile?.detailed_bio,
+    social_links: {
+      instagram: profile?.instagram_handle,
+      behance: profile?.behance_url,
+      website: profile?.website_url,
+      youtube: profile?.youtube_url,
+      tiktok: profile?.tiktok_url,
+      linkedin: profile?.linkedin_url,
+      twitter: profile?.twitter_url,
+    },
+    portfolio,
+    projects,
+    past_projects: [],
+    reviews,
+    review_average: Math.round(reviewAverage * 10) / 10,
+    review_count: reviews.length,
+    follower_count: followerCount ?? 0,
+    project_count: projects.length,
   };
+}
+
+export async function checkUsernameAvailable(username: string, currentUserId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .neq('id', currentUserId)
+    .maybeSingle();
+  return !data;
+}
+
+export async function uploadAvatar(userId: string, file: File): Promise<{ url: string | null; error: string | null }> {
+  const ext = file.name.split('.').pop();
+  const path = `${userId}/avatar.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(path, file, { upsert: true, contentType: file.type });
+  if (uploadError) return { url: null, error: uploadError.message };
+  const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+  return { url: data.publicUrl, error: null };
+}
+
+export async function updateUserProfile(_userId: string, updates: {
+  full_name?: string;
+  username?: string;
+  city?: string | null;
+  phone?: string | null;
+  avatar_url?: string;
+}): Promise<{ error: string | null }> {
+  return dbWrite('updateUserProfile', { updates });
+}
+
+export async function updateArtistProfile(_userId: string, updates: {
+  bio?: string | null;
+  detailed_bio?: string | null;
+  disciplines?: string[];
+  availability?: 'available' | 'busy' | 'unavailable';
+  starting_rate?: number | null;
+  rates_on_request?: boolean;
+  travel_available?: boolean;
+  instagram_handle?: string | null;
+  behance_url?: string | null;
+  website_url?: string | null;
+  youtube_url?: string | null;
+  tiktok_url?: string | null;
+  linkedin_url?: string | null;
+  twitter_url?: string | null;
+}): Promise<{ error: string | null }> {
+  return dbWrite('updateArtistProfile', { updates });
+}
+
+// ════════════════════════════════════════════════════════════
+// SEARCH — ARTISTS
+// ════════════════════════════════════════════════════════════
+
+export async function searchArtists(params?: {
+  discipline?: string;
+  city?: string;
+  sort?: string;
+}): Promise<PaginatedResponse<ArtistSearchResult>> {
+  if (MOCK_ENABLED) {
+    let artists = Object.values(MOCK_ARTISTS);
+    if (params?.city && params.city !== 'All')
+      artists = artists.filter(a => a.user.city?.toLowerCase() === params.city?.toLowerCase());
+    if (params?.discipline && params.discipline !== 'All')
+      artists = artists.filter(a => a.profile.disciplines.some(d => d.toLowerCase() === params.discipline?.toLowerCase()));
+    return {
+      data: artists.map(a => ({ user: a.user, profile: a.profile, review_average: a.review_average, review_count: a.review_count, project_count: a.project_count })),
+      total: artists.length, page: 1, per_page: 20, has_more: false,
+    };
+  }
+
+  let query = supabase
+    .from('profiles')
+    .select(`
+      id, full_name, username, avatar_url, city,
+      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified),
+      reviews(rating),
+      hero:portfolio_items(image_url)
+    `)
+    .in('role', ['creative', 'both']);
+
+  if (params?.city && params.city !== 'All') {
+    query = query.eq('city', params.city);
+  }
+
+  const { data, error } = await query.limit(50);
+  if (error) return { data: [], total: 0, page: 1, per_page: 50, has_more: false };
+
+  let results = data || [];
+
+  if (params?.discipline && params.discipline !== 'All') {
+    results = results.filter((a: any) =>
+      (Array.isArray(a.profile) ? a.profile[0] : a.profile)
+        ?.disciplines?.some((d: string) => d.toLowerCase() === params.discipline?.toLowerCase())
+    );
+  }
+
+  const mapped = results.map((a: any) => {
+    const profile = Array.isArray(a.profile) ? a.profile[0] : a.profile;
+    const reviews = a.reviews || [];
+    const reviewAverage = reviews.length > 0
+      ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length
+      : 0;
+    return {
+      user: { id: a.id, full_name: a.full_name, username: a.username, avatar_url: a.avatar_url, city: a.city },
+      profile,
+      hero_image: a.hero?.[0]?.image_url,
+      review_average: Math.round(reviewAverage * 10) / 10,
+      review_count: reviews.length,
+      project_count: 0,
+    };
+  });
+
+  return { data: mapped, total: mapped.length, page: 1, per_page: 50, has_more: false };
 }
 
 // ════════════════════════════════════════════════════════════
@@ -100,36 +272,41 @@ export async function searchEvents(params?: {
 }): Promise<PaginatedResponse<EventSearchResult>> {
   if (MOCK_ENABLED) {
     let events = Object.values(MOCK_EVENTS);
-    
-    if (params?.city && params.city !== 'All') {
+    if (params?.city && params.city !== 'All')
       events = events.filter(e => e.city?.toLowerCase() === params.city?.toLowerCase());
-    }
-    
-    if (params?.type && params.type !== 'All') {
+    if (params?.type && params.type !== 'All')
       events = events.filter(e => e.event_type.toLowerCase() === params.type?.toLowerCase());
-    }
-
-    if (params?.is_free) {
-      events = events.filter(e => e.is_free);
-    }
-
-    if (params?.sort === 'Soonest') {
+    if (params?.is_free) events = events.filter(e => e.is_free);
+    if (params?.sort === 'Soonest')
       events = events.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
-    }
-
     return {
-      data: events.map(e => ({
-        event: e,
-        organiser: e.organiser,
-      })),
-      total: events.length,
-      page: 1,
-      per_page: 20,
-      has_more: false,
+      data: events.map(e => ({ event: e, organiser: e.organiser })),
+      total: events.length, page: 1, per_page: 20, has_more: false,
     };
   }
 
-  return apiFetch<PaginatedResponse<EventSearchResult>>(`/search/events`);
+  let query = supabase
+    .from('events')
+    .select(`
+      *, organiser:profiles!organiser_id(id, full_name, username, avatar_url),
+      ticket_tiers(id, name, price, capacity, is_door_only, sort_order)
+    `)
+    .eq('status', 'live')
+    .order('starts_at', { ascending: true });
+
+  if (params?.city && params.city !== 'All') query = query.eq('city', params.city);
+  if (params?.type && params.type !== 'All') query = query.eq('event_type', params.type);
+
+  const limit = params?.per_page || 20;
+  const { data, error } = await query.limit(limit);
+  if (error) return { data: [], total: 0, page: 1, per_page: limit, has_more: false };
+
+  const events = await enrichTiersWithAvailability(data || []);
+
+  return {
+    data: events.map(e => ({ event: e, organiser: e.organiser })),
+    total: events.length, page: 1, per_page: limit, has_more: false,
+  };
 }
 
 export async function getEvent(id: string): Promise<Event> {
@@ -137,7 +314,31 @@ export async function getEvent(id: string): Promise<Event> {
     const mock = MOCK_EVENTS[id];
     if (mock) return mock;
   }
-  return apiFetch<Event>(`/events/${id}`);
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      organiser:profiles!organiser_id(
+        id, full_name, username, avatar_url,
+        artist_profile:artist_profiles(disciplines)
+      ),
+      ticket_tiers(id, name, price, capacity, is_door_only, sort_order)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error || !data) return null as unknown as Event;
+
+  const [enriched] = await enrichTiersWithAvailability([data]);
+  const org = Array.isArray(enriched.organiser) ? enriched.organiser[0] : enriched.organiser;
+  const artistProfile = Array.isArray(org?.artist_profile) ? org.artist_profile[0] : org?.artist_profile;
+
+  return {
+    ...enriched,
+    organiser: { id: org.id, full_name: org.full_name, username: org.username, avatar_url: org.avatar_url },
+    organiser_disciplines: artistProfile?.disciplines || [],
+  };
 }
 
 export async function getArtistEvents(organiserId: string): Promise<PaginatedResponse<EventSearchResult>> {
@@ -145,348 +346,621 @@ export async function getArtistEvents(organiserId: string): Promise<PaginatedRes
     const events = Object.values(MOCK_EVENTS).filter(e => e.organiser_id === organiserId);
     return { data: events.map(e => ({ event: e, organiser: e.organiser })), total: events.length, page: 1, per_page: 20, has_more: false };
   }
-  return apiFetch<PaginatedResponse<EventSearchResult>>(`/events?organiser=${organiserId}&status=live`);
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *, organiser:profiles!organiser_id(id, full_name, username, avatar_url),
+      ticket_tiers(id, name, price, capacity, is_door_only, sort_order)
+    `)
+    .eq('organiser_id', organiserId)
+    .eq('status', 'live')
+    .order('starts_at', { ascending: true });
+
+  if (error) return { data: [], total: 0, page: 1, per_page: 20, has_more: false };
+
+  const events = await enrichTiersWithAvailability(data || []);
+  return {
+    data: events.map(e => ({ event: e, organiser: e.organiser })),
+    total: events.length, page: 1, per_page: 20, has_more: false,
+  };
+}
+
+export async function getEventReviews(eventId: string): Promise<EventReview[]> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('id, event_id, reviewer_id, rating, body, created_at, reviewer:profiles!reviewer_id(id, full_name, username, avatar_url)')
+    .eq('event_id', eventId)
+    .order('created_at', { ascending: false });
+  if (error || !data) return [];
+  return data.map((r: any) => ({
+    ...r,
+    reviewer: Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer,
+  }));
+}
+
+export async function submitEventReview(
+  eventId: string,
+  rating: number,
+  body?: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('submitEventReview', { eventId, rating, body });
 }
 
 // ════════════════════════════════════════════════════════════
-// TICKETS & PURCHASES
+// TICKETS
 // ════════════════════════════════════════════════════════════
 
 export async function purchaseTicket(
   eventId: string,
-  payload: {
-    tier_id: string;
-    quantity: number;
-    buyer_name: string;
-    buyer_email: string;
-    payment_token?: string;
-  },
+  payload: { tier_id: string; quantity: number; buyer_name: string; buyer_email: string; payment_token?: string },
 ): Promise<{ ticket_id: string; qr_url: string; total_paid: number }> {
   if (MOCK_ENABLED) {
-    const ticket_id = `TKT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-    const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticket_id}`;
-    return { ticket_id, qr_url, total_paid: 1500 * payload.quantity };
+    const ticket_id = `TKT-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    return { ticket_id, qr_url: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticket_id}`, total_paid: 1500 * payload.quantity };
   }
-  return apiFetch(`/events/${eventId}/tickets/purchase`, { method: 'POST', body: JSON.stringify(payload) });
+
+  const { data: tier, error: tierError } = await supabase
+    .from('ticket_tiers')
+    .select('price, capacity')
+    .eq('id', payload.tier_id)
+    .single();
+
+  if (tierError || !tier) throw new Error('Ticket tier not found');
+
+  const { count: sold } = await supabase
+    .from('tickets')
+    .select('*', { count: 'exact', head: true })
+    .eq('tier_id', payload.tier_id);
+
+  if (tier.capacity > 0 && (sold ?? 0) + payload.quantity > tier.capacity) {
+    throw new Error('Not enough spots remaining');
+  }
+
+  const ticket_id = `TKT-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  const total_paid = tier.price * payload.quantity;
+  const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticket_id}`;
+
+  const { error } = await supabase.from('tickets').insert({
+    ticket_id,
+    event_id: eventId,
+    tier_id: payload.tier_id,
+    buyer_name: payload.buyer_name,
+    buyer_email: payload.buyer_email,
+    quantity: payload.quantity,
+    total_paid,
+    qr_url,
+  });
+
+  if (error) throw new Error(`Purchase failed: ${error.message}`);
+
+  return { ticket_id, qr_url, total_paid };
 }
 
-export async function verifyTicket(ticketId: string): Promise<VerifyResult> {
+export async function verifyTicket(ticketId: string, eventId?: string): Promise<VerifyResult> {
   if (MOCK_ENABLED) {
-    if (ticketId === 'TKT-VALID') {
-      return {
-        status: 'valid',
-        ticket_id: 'TKT-2026-X8392',
-        buyer_name: 'Zia Ahmed',
-        tier_name: 'General Admission',
-        quantity: 1,
-        event_title: 'Sounds of Lyari Festival',
-      };
-    }
+    if (ticketId === 'TKT-VALID')
+      return { status: 'valid', ticket_id: 'TKT-2026-X8392', buyer_name: 'Zia Ahmed', tier_name: 'General Admission', quantity: 1, event_title: 'Sounds of Lyari Festival' };
     return { status: 'not_recognised' };
   }
-  return apiFetch<VerifyResult>(`/verify/${ticketId}`, { cache: 'no-store' });
-}
 
-// ════════════════════════════════════════════════════════════
-// SEARCH ARTISTS
-// ════════════════════════════════════════════════════════════
+  const { data, error } = await supabaseAdmin
+    .from('tickets')
+    .select(`
+      id, ticket_id, buyer_name, quantity, scanned_at, event_id,
+      tier:ticket_tiers(name),
+      event:events(title)
+    `)
+    .eq('ticket_id', ticketId)
+    .single();
 
-export async function searchArtists(params?: {
-  discipline?: string;
-  city?: string;
-  sort?: string;
-}): Promise<PaginatedResponse<ArtistSearchResult>> {
-  if (MOCK_ENABLED) {
-    let artists = Object.values(MOCK_ARTISTS);
-    
-    if (params?.city && params.city !== 'All') {
-      artists = artists.filter(a => a.user.city?.toLowerCase() === params.city?.toLowerCase());
-    }
-    
-    if (params?.discipline && params.discipline !== 'All') {
-      artists = artists.filter(a => a.profile.disciplines.some(d => d.toLowerCase() === params.discipline?.toLowerCase()));
-    }
+  if (error || !data) return { status: 'not_recognised' };
 
+  if (eventId && data.event_id !== eventId) {
+    const event = Array.isArray(data.event) ? data.event[0] : data.event;
+    return { status: 'wrong_event', event_title: event?.title };
+  }
+
+  const tier = Array.isArray(data.tier) ? data.tier[0] : data.tier;
+  const event = Array.isArray(data.event) ? data.event[0] : data.event;
+
+  if (data.scanned_at) {
     return {
-      data: artists.map(a => ({
-        user: a.user,
-        profile: a.profile,
-        review_average: a.review_average,
-        review_count: a.review_count,
-        project_count: a.project_count,
-      })),
-      total: artists.length,
-      page: 1,
-      per_page: 20,
-      has_more: false,
+      status: 'already_used',
+      ticket_id: data.ticket_id,
+      buyer_name: data.buyer_name,
+      tier_name: tier?.name,
+      quantity: data.quantity,
+      event_title: event?.title,
+      scanned_at: data.scanned_at,
     };
   }
-  return apiFetch<PaginatedResponse<ArtistSearchResult>>(`/search/artists`);
+
+  await supabaseAdmin
+    .from('tickets')
+    .update({ scanned_at: new Date().toISOString() })
+    .eq('ticket_id', ticketId);
+
+  return {
+    status: 'valid',
+    ticket_id: data.ticket_id,
+    buyer_name: data.buyer_name,
+    tier_name: tier?.name,
+    quantity: data.quantity,
+    event_title: event?.title,
+  };
 }
 
 // ════════════════════════════════════════════════════════════
-// MOCK DATA
+// MESSAGES
 // ════════════════════════════════════════════════════════════
 
-// ── MOCK DATA ────────────────────────────────────────────────
+export interface Conversation {
+  commissionId: string;
+  status: string;
+  briefWhat: string | null;
+  otherParty: { id: string; full_name: string; username: string; avatar_url: string | null };
+  lastMessage: string;
+  lastMessageAt: string;
+}
+
+export interface Message {
+  id: string;
+  body: string;
+  type: string;
+  sender_id: string;
+  created_at: string;
+  attachment_url?: string | null;
+  attachment_type?: string | null; // 'image' | 'audio' | 'video'
+  attachment_name?: string | null;
+  attachment_size?: number | null;
+}
+
+export async function getConversations(userId: string): Promise<Conversation[]> {
+  const { data: commissions, error } = await supabase
+    .from('commissions')
+    .select('id, status, brief_what, client_id, artist_id, created_at, client:profiles!client_id(id, full_name, username, avatar_url)')
+    .or(`client_id.eq.${userId},artist_id.eq.${userId}`)
+    .order('created_at', { ascending: false });
+
+  if (error || !commissions?.length) return [];
+
+  // Collect all "other party" IDs (artist_id when user is client, client_id when user is artist)
+  const otherIds = commissions.map(c => c.client_id === userId ? c.artist_id : c.client_id);
+  const { data: otherProfiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, username, avatar_url')
+    .in('id', otherIds);
+
+  const profileMap: Record<string, any> = {};
+  (otherProfiles || []).forEach(p => { profileMap[p.id] = p; });
+
+  // Get last message per commission
+  const ids = commissions.map(c => c.id);
+  const { data: msgs } = await supabase
+    .from('messages')
+    .select('commission_id, body, created_at')
+    .in('commission_id', ids)
+    .order('created_at', { ascending: false });
+
+  const lastMsg: Record<string, any> = {};
+  (msgs || []).forEach(m => { if (!lastMsg[m.commission_id]) lastMsg[m.commission_id] = m; });
+
+  const all = commissions.map(c => {
+    const otherId = c.client_id === userId ? c.artist_id : c.client_id;
+    const other = profileMap[otherId] || { id: otherId, full_name: 'Unknown', username: '', avatar_url: null };
+    const lm = lastMsg[c.id];
+    return {
+      commissionId: c.id,
+      status: c.status,
+      briefWhat: c.brief_what,
+      otherParty: other,
+      lastMessage: lm?.body ?? c.brief_what ?? 'Commission enquiry',
+      lastMessageAt: lm?.created_at ?? c.created_at,
+    };
+  });
+
+  // Sort by most recent activity, then deduplicate by the other user — one thread per person
+  all.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+  const seen = new Set<string>();
+  return all.filter(c => {
+    if (seen.has(c.otherParty.id)) return false;
+    seen.add(c.otherParty.id);
+    return true;
+  });
+}
+
+export async function getMessages(commissionId: string): Promise<Message[]> {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('id, body, type, sender_id, created_at, attachment_url, attachment_type, attachment_name, attachment_size')
+    .eq('commission_id', commissionId)
+    .order('created_at', { ascending: true });
+  if (error) return [];
+  return data || [];
+}
+
+export async function sendMessage(
+  commissionId: string,
+  senderId: string,
+  body: string,
+  attachment?: { url: string; type: string; name: string; size: number } | null,
+): Promise<Message | null> {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      commission_id: commissionId,
+      sender_id: senderId,
+      body,
+      type: 'text',
+      attachment_url: attachment?.url ?? null,
+      attachment_type: attachment?.type ?? null,
+      attachment_name: attachment?.name ?? null,
+      attachment_size: attachment?.size ?? null,
+    })
+    .select('id, body, type, sender_id, created_at, attachment_url, attachment_type, attachment_name, attachment_size')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function uploadMessageAttachment(file: File, userId: string): Promise<string> {
+  // Ensure session is loaded so the storage request includes the auth header
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('Not authenticated. Please log in again.');
+
+  const ext = file.name.split('.').pop() ?? 'bin';
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage
+    .from('message-attachments')
+    .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+  if (error) {
+    const msg = typeof error === 'object' && error !== null && 'message' in error
+      ? String((error as { message: unknown }).message)
+      : JSON.stringify(error);
+    throw new Error(`Upload failed: ${msg}`);
+  }
+  const { data } = supabase.storage.from('message-attachments').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+// ════════════════════════════════════════════════════════════
+// COMMISSIONS
+// ════════════════════════════════════════════════════════════
+
+export async function submitCommission(
+  artistProfileId: string,
+  clientId: string,
+  data: {
+    discipline: string;
+    deliverable: string;
+    brief: string;
+    deadline: string;
+    duration: string;
+    budget: number;
+  }
+): Promise<string> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Commission request timed out. Please try again.')), 12000)
+  );
+  const insert = supabase
+    .from('commissions')
+    .insert({
+      artist_id: artistProfileId,
+      client_id: clientId,
+      status: 'enquiry',
+      brief_what: `${data.discipline}: ${data.deliverable}${data.brief ? '\n\n' + data.brief : ''}`,
+      brief_budget: `PKR ${data.budget.toLocaleString()}`,
+      brief_timeline: `${data.deadline} (${data.duration})`,
+    })
+    .select('id')
+    .single()
+    .then(({ data: row, error }) => {
+      if (error) throw error;
+      return row.id as string;
+    });
+  return Promise.race([insert, timeout]);
+}
+
+// ════════════════════════════════════════════════════════════
+// FOLLOW SYSTEM
+// ════════════════════════════════════════════════════════════
+
+export async function followArtist(artistId: string, followerId: string): Promise<void> {
+  const { error } = await supabase
+    .from('follows')
+    .insert({ follower_id: followerId, artist_id: artistId });
+  if (error) throw error;
+}
+
+export async function unfollowArtist(artistId: string, followerId: string): Promise<void> {
+  const { error } = await supabase
+    .from('follows')
+    .delete()
+    .eq('follower_id', followerId)
+    .eq('artist_id', artistId);
+  if (error) throw error;
+}
+
+export async function isFollowing(artistId: string, followerId: string): Promise<boolean> {
+  const { count } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('follower_id', followerId)
+    .eq('artist_id', artistId);
+  return (count ?? 0) > 0;
+}
+
+export async function getFollowerCount(artistId: string): Promise<number> {
+  const { count } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('artist_id', artistId);
+  return count ?? 0;
+}
+
+// ════════════════════════════════════════════════════════════
+// PORTFOLIO & PROJECT MANAGEMENT
+// ════════════════════════════════════════════════════════════
+
+export async function getMyPortfolio(artistId: string): Promise<import('./types').PortfolioItem[]> {
+  const { data, error } = await supabase
+    .from('portfolio_items')
+    .select('id, image_url, title, description, category, sort_order, is_hidden, created_at')
+    .eq('artist_id', artistId)
+    .eq('is_hidden', false)
+    .order('sort_order', { ascending: true });
+  if (error) return [];
+  return data || [];
+}
+
+export async function updatePortfolioItem(
+  _itemId: string,
+  updates: { title?: string; description?: string },
+): Promise<{ error: string | null }> {
+  return dbWrite('syncItemMetadata', { imageUrl: _itemId, updates });
+}
+
+export async function updateProjectItem(
+  _itemId: string,
+  updates: { title?: string; description?: string },
+): Promise<{ error: string | null }> {
+  return dbWrite('syncItemMetadata', { imageUrl: _itemId, updates });
+}
+
+export async function syncItemMetadataByUrl(
+  imageUrl: string,
+  updates: { title?: string; description?: string },
+): Promise<void> {
+  await dbWrite('syncItemMetadata', { imageUrl, updates });
+}
+
+export async function uploadPortfolioImage(
+  artistId: string,
+  file: File,
+  title?: string,
+  category?: string,
+): Promise<{ item: import('./types').PortfolioItem | null; error: string | null }> {
+  const ext = file.name.split('.').pop();
+  const path = `${artistId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from('portfolio')
+    .upload(path, file, { upsert: false, contentType: file.type });
+  if (uploadError) return { item: null, error: uploadError.message };
+  const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+
+  const { count } = await supabase
+    .from('portfolio_items')
+    .select('*', { count: 'exact', head: true })
+    .eq('artist_id', artistId);
+
+  const { data, error } = await supabase
+    .from('portfolio_items')
+    .insert({ artist_id: artistId, image_url: urlData.publicUrl, title, category, sort_order: count ?? 0 })
+    .select('id, image_url, title, category, sort_order, is_hidden, created_at')
+    .single();
+  if (error) return { item: null, error: error.message };
+  return { item: data, error: null };
+}
+
+export async function deletePortfolioItem(itemId: string): Promise<{ error: string | null }> {
+  return dbWrite('deletePortfolioItem', { itemId });
+}
+
+export async function getMyProjects(artistId: string): Promise<import('./types').Project[]> {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('id, title, description, discipline, location, format, year, cover_image_url, sort_order, created_at, items:project_items(id, image_url, title, description, sort_order)')
+    .eq('artist_id', artistId)
+    .order('sort_order', { ascending: true });
+  if (error) return [];
+  return (data || []).map((p: any) => ({
+    ...p,
+    artist_id: artistId,
+    items: (p.items || []).sort((a: any, b: any) => a.sort_order - b.sort_order),
+  }));
+}
+
+export async function createProject(
+  _artistId: string,
+  data: { title: string; description?: string; discipline?: string; location?: string; format?: string; year?: number },
+): Promise<{ project: import('./types').Project | null; error: string | null }> {
+  return dbWrite('createProject', { data });
+}
+
+export async function addImageToProject(
+  projectId: string,
+  artistId: string,
+  file: File,
+  title?: string,
+): Promise<{ imageUrl: string | null; error: string | null }> {
+  const ext = file.name.split('.').pop();
+  const path = `${artistId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from('portfolio')
+    .upload(path, file, { upsert: false, contentType: file.type });
+  if (uploadError) return { imageUrl: null, error: uploadError.message };
+  const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+  const imageUrl = urlData.publicUrl;
+
+  const { count: portCount } = await supabase
+    .from('portfolio_items')
+    .select('*', { count: 'exact', head: true })
+    .eq('artist_id', artistId);
+  const { count: projCount } = await supabase
+    .from('project_items')
+    .select('*', { count: 'exact', head: true })
+    .eq('project_id', projectId);
+
+  const result = await dbWrite('addImageToProject', { projectId, artistId, imageUrl, title, portCount, projCount });
+  return { imageUrl: result.error ? null : imageUrl, error: result.error ?? null };
+}
+
+export async function deleteProject(projectId: string): Promise<{ error: string | null }> {
+  return dbWrite('deleteProject', { projectId });
+}
+
+export async function linkPortfolioItemToProject(
+  projectId: string,
+  items: { image_url: string; title?: string }[],
+): Promise<{ error: string | null }> {
+  return dbWrite('linkPortfolioItemToProject', { projectId, items });
+}
+
+export async function updateProject(
+  projectId: string,
+  updates: {
+    title?: string;
+    description?: string | null;
+    discipline?: string | null;
+    location?: string | null;
+    format?: string | null;
+    year?: number | null;
+  },
+): Promise<{ error: string | null }> {
+  return dbWrite('updateProject', { projectId, updates });
+}
+
+export async function updateProjectCover(
+  projectId: string,
+  coverImageUrl: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('updateProjectCover', { projectId, coverImageUrl });
+}
+
+export async function removeImageFromProject(
+  _projectId: string,
+  itemId: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('removeImageFromProject', { itemId });
+}
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+
+async function enrichTiersWithAvailability(events: any[]): Promise<any[]> {
+  if (!events.length) return [];
+
+  const allTierIds = events.flatMap(e => (e.ticket_tiers || []).map((t: any) => t.id));
+
+  let soldByTier: Record<string, number> = {};
+  if (allTierIds.length > 0) {
+    const { data: tickets } = await supabase
+      .from('tickets')
+      .select('tier_id, quantity')
+      .in('tier_id', allTierIds);
+
+    soldByTier = (tickets || []).reduce((acc: Record<string, number>, t: any) => {
+      acc[t.tier_id] = (acc[t.tier_id] || 0) + t.quantity;
+      return acc;
+    }, {});
+  }
+
+  return events.map(e => {
+    const tiers = (e.ticket_tiers || [])
+      .sort((a: any, b: any) => a.sort_order - b.sort_order)
+      .map((t: any) => ({
+        ...t,
+        event_id: e.id,
+        spots_remaining: t.capacity > 0 ? Math.max(0, t.capacity - (soldByTier[t.id] || 0)) : 0,
+      }));
+
+    const prices = tiers.map((t: any) => t.price);
+    return {
+      ...e,
+      ticket_tiers: tiers,
+      min_price: prices.length ? Math.min(...prices) : 0,
+      is_free: tiers.length === 0 || tiers.every((t: any) => t.price === 0),
+      is_sold_out: tiers.length > 0 && tiers.every((t: any) => t.capacity > 0 && t.spots_remaining === 0),
+    };
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// MOCK DATA (kept for MOCK_ENABLED = true)
+// ════════════════════════════════════════════════════════════
 
 const MOCK_EVENTS: Record<string, Event> = {
   event_1: {
-    id: 'event_1',
-    organiser_id: 'osman_malik',
+    id: 'event_1', organiser_id: 'osman_malik',
     organiser: { id: 'osman_malik', full_name: 'Osman Malik', username: 'osman_malik', avatar_url: '/images/osman_portrait.png' },
     organiser_disciplines: ['Music', 'Sound Design'],
     title: 'Glitch Heritage Live',
-    description: 'An immersive live set blending granular synthesis with classical sitar and tabla samples. Osman Malik performs his acclaimed Glitch Heritage series live for the first time in Lahore — expect full A/V with realtime visuals mapped to the sound.',
-    event_type: 'concert',
-    cover_image_url: '/images/osman_project.png',
-    venue_name: 'The Grid Lahore',
-    city: 'Lahore',
-    starts_at: '2026-05-12T20:00:00+05:00',
-    doors_at: '2026-05-12T19:00:00+05:00',
-    status: 'live',
-    created_at: '',
+    description: 'An immersive live set blending granular synthesis with classical sitar and tabla samples.',
+    event_type: 'concert', cover_image_url: '/images/osman_project.png',
+    venue_name: 'The Grid Lahore', city: 'Lahore',
+    starts_at: '2026-05-12T20:00:00+05:00', doors_at: '2026-05-12T19:00:00+05:00',
+    status: 'live', created_at: '',
     ticket_tiers: [
       { id: 'ga', event_id: 'event_1', name: 'General Admission', price: 1500, capacity: 200, spots_remaining: 42, is_door_only: false, sort_order: 0 },
       { id: 'vip', event_id: 'event_1', name: 'VIP — Front Rows', price: 3500, capacity: 40, spots_remaining: 8, is_door_only: false, sort_order: 1 },
     ],
-    min_price: 1500,
-    is_free: false,
-    is_sold_out: false,
+    min_price: 1500, is_free: false, is_sold_out: false,
   },
   event_2: {
-    id: 'event_2',
-    organiser_id: 'hamza_qureshi',
+    id: 'event_2', organiser_id: 'hamza_qureshi',
     organiser: { id: 'hamza_qureshi', full_name: 'Hamza Qureshi', username: 'hamza_qureshi', avatar_url: '/images/hamza_portrait.png' },
     organiser_disciplines: ['Calligraphy', 'Visual Arts'],
-    title: 'Modern Qalam Workshop',
-    description: 'A hands-on calligraphy workshop led by Hamza Qureshi, exploring the intersection of classical Arabic script and contemporary abstract mark-making. All materials provided. Suitable for beginners and intermediate practitioners.',
-    event_type: 'workshop',
-    cover_image_url: '/images/hamza_project.png',
-    venue_name: 'Stagd Studio Karachi',
-    city: 'Karachi',
-    starts_at: '2026-05-14T14:00:00+05:00',
-    doors_at: '2026-05-14T13:30:00+05:00',
-    status: 'live',
-    created_at: '',
-    ticket_tiers: [
-      { id: 'ws', event_id: 'event_2', name: 'Workshop Seat', price: 3500, capacity: 20, spots_remaining: 5, is_door_only: false, sort_order: 0 },
-    ],
-    min_price: 3500,
-    is_free: false,
-    is_sold_out: false,
+    title: 'Modern Qalam Workshop', description: 'A hands-on calligraphy workshop.',
+    event_type: 'workshop', cover_image_url: '/images/hamza_project.png',
+    venue_name: 'Stagd Studio Karachi', city: 'Karachi',
+    starts_at: '2026-05-14T14:00:00+05:00', doors_at: '2026-05-14T13:30:00+05:00',
+    status: 'live', created_at: '',
+    ticket_tiers: [{ id: 'ws', event_id: 'event_2', name: 'Workshop Seat', price: 3500, capacity: 20, spots_remaining: 5, is_door_only: false, sort_order: 0 }],
+    min_price: 3500, is_free: false, is_sold_out: false,
   },
   event_3: {
-    id: 'event_3',
-    organiser_id: 'bilal_ahmed',
+    id: 'event_3', organiser_id: 'bilal_ahmed',
     organiser: { id: 'bilal_ahmed', full_name: 'Bilal Ahmed', username: 'bilal_ahmed', avatar_url: '/images/bilal_portrait.png' },
-    title: 'Street Jam Karachi',
-    event_type: 'workshop',
-    cover_image_url: '/images/bilal_project.png',
-    venue_name: 'Lyari Public Walls',
-    city: 'Karachi',
-    starts_at: '2026-05-20T17:00:00Z',
-    status: 'live',
-    created_at: '',
-    ticket_tiers: [],
-    min_price: 0,
-    is_free: true,
-    is_sold_out: false,
-  }
+    title: 'Street Jam Karachi', event_type: 'workshop', cover_image_url: '/images/bilal_project.png',
+    venue_name: 'Lyari Public Walls', city: 'Karachi',
+    starts_at: '2026-05-20T17:00:00Z', status: 'live', created_at: '',
+    ticket_tiers: [], min_price: 0, is_free: true, is_sold_out: false,
+  },
 };
 
 const MOCK_ARTISTS: Record<string, ArtistPublicProfile> = {
   mairaj_ulhaq: {
     user: { id: 'm1', full_name: 'Mairaj Ulhaq', username: 'mairaj_ulhaq', city: 'Karachi', avatar_url: '/images/mairaj_ulhaq.png', role: 'creative', created_at: '2021-01-01', phone: '' },
     profile: { id: 'p_m1', bio: 'Editorial Photographer and Product specialist based in Karachi.', disciplines: ['Photography', 'Marketing Content'], availability: 'available', starting_rate: 65000, verified: true },
-    detailed_bio: "Mairaj Ulhaq is a commercial photographer with over a decade of experience in capturing the intersection of grit and luxury. His work for brands like Khaadi and Edenrobe has defined a new cinematic standard for Pakistani product photography. Based in Karachi, he operates a boutique studio specializing in high-fidelity visual storytelling. His approach blends technical precision with an editorial soul, finding beauty in the most minimalist of subjects.",
+    detailed_bio: "Mairaj Ulhaq is a commercial photographer with over a decade of experience.",
     portfolio: [
-       { id: 'port_m1', artist_id: 'm1', title: 'Fragrance Study', category: 'Product', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-       { id: 'port_m2', artist_id: 'm1', title: 'Watch Details', category: 'Product', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-       { id: 'port_m3', artist_id: 'm1', title: 'Minimalist Objects', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1511556820780-d912e42b4980?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
-       { id: 'port_m4', artist_id: 'm1', title: 'Leather Craft', category: 'Product', image_url: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
-       { id: 'port_m5', artist_id: 'm1', title: 'Architectural Shadow', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?q=80&w=1200&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
-       { id: 'port_m6', artist_id: 'm1', title: 'Monochrome Still', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?q=80&w=1200&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
-       { id: 'port_m7', artist_id: 'm1', title: 'Luxury Detail', category: 'Product', image_url: 'https://images.unsplash.com/photo-1526170315870-ef0d9406085a?q=80&w=1200&fit=crop', sort_order: 6, is_hidden: false, created_at: '' },
-       { id: 'port_m8', artist_id: 'm1', title: 'Urban Geometry', category: 'Editorial', image_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&fit=crop', sort_order: 7, is_hidden: false, created_at: '' },
-    ], 
+      { id: 'port_m1', artist_id: 'm1', title: 'Fragrance Study', category: 'Product', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
+      { id: 'port_m2', artist_id: 'm1', title: 'Watch Details', category: 'Product', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
+    ],
     projects: [
-      { 
-        id: 'proj_m1', 
-        artist_id: 'm1', 
-        title: 'Commercial Series', 
-        description: 'A study in minimalist luxury branding and product interaction.', 
-        discipline: 'Product Photography',
-        cover_image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', 
-        items: [
-          { id: 'm-p1-1', project_id: 'proj_m1', title: 'No. 5 Study', image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop' },
-          { id: 'm-p1-2', project_id: 'proj_m1', title: 'Texture Detail', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&fit=crop' },
-        ], 
-        created_at: '' 
-      },
-      { 
-        id: 'proj_m2', 
-        artist_id: 'm1', 
-        title: 'Editorial Objects', 
-        description: 'Exploring the sculptural qualities of everyday retail objects.', 
-        discipline: 'Editorial',
-        cover_image_url: 'https://images.unsplash.com/photo-1511556820780-d912e42b4980?q=80&w=1200&fit=crop', 
-        items: [
-          { id: 'm-p2-1', project_id: 'proj_m2', title: 'Abstract Forms', image_url: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?q=80&w=1200&fit=crop' },
-          { id: 'm-p2-2', project_id: 'proj_m2', title: 'Shadow Play', image_url: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?q=80&w=1200&fit=crop' },
-        ], 
-        created_at: '' 
-      }
+      { id: 'proj_m1', artist_id: 'm1', title: 'Commercial Series', description: 'A study in minimalist luxury branding.', discipline: 'Product Photography', cover_image_url: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1200&fit=crop', items: [], created_at: '' },
     ],
     past_projects: [], reviews: [], review_average: 4.9, review_count: 12, follower_count: 2400, project_count: 32,
   },
   hamza_qureshi: {
     user: { id: 'h1', full_name: 'Hamza Qureshi', username: 'hamza_qureshi', city: 'Karachi', avatar_url: '/images/hamza_portrait.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'p_h1', bio: 'Contemporary Calligrapher exploring the intersection of traditional scripts and modern abstract expressionism.', disciplines: ['Calligraphy', 'Visual Arts'], availability: 'available', starting_rate: 45000, verified: true },
-    detailed_bio: "Hamza Qureshi is a Karachi-based visual artist whose work reinterprets classical Arabic calligraphy through the lens of modern minimalism. A graduate of NCA, Hamza has spent the last five years creating large-scale murals and digital installations that bring ancient scripts into the 21st-century urban environment.",
+    profile: { id: 'p_h1', bio: 'Contemporary Calligrapher.', disciplines: ['Calligraphy', 'Visual Arts'], availability: 'available', starting_rate: 45000, verified: true },
+    detailed_bio: "Hamza Qureshi is a Karachi-based visual artist.",
     portfolio: [
       { id: 'port_h1', artist_id: 'h1', title: 'Golden Scripts', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'port_h2', artist_id: 'h1', title: 'Ink Study', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-      { id: 'port_h3', artist_id: 'h1', title: 'Abstract Flow', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
-      { id: 'port_h4', artist_id: 'h1', title: 'Urban Texture', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
-      { id: 'port_h5', artist_id: 'h1', title: 'Minimalist Script', category: 'Calligraphy', image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
-      { id: 'port_h6', artist_id: 'h1', title: 'Modern Mural', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
-    ], 
-    projects: [
-      { 
-        id: 'proj_h1', 
-        artist_id: 'h1', 
-        title: 'Modern Qalam', 
-        description: 'A collection of script studies bridging traditional techniques and contemporary abstraction.', 
-        discipline: 'Calligraphy',
-        cover_image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', 
-        items: [
-          { id: 'h-p1-1', project_id: 'proj_h1', title: 'Script Study 01', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop' },
-          { id: 'h-p1-2', project_id: 'proj_h1', title: 'Script Study 02', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop' },
-        ], 
-        created_at: '' 
-      },
-      { 
-        id: 'proj_h2', 
-        artist_id: 'h1', 
-        title: 'Karachi Murals', 
-        description: 'Public installations reclaiming urban concrete across Karachi.', 
-        discipline: 'Visual Arts',
-        cover_image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', 
-        items: [
-          { id: 'h-p2-1', project_id: 'proj_h2', title: 'Wall Study 01', image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop' },
-        ], 
-        created_at: '' 
-      }
     ],
-    past_projects: [], reviews: [], review_average: 4.9, review_count: 24, follower_count: 1200, project_count: 12,
+    projects: [], past_projects: [], reviews: [], review_average: 4.9, review_count: 24, follower_count: 1200, project_count: 12,
   },
-  zoya_khan: {
-    user: { id: 'z1', full_name: 'Zoya Khan', username: 'zoya_khan', city: 'Lahore', avatar_url: '/images/zoya_portrait.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'p_z1', bio: 'Fashion Designer specializing in architectural bridal silhouettes and sustainable luxury.', disciplines: ['Fashion', 'Textile Design'], availability: 'busy', starting_rate: 120000, verified: true },
-    detailed_bio: "Zoya Khan is an avant-garde fashion designer based in Lahore. Known for her 'Architectural Bridal' series, she fuses traditional Pakistani embroidery with structural silhouettes inspired by Mughal architecture. Zoya is a vocal advocate for sustainable fashion and works exclusively with hand-loomed fabrics from rural Punjab.",
-    portfolio: [
-      { id: 'port_z1', artist_id: 'z1', title: 'Architectural Bridal', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1594465919760-441fe5908ab0?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'port_z2', artist_id: 'z1', title: 'Loom Study', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-      { id: 'port_z3', artist_id: 'z1', title: 'Silk Draping', category: 'Textile Design', image_url: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
-      { id: 'port_z4', artist_id: 'z1', title: 'Embroidery Detail', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1605462863863-10d9e47e15ee?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
-      { id: 'port_z5', artist_id: 'z1', title: 'Modern Silhouette', category: 'Fashion', image_url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&fit=crop', sort_order: 4, is_hidden: false, created_at: '' },
-      { id: 'port_z6', artist_id: 'z1', title: 'Textile Pattern', category: 'Textile Design', image_url: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1200&fit=crop', sort_order: 5, is_hidden: false, created_at: '' },
-    ], 
-    projects: [
-      { 
-        id: 'proj_z1', 
-        artist_id: 'z1', 
-        title: 'Emerald Fusion', 
-        description: 'A study in high-fashion bridal silhouettes inspired by Mughal structural architecture.', 
-        discipline: 'Fashion',
-        cover_image_url: 'https://images.unsplash.com/photo-1594465919760-441fe5908ab0?q=80&w=1200&fit=crop', 
-        items: [
-          { id: 'z-p1-1', project_id: 'proj_z1', title: 'Velvet Study', image_url: 'https://images.unsplash.com/photo-1594465919760-441fe5908ab0?q=80&w=1200&fit=crop' },
-        ], 
-        created_at: '' 
-      },
-      { 
-        id: 'proj_z2', 
-        artist_id: 'z1', 
-        title: 'Digital Silhouettes', 
-        description: 'Avant-garde 3D rendered fashion concepts exploring sustainable luxury.', 
-        discipline: 'Textile Design',
-        cover_image_url: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=1200&fit=crop', 
-        items: [], 
-        created_at: '' 
-      }
-    ],
-    past_projects: [], reviews: [], review_average: 4.8, review_count: 18, follower_count: 2100, project_count: 8,
-  },
-  bilal_ahmed: {
-    user: { id: 'b1', full_name: 'Bilal Ahmed', username: 'bilal_ahmed', city: 'Karachi', avatar_url: '/images/bilal_portrait.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'p_b1', bio: 'Street Artist and Muralist blending truck art heritage with modern graffiti techniques.', disciplines: ['Street Art', 'Visual Arts'], availability: 'available', starting_rate: 25000, verified: true },
-    detailed_bio: "Bilal Ahmed is a self-taught street artist from Lyari who has become the face of Karachi's modern mural movement. His work is characterized by the vibrant patterns of Pakistani truck art, reimagined as large-scale urban interventions. Bilal's mission is to reclaim public spaces and turn every wall into a canvas for social unity.",
-    portfolio: [
-      { id: 'port_b1', artist_id: 'b1', title: 'Truck Unity', category: 'Street Art', image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'port_b2', artist_id: 'b1', title: 'Concrete Garden', category: 'Street Art', image_url: 'https://images.unsplash.com/photo-1494173853739-c21f58b16055?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-      { id: 'port_b3', artist_id: 'b1', title: 'Lyari Colors', category: 'Street Art', image_url: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&fit=crop', sort_order: 2, is_hidden: false, created_at: '' },
-      { id: 'port_b4', artist_id: 'b1', title: 'Urban Flow', category: 'Visual Arts', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 3, is_hidden: false, created_at: '' },
-    ], 
-    projects: [
-      { 
-        id: 'proj_b1', 
-        artist_id: 'b1', 
-        title: 'Karachi Walls', 
-        description: 'Large-scale urban interventions transforming concrete into canvases for social unity.', 
-        discipline: 'Street Art',
-        cover_image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&fit=crop', 
-        items: [], 
-        created_at: '' 
-      }
-    ],
-    past_projects: [], reviews: [], review_average: 5.0, review_count: 32, follower_count: 5500, project_count: 45,
-  },
-  sara_siddiqui: {
-    user: { id: 's1', full_name: 'Sara Siddiqui', username: 'sara_siddiqui', city: 'Islamabad', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&fit=crop', role: 'creative', created_at: '2023-01-01', phone: '' },
-    profile: { id: 'p_s1', bio: 'Documentary Photographer focusing on high-contrast street visual storytelling.', disciplines: ['Photography', 'Journalism'], availability: 'available', starting_rate: 65000, verified: true },
-    detailed_bio: "Sara Siddiqui is an Islamabad-based documentary photographer whose lens captures the quiet, cinematic soul of Pakistan's streets. A former photojournalist, Sara transitioned to independent visual storytelling to focus on long-form projects documenting the lives of the working class. Her work is exclusively black and white, emphasizing light, shadow, and raw emotion.",
-    portfolio: [
-      { id: 'port_s1', artist_id: 's1', title: 'Lyari Chronicles', category: 'Photography', image_url: 'https://images.unsplash.com/photo-1554080353-a576cf803bda?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'port_s2', artist_id: 's1', title: 'Shadow Play', category: 'Photography', image_url: 'https://images.unsplash.com/photo-1554080353-a576cf803bda?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-    ], 
-    projects: [
-      { 
-        id: 'proj_s1', 
-        artist_id: 's1', 
-        title: 'Street Studies', 
-        description: 'Cinematic documentary studies focusing on light, shadow, and raw urban emotion.', 
-        discipline: 'Photography',
-        cover_image_url: 'https://images.unsplash.com/photo-1554080353-a576cf803bda?q=80&w=1200&fit=crop', 
-        items: [], 
-        created_at: '' 
-      }
-    ],
-    past_projects: [], reviews: [], review_average: 4.7, review_count: 15, follower_count: 850, project_count: 22,
-  },
-  osman_malik: {
-    user: { id: 'o1', full_name: 'Osman Malik', username: 'osman_malik', city: 'Lahore', avatar_url: '/images/osman_portrait.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'p_o1', bio: 'Electronic Music Producer blending traditional sitar with futuristic glitch textures.', disciplines: ['Music', 'Sound Design'], availability: 'available', starting_rate: 80000, verified: true },
-    detailed_bio: "Osman Malik is a sound architect based in Lahore. His work, which he calls 'Glitch Heritage', involves sampling classical Pakistani instruments—sitar, rubab, and tabla—and deconstructing them through digital granular synthesis. Osman's live performances are immersive audiovisual experiences that bridge the gap between ancient melody and modern electronics.",
-    portfolio: [
-      { id: 'port_o1', artist_id: 'o1', title: 'Glitch Heritage', category: 'Digital Art', image_url: '/images/osman_project.png', sort_order: 0, is_hidden: false, created_at: '' },
-      { id: 'port_o2', artist_id: 'o1', title: 'Sonic Textures', category: 'Digital Art', image_url: 'https://images.unsplash.com/photo-1514525253344-96467a3608d0?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-    ], 
-    projects: [
-      { id: 'proj_o1', artist_id: 'o1', title: 'Sonic Architecture', description: 'Visual studies of sound.', cover_image_url: '/images/osman_project.png', items: [], created_at: '' },
-      { id: 'proj_o2', artist_id: 'o1', title: 'Electronic Punjab', description: 'A concept album visualizer.', cover_image_url: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1200&fit=crop', items: [], created_at: '' }
-    ],
-    past_projects: [], reviews: [], review_average: 4.9, review_count: 21, follower_count: 12000, project_count: 32,
-  },
-  risograph_khi: {
-    user: { id: 'artist_2', full_name: 'Risograph Karachi', username: 'risograph_khi', city: 'Karachi', avatar_url: '/images/riso.png', role: 'creative', created_at: '', phone: '' },
-    profile: { id: 'artist_2', bio: 'Independent print studio specializing in risograph techniques.', disciplines: ['Printmaking', 'Visual Arts'], availability: 'available', starting_rate: 15000, verified: true },
-    detailed_bio: "Risograph Karachi is a community-focused print lab and experimental studio. We specialize in the unique aesthetic of risograph printing—a process that combines the speed of a photocopier with the tactile quality of screen printing. Our mission is to provide an accessible platform for local zine-makers, illustrators, and activists to bring their physical visions to life.",
-    portfolio: [
-       { id: 'r1', artist_id: 'artist_2', title: 'Riso Study 01', category: 'Print', image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&fit=crop', sort_order: 0, is_hidden: false, created_at: '' },
-       { id: 'r2', artist_id: 'artist_2', title: 'Zine Culture', category: 'Print', image_url: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&fit=crop', sort_order: 1, is_hidden: false, created_at: '' },
-    ], 
-    projects: [], past_projects: [], reviews: [], review_average: 5.0, review_count: 8, follower_count: 850, project_count: 12,
-  }
 };

@@ -3,7 +3,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Clock, Calendar, ArrowRight, Users } from 'lucide-react';
 import { getEvent } from '@/lib/api';
+import { supabaseAdmin } from '@/lib/supabase';
+import { EventReviewsSection } from './EventReviewsSection';
 import { TicketButton } from '@/components/event/TicketButton';
+import { AttendeeCount } from './AttendeeCount';
+import { DoorScannerButton } from './DoorScannerButton';
+import { OrganizerBar } from './OrganizerBar';
 import { formatPKR, eventTypeLabel } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -26,6 +31,46 @@ export default async function EventPage({ params }: EventPageProps) {
     const event = await getEvent(id);
     if (!event) return notFound();
 
+    const { data: ticketRows } = await supabaseAdmin
+      .from('tickets')
+      .select('quantity, buyer_name, buyer_id')
+      .eq('event_id', id)
+      .limit(50);
+
+    const initialAttendeeCount = (ticketRows ?? []).reduce((sum, t) => sum + (t.quantity ?? 1), 0);
+
+    // Fetch avatars for buyers who have accounts
+    const buyerIds = (ticketRows ?? []).map((t: any) => t.buyer_id).filter(Boolean);
+    const profileMap: Record<string, string | null> = {};
+    if (buyerIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, avatar_url')
+        .in('id', buyerIds);
+      (profiles ?? []).forEach((p: any) => { profileMap[p.id] = p.avatar_url ?? null; });
+    }
+
+    const { data: doorStaffRows } = await supabaseAdmin
+      .from('door_staff')
+      .select('user_id')
+      .eq('event_id', id);
+    const doorStaffUserIds = (doorStaffRows ?? []).map((r: any) => r.user_id).filter(Boolean);
+
+    const { data: reviewRows } = await supabaseAdmin
+      .from('reviews')
+      .select('id, event_id, reviewer_id, rating, body, created_at, reviewer:profiles!reviewer_id(id, full_name, username, avatar_url)')
+      .eq('event_id', id)
+      .order('created_at', { ascending: false });
+    const initialReviews = (reviewRows ?? []).map((r: any) => ({
+      ...r,
+      reviewer: Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer,
+    }));
+
+    const initialAttendees = (ticketRows ?? []).slice(0, 5).map((t: any) => ({
+      buyer_name: t.buyer_name,
+      avatar_url: t.buyer_id ? (profileMap[t.buyer_id] ?? null) : null,
+    }));
+
     const typeLabel = eventTypeLabel(event.event_type);
     const dateStr  = formatPKT(event.starts_at, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
     const timeStr  = formatPKT(event.starts_at, { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -42,18 +87,21 @@ export default async function EventPage({ params }: EventPageProps) {
 
         {/* ── LEFT: COVER IMAGE ───────────────────────────── */}
         <aside className={styles.coverPanel} aria-hidden="true">
-          <Image
-            src={event.cover_image_url || '/images/default-event.jpg'}
-            alt={event.title}
-            fill
-            className={styles.coverImage}
-            priority
-          />
+          {event.cover_image_url && (
+            <Image
+              src={event.cover_image_url}
+              alt={event.title}
+              fill
+              className={styles.coverImage}
+              priority
+            />
+          )}
           {/* Overlay meta */}
           <div className={styles.coverOverlay}>
             <div className={styles.coverMeta}>
               <span className={styles.typeChip}>{typeLabel.toUpperCase()}</span>
               {event.is_sold_out && <span className={styles.soldOutChip}>SOLD OUT</span>}
+              {event.status === 'cancelled' && <span className={styles.cancelledChip}>CANCELLED</span>}
             </div>
             <p className={styles.coverCity}>{event.city?.toUpperCase() ?? ''}</p>
           </div>
@@ -61,6 +109,23 @@ export default async function EventPage({ params }: EventPageProps) {
 
         {/* ── RIGHT: SCROLLABLE CONTENT ────────────────────── */}
         <main id="main-content" className={styles.contentPanel}>
+
+          <OrganizerBar eventId={event.id} organiserId={event.organiser.id} status={event.status ?? 'live'} />
+
+          {event.status === 'cancelled' && (
+            <div style={{
+              background: 'rgba(230,57,70,0.08)',
+              borderLeft: '3px solid #E63946',
+              padding: '14px 20px',
+              marginBottom: '20px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '12px',
+              color: '#E63946',
+              letterSpacing: '0.06em',
+            }}>
+              THIS EVENT HAS BEEN CANCELLED BY THE ORGANISER.
+            </div>
+          )}
 
           {/* Title block */}
           <div className={styles.titleBlock}>
@@ -85,6 +150,8 @@ export default async function EventPage({ params }: EventPageProps) {
               <ArrowRight size={12} className={styles.organizerArrow} />
             </Link>
           </div>
+
+          <AttendeeCount eventId={event.id} initialCount={initialAttendeeCount} initialAttendees={initialAttendees} />
 
           {/* Fact row */}
           <div className={styles.factRow}>
@@ -125,7 +192,12 @@ export default async function EventPage({ params }: EventPageProps) {
 
           <div className={styles.rule} />
 
+          {event.status !== 'cancelled' && (
+            <DoorScannerButton eventId={event.id} doorsAt={event.doors_at ?? null} doorStaffUserIds={doorStaffUserIds} />
+          )}
+
           {/* Ticket card */}
+          {event.status !== 'cancelled' && (
           <section className={styles.section} aria-labelledby="tickets-heading">
             <p className={styles.sectionTag}>// TICKETS</p>
             <div className={styles.priceHeadline} id="tickets-heading">
@@ -161,6 +233,7 @@ export default async function EventPage({ params }: EventPageProps) {
               Secure payments via Safepay · Instant QR delivery
             </p>
           </section>
+          )}
 
           {event.maps_pin && (
             <a
@@ -174,6 +247,15 @@ export default async function EventPage({ params }: EventPageProps) {
               <ArrowRight size={12} />
             </a>
           )}
+
+          <div className={styles.rule} />
+
+          <EventReviewsSection
+            eventId={event.id}
+            organiserId={event.organiser.id}
+            initialReviews={initialReviews}
+            startsAt={event.starts_at}
+          />
 
         </main>
       </div>

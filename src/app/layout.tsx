@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { anton, dmSans, jetbrainsMono, playfair } from '@/styles/fonts';
 import React, { Suspense } from 'react';
+import Script from 'next/script';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
 import '@/styles/globals.css';
@@ -40,18 +41,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${anton.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${playfair.variable}`} suppressHydrationWarning>
       <head>
-        <script
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var stored = localStorage.getItem('stagd-theme');
-                  var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  var theme = stored || system;
-                  document.documentElement.setAttribute('data-theme', theme);
-                } catch(e) {}
-              })();
-            `,
+            __html: `(function(){try{var s=localStorage.getItem('stagd-theme');var sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',s||sys);}catch(e){}})();`,
           }}
         />
       </head>

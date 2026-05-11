@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, CheckCircle2, ArrowLeft, ChevronRight } from 'lucide-react';
 import type { ArtistPublicProfile } from '@/lib/types';
+import { submitCommission } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import styles from './CommissionEnquiry.module.css';
 
 interface CommissionEnquiryProps {
@@ -24,9 +26,10 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
     budget: 120000
   });
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
-
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -42,12 +45,18 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
   }, [onClose]);
 
   const handleSubmit = async () => {
+    if (!user) {
+      setSubmitError('You need to be logged in to send a commission.');
+      return;
+    }
     setLoading(true);
+    setSubmitError(null);
     try {
-      await new Promise(r => setTimeout(r, 1500));
+      await submitCommission(artist.profile.id, user.id, formData);
       setStep('success');
     } catch (err) {
       console.error(err);
+      setSubmitError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -55,7 +64,7 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
 
   const handleGoToInbox = () => {
     onClose();
-    router.push(`/inbox?with=${artist.user.username}`);
+    router.push(`/messages?with=${artist.user.username}`);
   };
 
   const nextStep = () => {
@@ -84,10 +93,13 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      {/* Editorial Close Button (Mirroring Event Creation) */}
+      <button className={styles.editorialClose} onClick={onClose} aria-label="Close modal">
+        <X size={20} />
+        <span>CLOSE</span>
+      </button>
+
       <div ref={modalRef} className={styles.modal} role="dialog" aria-modal="true">
-        <button className={styles.closeBtn} onClick={onClose}>
-          <X size={16} /> Close
-        </button>
 
         {step !== 'success' && (
           <div className={styles.progressHeader}>
@@ -283,11 +295,16 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
 
         {step !== 'success' && (
           <div className={styles.footer}>
+            {submitError && (
+              <p style={{ color: 'var(--color-red)', fontFamily: 'var(--font-mono)', fontSize: '11px', marginBottom: '8px', gridColumn: '1/-1' }}>
+                {submitError}
+              </p>
+            )}
             <button className={`${styles.navBtn} ${styles.btnBack}`} onClick={prevStep}>
               Back
             </button>
-            <button 
-              className={`${styles.navBtn} ${styles.btnContinue}`} 
+            <button
+              className={`${styles.navBtn} ${styles.btnContinue}`}
               onClick={nextStep}
               disabled={loading || !isStepValid()}
             >

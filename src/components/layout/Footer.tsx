@@ -1,9 +1,20 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './Footer.module.css';
 
 export function Footer() {
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const tick = () =>
+      setTime(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }));
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -63,7 +74,7 @@ export function Footer() {
             Karachi, PK
           </div>
           <div className={styles.metaItem}>
-            {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}
+            {time}
           </div>
           <div className={styles.metaItem}>
             24.8607° N, 67.0011° E

@@ -1,0 +1,125 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #111111;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px;
+  border-bottom: 1px solid #222222;
+  flex-shrink: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: opacity 0.15s;
+}
+
+.closeBtn:hover { opacity: 0.6; }
+
+.topLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #555555;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.content {
+  flex: 1;
+  padding: 80px 32px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 10vw, 104px);
+  line-height: 0.85;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #222222;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px 28px 24px;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+  width: 100%;
+}
+
+.option:last-child { border-bottom: none; }
+
+.option:hover:not(:disabled) { filter: brightness(0.92); }
+
+.option:disabled { cursor: not-allowed; }
+
+.optNum {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.optLabel {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 44px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin: 4px 0 2px;
+}
+
+.optDesc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.soon {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+  opacity: 0.5;
+}

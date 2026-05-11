@@ -50,6 +50,16 @@
   padding: 3px 10px;
 }
 
+.cancelledChip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  background-color: #E63946;
+  color: #fff;
+  padding: 3px 10px;
+  font-weight: 700;
+}
+
 .soldOutChip {
   font-family: var(--font-mono);
   font-size: 10px;

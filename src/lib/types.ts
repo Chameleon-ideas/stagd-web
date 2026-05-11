@@ -33,6 +33,7 @@ export interface User {
 export interface ArtistProfile {
   id: string; // FK → users.id
   bio?: string;
+  detailed_bio?: string;
   disciplines: string[];
   availability: AvailabilityStatus;
   starting_rate?: number; // PKR
@@ -40,6 +41,12 @@ export interface ArtistProfile {
   travel_available?: boolean;
   accent_color?: string; // hex — web profile tint
   instagram_handle?: string;
+  behance_url?: string;
+  website_url?: string;
+  youtube_url?: string;
+  tiktok_url?: string;
+  linkedin_url?: string;
+  twitter_url?: string;
   verified: boolean;
 }
 
@@ -49,6 +56,7 @@ export interface PortfolioItem {
   project_id?: string;
   image_url: string;
   title?: string;
+  description?: string;
   category?: string;
   is_hidden?: boolean;
   sort_order?: number;
@@ -65,6 +73,15 @@ export interface PastProject {
   created_at: string;
 }
 
+export interface ProjectItem {
+  id: string;
+  project_id?: string;
+  image_url: string;
+  title?: string;
+  description?: string;
+  sort_order?: number;
+}
+
 export interface Project {
   id: string;
   artist_id: string;
@@ -72,7 +89,10 @@ export interface Project {
   description?: string;
   cover_image_url: string;
   discipline?: string;
-  items: PortfolioItem[];
+  location?: string;
+  format?: string;
+  year?: number;
+  items: ProjectItem[];
   created_at: string;
 }
 
@@ -82,6 +102,16 @@ export interface Review {
   reviewer_id: string;
   reviewer: Pick<User, 'id' | 'full_name' | 'username' | 'avatar_url'>;
   reviewee_id: string;
+  rating: number; // 1–5
+  body?: string;
+  created_at: string;
+}
+
+export interface EventReview {
+  id: string;
+  event_id: string;
+  reviewer_id: string;
+  reviewer: Pick<User, 'id' | 'full_name' | 'username' | 'avatar_url'>;
   rating: number; // 1–5
   body?: string;
   created_at: string;
@@ -171,7 +201,7 @@ export interface Ticket {
 
 // ── Ticket Verification ──────────────────────────────────────
 
-export type VerifyStatus = 'valid' | 'already_used' | 'not_recognised';
+export type VerifyStatus = 'valid' | 'already_used' | 'not_recognised' | 'wrong_event';
 
 export interface VerifyResult {
   status: VerifyStatus;

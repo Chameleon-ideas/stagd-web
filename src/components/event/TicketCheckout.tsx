@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { X, Plus, Minus, CheckCircle2, Download } from 'lucide-react';
-import { purchaseTicket } from '@/lib/api';
+import { generateBrandedQR } from '@/lib/qr';
+import { useAuth } from '@/lib/auth';
 import { formatPKR, formatDate, formatTime } from '@/lib/utils';
 import type { Event } from '@/lib/types';
 import styles from './TicketCheckout.module.css';
@@ -19,11 +20,16 @@ interface TicketCheckoutProps {
  * Now includes Ticket Download functionality.
  */
 export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
+  const { user } = useAuth();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedTier, setSelectedTier] = useState(event.ticket_tiers[0] || { id: 'default', name: 'General Admission', price: event.min_price });
   const [quantity, setQuantity] = useState(1);
-  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [formData, setFormData] = useState({
+    name: user?.full_name ?? '',
+    email: user?.email ?? '',
+  });
   const [loading, setLoading] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const [ticketResult, setTicketResult] = useState<{ id: string; qr: string } | null>(null);
   const [showVisual, setShowVisual] = useState(false);
 
@@ -72,20 +78,28 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
     if (!formData.name || !formData.email) return;
     
     setLoading(true);
+    setPurchaseError(null);
     try {
-      await new Promise(r => setTimeout(r, 1500));
-      const res = await purchaseTicket(event.id, {
-        tier_id: selectedTier.id,
-        quantity,
-        buyer_name: formData.name,
-        buyer_email: formData.email
+      const res = await fetch('/api/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: event.id,
+          tierId: selectedTier.id,
+          quantity,
+          buyerName: formData.name,
+          buyerEmail: formData.email,
+          ...(user?.id ? { buyerId: user.id } : {}),
+        }),
       });
-      
-      setTicketResult({ id: res.ticket_id, qr: res.qr_url });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const qrDataUrl = await generateBrandedQR(data.ticket_id);
+      setTicketResult({ id: data.ticket_id, qr: qrDataUrl });
       setStep(3);
-    } catch (err) {
-      console.error(err);
-      alert('Purchase failed. Please try again.');
+    } catch (err: any) {
+      setPurchaseError(err.message ?? 'Purchase failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -115,61 +129,98 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
     };
 
     try {
-      // 1. Background
+      // 1. Background with Grid/Texture
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add diagonal stripe texture to bottom half
+      ctx.strokeStyle = 'rgba(0,0,0,0.03)';
+      ctx.lineWidth = 1;
+      for (let i = -canvas.height; i < canvas.width; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + canvas.height, canvas.height);
+        ctx.stroke();
+      }
 
-      // 2. Header
+      // 2. Header (Black) with Logo
       ctx.fillStyle = '#111111';
       ctx.fillRect(0, 0, canvas.width, 100);
       
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 32px sans-serif';
-      ctx.fillText('STAGD', 40, 60);
+      // Load and draw the wordmark logo
+      const logoImg = await loadImage('/stagd-wordmark.svg');
+      const logoWidth = 140;
+      const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
+      ctx.drawImage(logoImg, 40, (100 - logoHeight) / 2, logoWidth, logoHeight);
       
-      ctx.font = '20px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '14px monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(`#${ticketResult.id.slice(-8).toUpperCase()}`, canvas.width - 40, 60);
+      ctx.fillText(`SERIAL NO: ${ticketResult.id.toUpperCase()}`, canvas.width - 40, 60);
 
-      // 3. Cover Image
+      // 3. Cover Image with Dusk Treatment
       const coverImg = await loadImage(event.cover_image_url || '');
       const coverHeight = 450;
-      // Draw image to fit width, maintaining aspect ratio roughly
       ctx.drawImage(coverImg, 0, 100, canvas.width, coverHeight);
       
+      // Dusk Filter (Bottom to Top)
+      const grad = ctx.createLinearGradient(0, 100 + coverHeight, 0, 100);
+      grad.addColorStop(0, 'rgba(0,0,0,0.8)');
+      grad.addColorStop(0.4, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 100, canvas.width, coverHeight);
+
+      // Status Badge (Yellow)
+      ctx.fillStyle = '#FFDE0D';
+      ctx.fillRect(canvas.width - 180, 120, 140, 40);
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('OFFICIAL PASS', canvas.width - 110, 145);
+
       // 4. Content Area
       ctx.textAlign = 'left';
       ctx.fillStyle = '#111111';
-      ctx.font = 'bold 48px sans-serif';
+      ctx.font = '900 64px sans-serif'; // Anton style
       ctx.fillText(event.title.toUpperCase(), 40, 630);
 
-      // Details
-      ctx.font = '16px monospace';
-      ctx.fillStyle = '#666666';
-      ctx.fillText('DATE', 40, 690);
-      ctx.fillText('TIME', 300, 690);
+      // Metadata Grid
+      ctx.font = '14px monospace';
+      ctx.fillStyle = '#888888';
+      ctx.fillText('// DATE', 40, 690);
+      ctx.fillText('// TIME', 420, 690);
       
       ctx.fillStyle = '#111111';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.fillText(formatDate(event.starts_at), 40, 730);
-      ctx.fillText(formatTime(event.starts_at), 300, 730);
+      ctx.font = '900 28px sans-serif';
+      ctx.fillText(formatDate(event.starts_at).toUpperCase(), 40, 730);
+      ctx.fillText(formatTime(event.starts_at).toUpperCase(), 420, 730);
 
-      ctx.font = '16px monospace';
-      ctx.fillStyle = '#666666';
-      ctx.fillText('VENUE', 40, 800);
-      ctx.fillText('TIER', 300, 800);
+      ctx.font = '14px monospace';
+      ctx.fillStyle = '#888888';
+      ctx.fillText('// VENUE', 40, 800);
+      ctx.fillText('// TIER', 420, 800);
       
       ctx.fillStyle = '#111111';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.fillText(event.venue_name || '', 40, 840);
-      ctx.fillText(`${selectedTier.name} x ${quantity}`, 300, 840);
+      ctx.font = '900 28px sans-serif';
+      ctx.fillText((event.venue_name || 'KARACHI').toUpperCase(), 40, 840);
+      ctx.fillText(`${selectedTier.name.toUpperCase()} x ${quantity}`, 420, 840);
+
+      // Cutout circles (aesthetic)
+      ctx.fillStyle = '#111111';
+      ctx.beginPath();
+      ctx.arc(0, 900, 30, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(canvas.width, 900, 30, 0, Math.PI * 2);
+      ctx.fill();
 
       // Divider
-      ctx.strokeStyle = '#eeeeee';
-      ctx.setLineDash([10, 10]);
+      ctx.strokeStyle = '#111111';
+      ctx.setLineDash([8, 8]);
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(40, 900);
-      ctx.lineTo(760, 900);
+      ctx.moveTo(60, 900);
+      ctx.lineTo(740, 900);
       ctx.stroke();
       ctx.setLineDash([]);
 
@@ -177,25 +228,25 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       const qrImg = await loadImage(ticketResult.qr);
       ctx.drawImage(qrImg, 40, 940, 200, 200);
 
-      ctx.fillStyle = '#666666';
-      ctx.font = '16px monospace';
-      ctx.fillText('ADMIT ONE', 280, 980);
+      ctx.fillStyle = '#111111';
+      ctx.font = '900 14px monospace';
+      ctx.fillText('ADMIT ONE //', 280, 980);
       
       ctx.fillStyle = '#111111';
-      ctx.font = 'bold 32px sans-serif';
-      ctx.fillText(formData.name, 280, 1030);
+      ctx.font = '900 48px sans-serif';
+      ctx.fillText(formData.name.toUpperCase(), 280, 1040);
       
-      ctx.fillStyle = '#999999';
+      ctx.fillStyle = '#888888';
       ctx.font = '14px monospace';
-      ctx.fillText(`SER NO: ${ticketResult.id.slice(0, 8)}`, 280, 1070);
+      ctx.fillText(`SERIAL_AUTH: ${ticketResult.id.toUpperCase()}`, 280, 1085);
 
       // Footer
-      ctx.fillStyle = '#eeeeee';
-      ctx.fillRect(0, 1150, canvas.width, 50);
-      ctx.fillStyle = '#666666';
-      ctx.font = '12px monospace';
+      ctx.fillStyle = '#111111';
+      ctx.fillRect(0, 1140, canvas.width, 60);
+      ctx.fillStyle = '#FFDE0D';
+      ctx.font = '900 11px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('VALID FOR ONE-TIME ENTRY ONLY. NO REFUNDS. STAGD V1.0', canvas.width / 2, 1180);
+      ctx.fillText('VALID FOR ONE-TIME ENTRY ONLY · NO REFUNDS · POWERED BY STAGD.PK', canvas.width / 2, 1175);
 
       // Trigger Download using Data URL (often more reliable for filenames in some browsers)
       const dataUrl = canvas.toDataURL('image/png');
@@ -247,12 +298,12 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
           <>
             {step === 1 && (
               <div className={styles.step}>
-                <span className={styles.stepTag}>Step 01 / 02</span>
+                <span className={styles.stepTag}>{user ? 'Step 01 / 01' : 'Step 01 / 02'}</span>
                 <h2 id="checkout-title" className={styles.title}>Select Tickets</h2>
                 
                 <div className={styles.eventSummary}>
                   <div className={styles.eventThumb}>
-                    <Image src={event.cover_image_url ?? ""} alt="" fill className={styles.img} />
+                    {event.cover_image_url && <Image src={event.cover_image_url} alt="" fill className={styles.img} />}
                   </div>
                   <div className={styles.eventInfo}>
                     <span className={styles.eventTitle}>{event.title}</span>
@@ -294,13 +345,24 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                     <span className={styles.totalLabel}>Total</span>
                     <span className={styles.totalValue}>{formatPKR(selectedTier.price * quantity)}</span>
                   </div>
-                  <button 
-                    className="btn btn-primary btn-md" 
-                    style={{ width: '100%' }} 
-                    onClick={() => setStep(2)}
+                  <button
+                    className="btn btn-primary btn-md"
+                    style={{ width: '100%' }}
+                    onClick={() => user ? handlePurchase() : setStep(2)}
+                    disabled={loading}
                   >
-                    Continue
+                    {loading ? 'Processing...' : user ? `Pay ${formatPKR(selectedTier.price * quantity)}` : 'Continue'}
                   </button>
+                  {user && (
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>
+                      AS {user.full_name.toUpperCase()} · {user.email}
+                    </p>
+                  )}
+                  {purchaseError && (
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#ef4444', marginTop: 12, textTransform: 'uppercase' }}>
+                      {purchaseError}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -348,8 +410,13 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                   >
                     {loading ? 'Processing...' : `Pay ${formatPKR(selectedTier.price * quantity)}`}
                   </button>
-                  <button 
-                    className={styles.backBtn} 
+                  {purchaseError && (
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#ef4444', marginTop: 12, textTransform: 'uppercase' }}>
+                      {purchaseError}
+                    </p>
+                  )}
+                  <button
+                    className={styles.backBtn}
                     onClick={() => setStep(1)}
                     type="button"
                   >
@@ -397,47 +464,59 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
             )}
           </>
         ) : (
-          /* ── Designed Ticket Visual ────────────────────────── */
+          /* ── Designed Ticket Visual (High-Fidelity) ── */
           <div className={styles.ticketVisual}>
             <div className={styles.ticketVisualInner}>
               <div className={styles.ticketVisualTop}>
-                <div className={styles.ticketVisualBrand}>STAGD</div>
-                <div className={styles.ticketVisualId}>#{ticketResult?.id.slice(-8).toUpperCase()}</div>
+                <div className={styles.ticketVisualLogo}>
+                  <Image 
+                    src="/stagd-wordmark.svg" 
+                    alt="Stagd" 
+                    width={80} 
+                    height={32} 
+                    className={styles.wordmark}
+                  />
+                </div>
+                <div className={styles.ticketVisualId}>SERIAL: {ticketResult?.id.toUpperCase()}</div>
               </div>
 
               <div className={styles.ticketVisualImage}>
                 <Image src={event.cover_image_url ?? ""} alt="" fill className={styles.img} />
                 <div className={styles.editorialGradient} />
-                <div className={styles.ticketVisualType}>{event.event_type}</div>
-                <div className={styles.ticketVisualWatermark}>OFFICIAL PASS</div>
+                <div className={styles.ticketVisualType}>OFFICIAL PASS</div>
+                <div className={styles.ticketVisualWatermark}>{event.event_type?.toUpperCase()}</div>
               </div>
 
               <div className={styles.ticketVisualInfo}>
                 <h3 className={styles.ticketVisualTitle}>{event.title}</h3>
                 
-                <div className={styles.ticketVisualMeta}>
+                <div className={styles.ticketVisualMetaRow}>
                   <div className={styles.visualMetaCol}>
-                    <span className={styles.visualLabel}>Date</span>
-                    <span className={styles.visualValue}>{formatDate(event.starts_at)}</span>
+                    <span className={styles.visualLabel}>// DATE</span>
+                    <span className={styles.visualValue}>{formatDate(event.starts_at).toUpperCase()}</span>
                   </div>
                   <div className={styles.visualMetaCol}>
-                    <span className={styles.visualLabel}>Time</span>
-                    <span className={styles.visualValue}>{formatTime(event.starts_at)}</span>
-                  </div>
-                </div>
-
-                <div className={styles.ticketVisualMeta}>
-                  <div className={styles.visualMetaCol}>
-                    <span className={styles.visualLabel}>Venue</span>
-                    <span className={styles.visualValue}>{event.venue_name}</span>
-                  </div>
-                  <div className={styles.visualMetaCol}>
-                    <span className={styles.visualLabel}>Tier</span>
-                    <span className={styles.visualValue}>{selectedTier.name} x {quantity}</span>
+                    <span className={styles.visualLabel}>// TIME</span>
+                    <span className={styles.visualValue}>{formatTime(event.starts_at).toUpperCase()}</span>
                   </div>
                 </div>
 
-                <hr className={styles.visualDivider} />
+                <div className={styles.ticketVisualMetaRow}>
+                  <div className={styles.visualMetaCol}>
+                    <span className={styles.visualLabel}>// VENUE</span>
+                    <span className={styles.visualValue}>{(event.venue_name || 'Karachi').toUpperCase()}</span>
+                  </div>
+                  <div className={styles.visualMetaCol}>
+                    <span className={styles.visualLabel}>// TIER</span>
+                    <span className={styles.visualValue}>{selectedTier.name.toUpperCase()} x {quantity}</span>
+                  </div>
+                </div>
+
+                <div className={styles.visualCutoutRow}>
+                   <div className={styles.visualCutout} />
+                   <hr className={styles.visualDivider} />
+                   <div className={styles.visualCutout} />
+                </div>
 
                 <div className={styles.ticketVisualQrRow}>
                   <div className={styles.visualQr}>
@@ -449,24 +528,25 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                     />
                   </div>
                   <div className={styles.visualBuyer}>
-                    <span className={styles.visualLabel}>Admit One</span>
-                    <span className={styles.visualValue}>{formData.name}</span>
-                    <span className={styles.visualSerial}>SER NO: {ticketResult?.id.slice(0, 8)}</span>
+                    <span className={styles.visualLabel}>ADMIT ONE //</span>
+                    <span className={styles.visualValueName}>{formData.name.toUpperCase()}</span>
+                    <span className={styles.visualSerial}>AUTH_ID: {ticketResult?.id.toUpperCase()}</span>
                   </div>
                 </div>
               </div>
 
               <div className={styles.ticketVisualFooter}>
-                This ticket is valid for one-time entry only. No refunds. Stagd v1.0
+                VALID FOR ONE-TIME ENTRY ONLY · NO REFUNDS · STAGD V1.0
               </div>
             </div>
             
             <div className={styles.visualActions}>
-              <button className="btn btn-primary btn-md" onClick={handleDownload}>
-                Download Ticket
+              <button className="btn btn-accent btn-md" style={{ width: '100%' }} onClick={handleDownload}>
+                <Download size={18} style={{ marginRight: 8 }} />
+                Download PNG Pass
               </button>
               <button className={styles.backBtn} onClick={() => setShowVisual(false)}>
-                Back
+                Back to confirmation
               </button>
             </div>
           </div>

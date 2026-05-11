@@ -1,105 +1,186 @@
 .authContainer {
-  min-height: 100vh;
+  min-height: calc(100vh - 60px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg);
-  padding: var(--spacing-6);
+  background-color: var(--bg);
+  padding: var(--space-8) var(--gutter);
+  background-image: var(--stripe-bg-dark);
+  overflow-y: auto;
 }
 
 .authBox {
   width: 100%;
-  max-width: 450px;
-  background-color: var(--color-surface);
-  padding: var(--spacing-10);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
+  max-width: 600px;
+  background-color: var(--bg-surface);
+  padding: var(--space-8) var(--space-8);
+  border: var(--border);
+  box-shadow: 8px 8px 0 var(--color-ink);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
+  gap: var(--space-6);
+  margin-block: var(--space-4);
 }
 
-.logo {
+[data-theme="dark"] .authBox {
+  box-shadow: 8px 8px 0 var(--color-cream);
+}
+
+.backLink {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
   text-decoration: none;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 24px;
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-  display: flex;
-  align-items: baseline;
+  margin-bottom: var(--space-2);
+  display: block;
 }
 
-.logoD {
-  color: var(--color-accent);
+.backLink:hover {
+  color: var(--text);
+}
+
+.authHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .authHeader h1 {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: var(--spacing-2);
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
 }
 
 .authHeader p {
-  color: var(--color-text-muted);
-  font-size: 16px;
+  font-family: var(--font-body);
+  font-size: var(--text-large);
+  color: var(--text-muted);
 }
 
 .authForm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-6);
+  gap: var(--space-5);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.formLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .roleGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-4);
-  margin-top: var(--spacing-2);
+  gap: var(--space-4);
+  margin-top: var(--space-1);
 }
 
 .roleCard {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
-  padding: var(--spacing-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: none;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-ui) var(--ease-expo);
+  border-radius: var(--radius-none);
+}
+
+.roleCard:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
 }
 
 .roleActive {
-  border-color: var(--color-accent);
-  background-color: rgba(var(--color-accent-rgb), 0.05);
+  border-color: var(--color-yellow);
+  background-color: var(--color-yellow);
+  color: var(--color-ink) !important;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .roleActive {
+  box-shadow: 4px 4px 0 var(--color-cream);
+}
+
+.roleActive .roleTitle,
+.roleActive .roleDesc,
+.roleActive svg {
+  color: var(--color-ink) !important;
 }
 
 .roleTitle {
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 16px;
-  color: var(--color-text);
+  color: inherit;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
 }
 
 .roleDesc {
+  font-family: var(--font-body);
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: inherit;
+  opacity: 0.8;
   line-height: 1.4;
 }
 
 .authFooter {
   text-align: center;
-  font-size: 14px;
-  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
 }
 
 .authFooter a {
-  color: var(--color-accent);
-  font-weight: 600;
-  text-decoration: none;
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 
 .authFooter a:hover {
-  text-decoration: underline;
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.errorText {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-red);
+  text-transform: uppercase;
 }

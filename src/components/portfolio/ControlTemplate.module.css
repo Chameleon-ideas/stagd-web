@@ -167,6 +167,76 @@
   font-weight: 700;
 }
 
+/* ── SIDEBAR EVENTS ── */
+.sidebarEvents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.eventSidebarCard {
+  background-color: var(--color-ink);
+  border: 1.5px solid rgba(255, 222, 13, 0.3);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-decoration: none;
+  transition: all 0.2s var(--ease-expo);
+  position: relative;
+}
+
+.eventSidebarCard:hover {
+  background-color: #000;
+  transform: translateX(4px);
+  border-color: var(--color-yellow);
+}
+
+.eventSidebarTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.eventSidebarBadge {
+  background-color: #fff;
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 900;
+  padding: 2px 6px;
+  letter-spacing: 0.1em;
+}
+
+.eventSidebarPrice {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-yellow);
+  letter-spacing: 0.05em;
+}
+
+.eventSidebarInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eventSidebarTitle {
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1;
+}
+
+.eventSidebarDate {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+}
+
 /* ── RIGHT SECTION: STAGE ────────────────────────── */
 .stage {
   flex: 1;
@@ -175,7 +245,7 @@
   padding: var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: 200px; /* Increased for high-impact editorial flow */
+  gap: 60px; /* Base gap for technical elements */
 }
 
 .projectBlock {
@@ -334,7 +404,7 @@
 .projectBlock {
   width: 100%;
   max-width: 1400px;
-  margin: 0 auto 200px auto;
+  margin: 0 auto 140px auto; /* High-impact editorial separation */
   position: relative;
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -507,13 +577,13 @@
 .actionFooter {
   margin-top: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   width: 100%;
   border-top: 1px solid var(--border-color);
   background-color: var(--bg);
 }
 
-.messageBtn, .hireBtn {
+.messageBtn, .followBtn, .hireBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -536,6 +606,24 @@
 }
 
 .messageBtn:hover {
+  background-color: var(--bg-surface);
+}
+
+.followBtn {
+  background-color: transparent;
+  color: var(--text);
+  border-right: 1px solid var(--border-color);
+}
+
+.followBtn:hover {
+  background-color: var(--bg-surface);
+}
+
+.followBtnActive {
+  color: var(--color-red, #e53e3e);
+}
+
+.followBtnActive:hover {
   background-color: var(--bg-surface);
 }
 
@@ -777,4 +865,239 @@
   border: none;
   text-align: left;
   width: 100%;
+}
+
+/* ── REVIEWS DROPDOWN ──────────────────────────── */
+.reviewsDropdown {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto 40px auto;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg);
+}
+
+.dropdownHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.dropdownHeader:hover {
+  background-color: var(--bg-surface);
+}
+
+.dropdownHeaderLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+}
+
+.avgRatingBrief {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.starsRow {
+  display: flex;
+  gap: 2px;
+}
+
+.avgValue {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.dropdownContent {
+  overflow: hidden;
+  border-top: 1px solid var(--border-color);
+}
+
+.reviewsInner {
+  padding: 32px 24px;
+}
+
+/* Review Form */
+.reviewSubmissionForm {
+  border: 1.5px solid var(--border-color);
+  padding: 24px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--bg-surface);
+}
+
+.formLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.starPickerRow {
+  display: flex;
+  gap: 4px;
+}
+
+.starPickerBtn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.starPickerBtn:hover {
+  transform: scale(1.1);
+}
+
+.reviewInput {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 12px;
+  outline: none;
+  resize: vertical;
+}
+
+.reviewInput:focus {
+  border-color: var(--color-yellow);
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.charCount {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+}
+
+.submitReviewBtn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 10px 24px;
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+
+.submitReviewBtn:disabled {
+  background-color: var(--bg-surface);
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.formError {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #E63946;
+  margin: 0;
+}
+
+/* Reviews List */
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.reviewCard {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reviewCard:last-child {
+  border-bottom: none;
+}
+
+.reviewCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.reviewerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reviewerThumb, .reviewerThumbPlaceholder {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
+.reviewerThumbPlaceholder {
+  background-color: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.reviewerText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reviewerName {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.reviewerStars {
+  display: flex;
+  gap: 2px;
+}
+
+.reviewDate {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+}
+
+.reviewBodyText {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.noReviews {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  text-align: center;
+  padding: 40px 0;
 }

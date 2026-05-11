@@ -1,318 +1,537 @@
 .page {
-  background-color: var(--color-bg);
-  color: white;
-  min-height: 100vh;
-  padding-bottom: 120px; /* Space for bottom nav */
-}
-
-.topBar {
-  background-color: var(--color-bg);
-  padding: var(--spacing-6) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.topBarInner {
+  background-color: var(--bg);
+  color: var(--text);
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  overflow: hidden;
 }
 
-.cancelBtn, .saveBtn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  cursor: pointer;
+/* 3 Column Layout */
+.sidebar {
+  width: 320px;
+  border-right: var(--border);
+  padding: var(--space-4) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  flex-shrink: 0;
 }
 
+.formArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-12);
+  background: var(--bg);
+  border-right: var(--border);
+}
+
+.mediaArea {
+  width: 450px;
+  padding: var(--space-4) var(--space-10);
+  background: var(--bg-raised);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Sidebar Elements */
 .logo {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 20px;
-  letter-spacing: 0.2em;
-}
-
-/* Progress Bar */
-.progressContainer {
-  background-color: var(--color-bg);
-  padding: var(--spacing-4) 0;
-}
-
-.progressBar {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--spacing-2);
-}
-
-.progressSegment {
-  height: 4px;
-  background-color: var(--color-border);
-  transition: background 0.3s ease;
-}
-
-.segmentActive {
-  background-color: var(--color-accent);
-}
-
-/* Main Content */
-.main {
-  padding: var(--spacing-12) 0;
-}
-
-.contentBox {
-  max-width: 600px;
-  margin: 0 auto;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-12);
+  color: var(--text-faint);
 }
 
 .stepMeta {
   font-family: var(--font-mono);
-  color: var(--color-accent);
-  font-size: 14px;
-  margin-bottom: var(--spacing-4);
-  letter-spacing: 0.05em;
+  color: var(--color-yellow);
+  font-size: 11px;
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .stepTitle {
   font-family: var(--font-display);
-  font-size: 64px;
+  font-size: 32px;
   font-weight: 400;
-  line-height: 1;
-  margin-bottom: var(--spacing-12);
+  line-height: 0.9;
   text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.progressList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+
+.progressItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.progressItemActive {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.progressItemDot {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--text-faint);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.progressItemActive .progressItemDot {
+  background: var(--color-yellow);
+  border-color: var(--color-yellow);
+}
+
+/* Door Staff & Info Boxes */
+.infoBox {
+  background: var(--bg-raised);
+  border: 1.5px solid var(--border-color);
+  padding: 20px;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.staffList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.staffItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+}
+
+.staffInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.staffValue {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--color-yellow);
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .staffValue {
+  color: var(--color-orange); /* More readable on light surface */
+}
+
+.staffType {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+
+.staffRemove {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.staffRemove:hover {
+  color: var(--color-red);
+}
+
+.emptyStaff {
+  padding: 48px 20px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  border: 1.5px dashed var(--border-color);
+}
+
+/* Action Buttons in Sidebar (Mostly removed per request) */
+.sidebarActions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: 80px;
+}
+
+/* Form Styles */
+.formHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+.contentBox {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .formSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-10);
+  gap: var(--space-6);
+}
+
+.formFooter {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.primaryAction {
+  background-color: var(--text);
+  color: var(--bg);
+  border: none;
+  font-family: var(--font-display);
+  font-size: 20px;
+  padding: 16px 48px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.primaryAction:hover:not(:disabled) {
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+}
+
+.secondaryAction {
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 16px 32px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.secondaryAction:hover {
+  background: var(--bg-raised);
+}
+
+.saveDraftBtn {
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 8px 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.saveDraftBtn:hover {
+  border-color: var(--text);
+  color: var(--text);
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: var(--space-3);
 }
 
 .label {
   font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-accent);
+  font-size: 10px;
+  color: var(--text-faint);
   letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .typeGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3);
+  gap: var(--space-3);
 }
 
 .typeCard {
-  padding: var(--spacing-3) var(--spacing-6);
-  border: 1px solid var(--color-border);
-  background: none;
-  color: white;
+  padding: 8px 16px;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
   font-family: var(--font-display);
-  font-weight: 400;
   font-size: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 0;
+  transition: all 0.2s var(--ease-expo);
   text-transform: uppercase;
 }
 
 .typeActive {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
-  color: black;
+  background-color: var(--color-yellow);
+  border-color: var(--border-color);
+  color: var(--color-ink);
 }
 
-.textInput, .textArea {
-  background: none;
-  border: none;
-  border-bottom: 2px solid var(--color-border);
-  color: white;
-  font-size: 24px;
-  padding: var(--spacing-2) 0;
-  width: 100%;
-  border-radius: 0;
-}
-
-.textInput:focus, .textArea:focus {
-  outline: none;
-  border-color: white;
-}
-
-.textArea {
-  height: 120px;
-  border: 1px solid var(--color-border);
-  padding: var(--spacing-4);
+.textInput, .textArea, .dateTimeInput {
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text);
+  font-family: var(--font-body);
   font-size: 18px;
-  border-radius: 0;
+  padding: 16px;
+  width: 100%;
+  color-scheme: dark;
 }
 
-.helpText {
-  color: var(--color-text-muted);
-  font-size: 14px;
-  margin-top: var(--spacing-1);
+[data-theme="light"] .textInput, 
+[data-theme="light"] .textArea, 
+[data-theme="light"] .dateTimeInput {
+  color-scheme: light;
 }
 
+.dateTimeGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-4);
+}
+
+.inputControlGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.dateTimeInput {
+  padding-left: 52px;
+  padding-right: 48px;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.dateTimeInput::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 20px;
+  color: var(--color-yellow);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.inputLabel {
+  position: absolute;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+}
+
+.inputControlGroup:focus-within .dateTimeInput {
+  border-color: var(--color-yellow);
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 2px;
+}
+
+/* Media Styles */
 .uploadBox {
   width: 100%;
-  aspect-ratio: 16/9;
-  border: 1px solid var(--color-border);
+  aspect-ratio: 4/5;
+  border: 2px dashed var(--border-color);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-4);
-  color: var(--color-text-muted);
+  gap: var(--space-4);
+  color: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
-  border-radius: 0;
+  background-size: cover;
+  background-position: center;
 }
 
-.uploadIcon {
-  font-size: 48px;
+.uploadBox:hover {
+  border-color: var(--color-yellow);
+  color: var(--text);
 }
 
-/* Step 03: Tickets */
+.helpText {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Toggle & Tiers */
 .toggleRow {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: var(--spacing-6);
-  border: 1px solid var(--color-border);
-  border-radius: 0;
+  align-items: center;
+  padding: var(--space-8);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
 }
 
 .toggleTitle {
-  font-size: 18px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 24px;
+  text-transform: uppercase;
 }
 
 .toggle {
-  width: 48px;
-  height: 24px;
-  background-color: var(--color-border);
-  border-radius: 0;
+  width: 60px;
+  height: 32px;
+  background-color: var(--border-color);
   position: relative;
   cursor: pointer;
+  border: none;
 }
 
 .toggleThumb {
-  width: 20px;
-  height: 20px;
-  background-color: white;
-  border-radius: 0;
+  width: 24px;
+  height: 24px;
+  background-color: var(--bg);
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 4px;
+  left: 4px;
+  transition: left 0.3s var(--ease-expo);
 }
 
 .tierCard {
-  background-color: var(--color-surface);
-  padding: var(--spacing-6);
-  border: 1px solid var(--color-border);
-  border-radius: 0;
+  background-color: var(--bg-surface);
+  padding: var(--space-8);
+  border: 1.5px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 
 .tierHeader {
   display: flex;
   justify-content: space-between;
-  color: var(--color-accent);
+  align-items: center;
   font-family: var(--font-mono);
-  font-size: 12px;
-  margin-bottom: var(--spacing-4);
+  font-size: 11px;
 }
 
-.tierName {
+.tierLabel {
+  color: var(--color-yellow);
+}
+
+[data-theme="light"] .tierLabel {
+  color: var(--color-orange); /* Better contrast on white */
+}
+
+.tierNameInput {
   font-family: var(--font-display);
-  font-size: 24px;
-  margin-bottom: var(--spacing-6);
+  font-size: 32px;
+  background: none;
+  border: none;
+  border-bottom: 1.5px solid var(--border-color);
+  color: var(--text);
+  width: 100%;
+  margin-bottom: var(--space-4);
+  padding: 8px 0;
   text-transform: uppercase;
+}
+
+.tierNameInput:focus {
+  outline: none;
+  border-bottom-color: var(--color-yellow);
 }
 
 .tierInputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-6);
+  gap: var(--space-6);
 }
 
 .tierInputGroup label {
-  font-size: 12px;
-  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
   display: block;
-  margin-bottom: var(--spacing-2);
+  margin-bottom: 12px;
 }
 
 .tierInputGroup input {
-  background: none;
-  border: 1px solid var(--color-border);
-  color: white;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text);
   width: 100%;
-  padding: var(--spacing-3);
+  padding: 16px;
+  font-family: var(--font-body);
   font-size: 18px;
-  border-radius: 0;
 }
 
 .addTierBtn {
-  background: none;
-  border: 1px solid var(--color-border);
-  color: white;
-  padding: var(--spacing-4);
+  background: transparent;
+  border: 1.5px dashed var(--border-color);
+  color: var(--text-muted);
+  padding: 20px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
-  margin-top: var(--spacing-4);
-  border-radius: 0;
+  width: 100%;
 }
 
-/* Bottom Nav */
-.bottomNav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--color-bg);
-  border-top: 1px solid var(--color-border);
-  padding: var(--spacing-4) 0;
-}
-
-.bottomNavInner {
-  display: flex;
-  gap: var(--spacing-4);
-}
-
-.backBtn {
-  flex: 1;
+.removeBtn {
   background: none;
-  border: 1px solid white;
-  color: white;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  padding: var(--spacing-4);
-  cursor: pointer;
-  border-radius: 0;
-}
-
-.continueBtn {
-  flex: 3;
-  background-color: white;
-  color: black;
   border: none;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  padding: var(--spacing-4);
+  color: var(--text-faint);
   cursor: pointer;
-  text-transform: uppercase;
-  border-radius: 0;
 }
 
-@media (max-width: 768px) {
-  .stepTitle {
-    font-size: 40px;
+@media (max-width: 1280px) {
+  .mediaArea {
+    width: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .page {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar, .mediaArea {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: var(--border);
+  }
+  .formArea {
+    overflow-y: visible;
+    border-right: none;
   }
 }

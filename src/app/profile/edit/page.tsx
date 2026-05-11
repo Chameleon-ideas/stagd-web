@@ -1,0 +1,630 @@
+'use client';
+
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  CheckCircle, 
+  XCircle, 
+  Loader, 
+  ArrowLeft, 
+  Camera, 
+  Globe, 
+  ExternalLink,
+  DollarSign,
+  Plane,
+  ToggleLeft,
+  ToggleRight
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/lib/auth';
+import { checkUsernameAvailable, updateUserProfile, getArtistProfile, updateArtistProfile } from '@/lib/api';
+import styles from './EditProfile.module.css';
+
+const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
+const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
+
+const DISCIPLINE_OPTIONS = [
+  'Food Photography',
+  'Product Photography',
+  'Marketing Content',
+  'Product Design',
+  'Studio',
+  'Photography',
+  'Fashion',
+  'Textile Design',
+  'Calligraphy',
+  'Visual Arts',
+  'Journalism',
+  'Street Art'
+];
+
+const DISCIPLINE_COLORS: Record<string, string> = {
+  'Food Photography': 'var(--color-orange)',
+  'Product Photography': 'var(--color-yellow)',
+  'Marketing Content': 'var(--color-cyan)',
+  'Product Design': 'var(--color-lime)',
+  'Studio': 'var(--color-red)',
+  'Photography': 'var(--color-orange)',
+  'Fashion': 'var(--color-pink)',
+  'Textile Design': 'var(--color-cyan)',
+  'Calligraphy': 'var(--color-yellow)',
+  'Visual Arts': 'var(--color-lime)',
+  'Journalism': 'var(--color-red)',
+  'Street Art': 'var(--color-orange)'
+};
+
+const IgIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+    <circle cx="12" cy="12" r="4"/>
+    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+  </svg>
+);
+const BehanceIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22 7h-7V5h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14H15.97c.13 1.202.992 1.807 2.209 1.807.812 0 1.47-.29 1.786-.86h3.761zM15.998 13h5.251c-.023-1.186-.839-1.893-2.55-1.893-1.614 0-2.527.769-2.701 1.893zM6.5 10.995c.944 0 1.91-.316 1.91-1.445C8.41 8.38 7.62 8 6.5 8H3v3h3.5v-.005zM3 13v3.125h3.5c1.046 0 2.11-.367 2.11-1.57C8.61 13.197 7.617 13 6.5 13H3zm3.5-8C9.9 5 11.5 6.3 11.5 8.5c0 1.3-.7 2.2-1.9 2.7 1.5.4 2.4 1.5 2.4 3 0 2.5-1.9 3.8-5 3.8H0V5h6.5z"/>
+  </svg>
+);
+const LinkedInIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/>
+    <circle cx="4" cy="4" r="2"/>
+  </svg>
+);
+const XIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.741-8.851L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
+type UsernameState = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+
+interface InitialData {
+  fullName: string;
+  username: string;
+  city: string;
+  phone: string;
+  bio: string;
+  detailedBio: string;
+  disciplines: string[];
+  availability: string;
+  startingRate: number | '';
+  ratesOnRequest: boolean;
+  travelAvailable: boolean;
+  instagram: string;
+  website: string;
+  behance: string;
+  linkedin: string;
+  twitter: string;
+}
+
+export default function EditProfilePage() {
+  const router = useRouter();
+  const { user, isLoading: isAuthLoading, patchUser } = useAuth();
+
+  // Basic Profile (profiles table)
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [city, setCity] = useState('');
+  const [phone, setPhone] = useState('');
+
+  // Artist Profile (artist_profiles table)
+  const [bio, setBio] = useState('');
+  const [detailedBio, setDetailedBio] = useState('');
+  const [disciplines, setDisciplines] = useState<string[]>([]);
+  const [availability, setAvailability] = useState<'available' | 'busy' | 'unavailable'>('available');
+  const [startingRate, setStartingRate] = useState<number | ''>('');
+  const [ratesOnRequest, setRatesOnRequest] = useState(false);
+  const [travelAvailable, setTravelAvailable] = useState(false);
+  
+  // Avatar
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Socials
+  const [instagram, setInstagram] = useState('');
+  const [website, setWebsite] = useState('');
+  const [behance, setBehance] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [twitter, setTwitter] = useState('');
+
+  // Track initial state for "dirty" check
+  const [initialData, setInitialData] = useState<InitialData | null>(null);
+
+  const [usernameState, setUsernameState] = useState<UsernameState>('idle');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(true);
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.push('/auth/login');
+      return;
+    }
+
+    if (user) {
+      // Basic fields
+      setFullName(user.full_name);
+      setUsername(user.username);
+      setCity(user.city ?? '');
+      setPhone(user.phone ?? '');
+
+      // Fetch artist-specific details
+      getArtistProfile(user.username).then(profile => {
+        if (profile) {
+          const p = profile.profile;
+          const data: InitialData = {
+            fullName: user.full_name,
+            username: user.username,
+            city: user.city ?? '',
+            phone: user.phone ?? '',
+            bio: p.bio || '',
+            detailedBio: profile.detailed_bio || '',
+            disciplines: p.disciplines || [],
+            availability: p.availability,
+            startingRate: p.starting_rate || '',
+            ratesOnRequest: p.rates_on_request || false,
+            travelAvailable: p.travel_available || false,
+            instagram: p.instagram_handle || '',
+            website: p.website_url || '',
+            behance: p.behance_url || '',
+            linkedin: p.linkedin_url || '',
+            twitter: p.twitter_url || ''
+          };
+
+          setInitialData(data);
+          
+          setBio(data.bio);
+          setDetailedBio(data.detailedBio);
+          setDisciplines(data.disciplines);
+          setAvailability(data.availability as any);
+          setStartingRate(data.startingRate);
+          setRatesOnRequest(data.ratesOnRequest);
+          setTravelAvailable(data.travelAvailable);
+          setInstagram(data.instagram);
+          setWebsite(data.website);
+          setBehance(data.behance);
+          setLinkedin(data.linkedin);
+          setTwitter(data.twitter);
+        }
+        setIsFetchingProfile(false);
+      });
+    }
+  }, [user, isAuthLoading, router]);
+
+  // DIRTY CHECK
+  const isDirty = useMemo(() => {
+    if (!initialData) return false;
+    return (
+      fullName !== initialData.fullName ||
+      username !== initialData.username ||
+      city !== initialData.city ||
+      phone !== initialData.phone ||
+      bio !== initialData.bio ||
+      detailedBio !== initialData.detailedBio ||
+      JSON.stringify(disciplines) !== JSON.stringify(initialData.disciplines) ||
+      availability !== initialData.availability ||
+      startingRate !== initialData.startingRate ||
+      ratesOnRequest !== initialData.ratesOnRequest ||
+      travelAvailable !== initialData.travelAvailable ||
+      instagram !== initialData.instagram ||
+      website !== initialData.website ||
+      behance !== initialData.behance ||
+      linkedin !== initialData.linkedin ||
+      twitter !== initialData.twitter
+    );
+  }, [
+    initialData, fullName, username, city, phone, bio, detailedBio, 
+    disciplines, availability, startingRate, ratesOnRequest, 
+    travelAvailable, instagram, website, behance, linkedin, twitter
+  ]);
+
+  const checkUsername = useCallback(async (value: string) => {
+    if (!user) return;
+    if (value === user.username) { setUsernameState('idle'); return; }
+    if (!USERNAME_RE.test(value)) { setUsernameState('invalid'); return; }
+    setUsernameState('checking');
+    const available = await checkUsernameAvailable(value, user.id);
+    setUsernameState(available ? 'available' : 'taken');
+  }, [user]);
+
+  useEffect(() => {
+    if (!username || isFetchingProfile) return;
+    const timer = setTimeout(() => checkUsername(username), 500);
+    return () => clearTimeout(timer);
+  }, [username, checkUsername, isFetchingProfile]);
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    setUsername(val);
+    setUsernameState('idle');
+  };
+
+  const toggleDiscipline = (d: string) => {
+    if (disciplines.includes(d)) {
+      setDisciplines(disciplines.filter(item => item !== d));
+    } else if (disciplines.length < 3) {
+      setDisciplines([...disciplines, d]);
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { setSaveError('Image must be under 2MB'); return; }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const canSave = usernameState !== 'taken' && usernameState !== 'invalid' && usernameState !== 'checking' && fullName.trim().length > 0;
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !canSave) return;
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      // 0. Upload avatar if changed
+      let avatarUrl: string | undefined;
+      if (avatarFile) {
+        setIsUploadingAvatar(true);
+        const { uploadAvatar } = await import('@/lib/api');
+        const { url, error: uploadErr } = await uploadAvatar(user.id, avatarFile);
+        setIsUploadingAvatar(false);
+        if (uploadErr) throw new Error(uploadErr);
+        avatarUrl = url ?? undefined;
+      }
+
+      const newUsername = username.trim();
+      const basicUpdates = {
+        ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+        full_name: fullName.trim(),
+        username: newUsername,
+        city: city || null,
+        phone: phone.trim() || null,
+      };
+      const artistUpdates = {
+        bio: bio.trim(),
+        detailed_bio: detailedBio.trim(),
+        disciplines,
+        availability,
+        starting_rate: startingRate === '' ? null : Number(startingRate),
+        rates_on_request: ratesOnRequest,
+        travel_available: travelAvailable,
+        instagram_handle: instagram.trim(),
+        website_url: website.trim(),
+        behance_url: behance.trim(),
+        linkedin_url: linkedin.trim(),
+        twitter_url: twitter.trim(),
+      };
+
+      const isArtist = user.role === 'creative' || user.role === 'both';
+      const [{ error: basicError }, artistResult] = await Promise.all([
+        updateUserProfile(user.id, basicUpdates),
+        isArtist ? updateArtistProfile(user.id, artistUpdates) : Promise.resolve({ error: null }),
+      ]);
+
+      if (basicError) throw new Error(basicError);
+      if (artistResult.error) throw new Error(artistResult.error);
+
+      // Update auth cache synchronously — no extra round trips
+      patchUser({ full_name: fullName.trim(), username: newUsername, city: city || undefined, phone: phone.trim() || undefined, ...(avatarUrl ? { avatar_url: avatarUrl } : {}) });
+
+      setSaved(true);
+      setTimeout(() => router.push(`/profile/${newUsername}`), 600);
+    } catch (err: any) {
+      setSaveError(err.message || 'Failed to save changes');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isAuthLoading || isFetchingProfile) {
+    return <div className={styles.container}><div className={styles.loading}>INITIALISING_PROFILE...</div></div>;
+  }
+
+  const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.inner}>
+        
+        {/* ── SIDEBAR ── */}
+        <aside className={styles.sidebar}>
+          <Link href={`/profile/${user?.username}`} className={styles.backLink}>
+            <ArrowLeft size={14} /> Back to Profile
+          </Link>
+          <h1 className={styles.title}>Edit<br/>Profile</h1>
+          
+          <div className={styles.avatarSection}>
+            <div className={styles.avatarPreview}>
+              {avatarPreview || user?.avatar_url ? (
+                <img src={avatarPreview ?? user!.avatar_url} alt={fullName} className={styles.avatarImg} />
+              ) : (
+                <span className={styles.avatarPlaceholder}>{initials}</span>
+              )}
+            </div>
+            <div className={styles.avatarInfo}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleAvatarChange}
+              />
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+              >
+                <Camera size={14} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                {isUploadingAvatar ? 'Uploading...' : avatarFile ? 'Change Photo' : 'Update Photo'}
+              </button>
+              <p className={styles.hint}>JPG/PNG/WEBP. MAX 2MB.</p>
+              {avatarFile && <p className={styles.hint} style={{ color: 'var(--color-lime)' }}>✓ {avatarFile.name}</p>}
+            </div>
+          </div>
+        </aside>
+
+        {/* ── MAIN CONTENT ── */}
+        <main className={styles.main}>
+          <form onSubmit={handleSave} className={styles.form}>
+            
+            {/* ── SECTION 01: IDENTITY ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionNumber}>01</div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Identity</h2>
+                </div>
+                <div className={styles.grid}>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="fullName">Full Name</label>
+                    <input
+                      id="fullName"
+                      className="input"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      placeholder="Zia Ahmed"
+                      required
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="username">Username</label>
+                    <div className={styles.usernameWrapper}>
+                      <span className={styles.atSign}>@</span>
+                      <input
+                        id="username"
+                        className={`input ${styles.usernameInput}`}
+                        value={username}
+                        onChange={handleUsernameChange}
+                        placeholder="zia_ahmed"
+                        maxLength={30}
+                        required
+                      />
+                      <span className={styles.usernameStatus}>
+                        {usernameState === 'checking' && <Loader size={16} className={styles.spin} />}
+                        {usernameState === 'available' && <CheckCircle size={16} style={{ color: 'var(--color-lime)' }} />}
+                        {usernameState === 'taken' && <XCircle size={16} style={{ color: 'var(--color-red)' }} />}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── SECTION 02: PROFESSIONAL ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionNumber}>02</div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Professional Specs</h2>
+                </div>
+                
+                <div className={styles.field}>
+                  <label className={styles.label}>Disciplines (Select 1-3)</label>
+                  <div className={styles.disciplineSelect}>
+                    {DISCIPLINE_OPTIONS.map(d => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => toggleDiscipline(d)}
+                        className={`${styles.disciplineChip} ${disciplines.includes(d) ? styles.disciplineChipActive : ''}`}
+                        style={{ 
+                          backgroundColor: disciplines.includes(d) ? DISCIPLINE_COLORS[d] : 'var(--bg)',
+                          color: disciplines.includes(d) ? 'var(--color-ink)' : 'var(--text)'
+                        }}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="bio">Short Catchphrase</label>
+                  <input
+                    id="bio"
+                    className="input"
+                    value={bio}
+                    onChange={e => setBio(e.target.value)}
+                    placeholder="E.g. Capturing the soul of Karachi's streets."
+                  />
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="detailedBio">Full Biography</label>
+                  <textarea
+                    id="detailedBio"
+                    className={`input ${styles.textarea}`}
+                    value={detailedBio}
+                    onChange={e => setDetailedBio(e.target.value)}
+                    placeholder="Your story, technical background, and creative vision..."
+                  />
+                </div>
+
+                <div className={styles.grid}>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="availability">Current Availability</label>
+                    <select id="availability" className="input" value={availability} onChange={e => setAvailability(e.target.value as any)}>
+                      <option value="available">Available for Projects</option>
+                      <option value="busy">Busy / Engaged</option>
+                      <option value="unavailable">Not Active</option>
+                    </select>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="city">Base City</label>
+                    <select id="city" className="input" value={city} onChange={e => setCity(e.target.value)}>
+                      <option value="">— Select city —</option>
+                      {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── SECTION 03: LOGISTICS ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionNumber}>03</div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Rates & Logistics</h2>
+                </div>
+                <div className={styles.grid}>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="startingRate">Starting Rate (PKR)</label>
+                    <div className={styles.rateInputWrapper}>
+                      <span className={styles.currency}>Rs.</span>
+                      <input
+                        id="startingRate"
+                        type="number"
+                        className={`input ${styles.rateInput}`}
+                        value={startingRate}
+                        onChange={e => setStartingRate(e.target.value === '' ? '' : Number(e.target.value))}
+                        placeholder="5000"
+                        disabled={ratesOnRequest}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label}>Rate Policy</label>
+                    <div className={styles.toggleRow} onClick={() => setRatesOnRequest(!ratesOnRequest)}>
+                      <div className={styles.toggleLabel}>
+                        <span className={styles.toggleTitle}>Rates on request</span>
+                        <span className={styles.toggleDesc}>Price hidden from profile</span>
+                      </div>
+                      {ratesOnRequest ? <ToggleRight size={28} color="var(--color-yellow)" /> : <ToggleLeft size={28} color="var(--text-faint)" />}
+                    </div>
+                  </div>
+                  <div className={styles.fieldFull}>
+                    <div className={styles.toggleRow} onClick={() => setTravelAvailable(!travelAvailable)}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <Plane size={20} color="var(--color-yellow)" />
+                        <div className={styles.toggleLabel}>
+                          <span className={styles.toggleTitle}>National Travel Available</span>
+                          <span className={styles.toggleDesc}>I can travel outside my base city for work</span>
+                        </div>
+                      </div>
+                      {travelAvailable ? <ToggleRight size={28} color="var(--color-yellow)" /> : <ToggleLeft size={28} color="var(--text-faint)" />}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── SECTION 04: CONNECT ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionNumber}>04</div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Digital Index</h2>
+                </div>
+                <div className={styles.grid}>
+                  <div className={styles.field}>
+                    <label className={styles.label}>Instagram</label>
+                    <div className={styles.usernameWrapper}>
+                      <span className={styles.atSign}><IgIcon /></span>
+                      <input
+                        className={`input ${styles.usernameInput}`}
+                        value={instagram}
+                        onChange={e => setInstagram(e.target.value)}
+                        placeholder="handle"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label}>Website</label>
+                    <div className={styles.usernameWrapper}>
+                      <span className={styles.atSign}><Globe size={14} /></span>
+                      <input
+                        className={`input ${styles.usernameInput}`}
+                        value={website}
+                        onChange={e => setWebsite(e.target.value)}
+                        placeholder="https://yourwork.com"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label}>Behance</label>
+                    <div className={styles.usernameWrapper}>
+                      <span className={styles.atSign}><BehanceIcon /></span>
+                      <input
+                        className={`input ${styles.usernameInput}`}
+                        value={behance}
+                        onChange={e => setBehance(e.target.value)}
+                        placeholder="https://behance.net/profile"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label}>LinkedIn</label>
+                    <div className={styles.usernameWrapper}>
+                      <span className={styles.atSign}><LinkedInIcon /></span>
+                      <input
+                        className={`input ${styles.usernameInput}`}
+                        value={linkedin}
+                        onChange={e => setLinkedin(e.target.value)}
+                        placeholder="https://linkedin.com/in/name"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── ACTIONS ── */}
+            <AnimatePresence>
+              {isDirty && (
+                <motion.div 
+                  initial={{ y: 100, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 100, opacity: 0 }}
+                  className={styles.actionsBar}
+                >
+                  {saveError && <p className={styles.error}>⚠ {saveError}</p>}
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <Link href={`/profile/${user?.username}`} className="btn btn-ghost btn-md">Discard</Link>
+                    <button
+                      type="submit"
+                      className={`btn btn-primary btn-md ${styles.saveBtn}`}
+                      disabled={isSaving || !canSave}
+                    >
+                      {saved ? 'Saved!' : isSaving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+          </form>
+        </main>
+      </div>
+    </div>
+  );
+}

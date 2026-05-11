@@ -4,9 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import gsap from 'gsap';
-import { X, ZoomIn, Maximize2, ChevronLeft, ChevronRight, Mail, UserPlus } from 'lucide-react';
+import { X, ZoomIn, Maximize2, ChevronLeft, ChevronRight, Mail, UserPlus, Heart, Star, User } from 'lucide-react';
 import { CommissionEnquiry } from './CommissionEnquiry';
+import { FollowAuthModal } from './FollowAuthModal';
+import { followArtist, unfollowArtist, isFollowing } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import styles from './ControlTemplate.module.css';
 
 interface ControlTemplateProps {
@@ -15,8 +19,13 @@ interface ControlTemplateProps {
 }
 
 interface Project {
+  id: string;
   cover_image_url: string;
   title: string;
+  description: string;
+  discipline: string;
+  format: string;
+  year: number;
   items: any[];
 }
 
@@ -46,16 +55,116 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isCommissionOpen, setIsCommissionOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
+  const [isFollowed, setIsFollowed] = useState(false);
+  const [followerCount, setFollowerCount] = useState<number>(profile.follower_count ?? 0);
+  const [isFollowAuthOpen, setIsFollowAuthOpen] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewStar, setReviewStar] = useState(0);
+  const [reviewBody, setReviewBody] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [localReviews, setLocalReviews] = useState<any[]>(profile.reviews || []);
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    isFollowing(profile.user.id, user.id).then(setIsFollowed);
+  }, [user, profile.user.id]);
+
+  useEffect(() => {
+    if (!user || user.id === profile.user.id) return;
+    (async () => {
+      const { supabase: sb } = await import('@/lib/supabase');
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ op: 'checkProfileReviewEligibility', revieweeId: profile.user.id }),
+      });
+      const data = await res.json();
+      setHasReviewed(data.hasReviewed ?? false);
+    })();
+  }, [user, profile.user.id]);
+
+  const handleReviewSubmit = async () => {
+    if (reviewStar === 0 || reviewSubmitting) return;
+    setReviewSubmitting(true);
+    setReviewError(null);
+    try {
+      const { supabase: sb } = await import('@/lib/supabase');
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch('/api/db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+        body: JSON.stringify({ op: 'submitProfileReview', revieweeId: profile.user.id, rating: reviewStar, body: reviewBody.trim() || undefined }),
+      });
+      const result = await res.json();
+      if (result.error) throw new Error(result.error);
+      setLocalReviews(prev => [{
+        id: `tmp-${Date.now()}`,
+        reviewer: { id: user!.id, full_name: user!.full_name, username: user!.username, avatar_url: user!.avatar_url },
+        rating: reviewStar,
+        body: reviewBody.trim() || undefined,
+        created_at: new Date().toISOString(),
+      }, ...prev]);
+      setHasReviewed(true);
+    } catch (err: any) {
+      setReviewError(err.message ?? 'Failed to submit review');
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
+  const applyFollow = async (userId: string) => {
+    try {
+      await followArtist(profile.user.id, userId);
+      setIsFollowed(true);
+      setFollowerCount(c => c + 1);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!user) {
+      setIsFollowAuthOpen(true);
+      return;
+    }
+    try {
+      if (isFollowed) {
+        await unfollowArtist(profile.user.id, user.id);
+        setIsFollowed(false);
+        setFollowerCount(c => Math.max(0, c - 1));
+      } else {
+        await applyFollow(user.id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const projects: Project[] = profile.projects || [];
 
   // Create a flat list of all gallery images for navigation
   const allMedia = useMemo(() => {
+    const portfolioByUrl = new Map(
+      (profile.portfolio as any[]).map((p: any) => [p.image_url, p])
+    );
     const media: any[] = [];
     projects.forEach((p: Project) => {
       media.push({ image_url: p.cover_image_url, title: p.title, project: p.title });
       p.items.forEach((item: any) => {
-        media.push({ ...item, project: p.title });
+        const fallback = portfolioByUrl.get(item.image_url);
+        media.push({
+          ...item,
+          title: item.title || fallback?.title,
+          description: item.description || fallback?.description,
+          project: p.title,
+        });
       });
     });
     profile.portfolio.forEach((item: any) => {
@@ -241,9 +350,9 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   }
                 }}
               >
-                <Image 
-                  src={selectedImage.image_url} 
-                  alt={selectedImage.title} 
+                <Image
+                  src={selectedImage.image_url}
+                  alt={selectedImage.title || ''}
                   fill
                   className={styles.lightboxImage}
                 />
@@ -251,8 +360,13 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
               <div className={styles.lightboxMeta}>
                 <span className={styles.navLabel}>// {selectedImage.project}</span>
-                <h3>{selectedImage.title || 'Untitled Work'}</h3>
-                <p>Curated by {profile.user.full_name} · 2024</p>
+                {selectedImage.title && <h3>{selectedImage.title}</h3>}
+                <p>Curated by {profile.user.full_name}</p>
+                {selectedImage.description && (
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6, marginTop: '12px' }}>
+                    {selectedImage.description}
+                  </p>
+                )}
                 <div className={styles.lightboxCounter}>
                   {(selectedIndex ?? 0) + 1} / {allMedia.length}
                 </div>
@@ -292,6 +406,28 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
           <p className={styles.bio}>{profile.profile.bio}</p>
 
+          <div className={styles.navSection} aria-label="Technical specifications">
+            <span className={styles.navLabel}>// Technical Specs</span>
+            <div className={styles.specsList}>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>RATE:</span>
+                <span className={styles.specValue}>PKR {profile.profile.starting_rate?.toLocaleString()}+</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>PROJECTS:</span>
+                <span className={styles.specValue}>{profile.project_count}</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>FOLLOWERS:</span>
+                <span className={styles.specValue}>{followerCount.toLocaleString()}</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specLabel}>LOCATION:</span>
+                <span className={styles.specValue}>{profile.user.city?.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+
           <nav className={styles.navSection}>
             <span className={styles.navLabel}>// Navigation Index</span>
             <button 
@@ -299,7 +435,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               onClick={() => setIsAboutOpen(true)}
               aria-label="View artist biography and technical specifications"
             >
-              [ ABOUT THE ARTIST ]
+              ABOUT THE ARTIST
             </button>
             {projects.map((project: any) => (
               <button 
@@ -316,46 +452,52 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
             ))}
           </nav>
 
-          <div className={styles.navSection} aria-label="Technical specifications">
-            <span className={styles.navLabel}>// Technical Specs</span>
-            <div className={styles.specsList}>
-              <div className={styles.specRow}>
-                <span className={styles.specLabel}>RATE:</span>
-                <span className={styles.specValue}>PKR {profile.profile.starting_rate?.toLocaleString()}+</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specLabel}>PROJECTS:</span>
-                <span className={styles.specValue}>{profile.project_count}</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specLabel}>LOCATION:</span>
-                <span className={styles.specValue}>{profile.user.city?.toUpperCase()}</span>
-              </div>
-            </div>
-          </div>
-
           {events?.data?.length > 0 && (
             <div className={styles.navSection}>
               <span className={styles.navLabel}>// Active Events</span>
-              {events.data.map((item: any) => (
-                <div key={item.event.id} style={{ marginBottom: '12px' }}>
-                  <p style={{ fontFamily: 'var(--font-display)', fontSize: '14px', textTransform: 'uppercase' }}>{item.event.title}</p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', opacity: 0.6 }}>{new Date(item.event.starts_at).toLocaleDateString()}</p>
-                </div>
-              ))}
+              <div className={styles.sidebarEvents}>
+                {events.data.map((item: any) => (
+                  <Link 
+                    key={item.event.id} 
+                    href={`/events/${item.event.id}`}
+                    className={styles.eventSidebarCard}
+                  >
+                    <div className={styles.eventSidebarTop}>
+                      <div className={styles.eventSidebarBadge}>LIVE</div>
+                      <div className={styles.eventSidebarPrice}>
+                        {item.event.is_free ? 'FREE' : `PKR ${item.event.min_price.toLocaleString()}`}
+                      </div>
+                    </div>
+                    <div className={styles.eventSidebarInfo}>
+                      <h4 className={styles.eventSidebarTitle}>{item.event.title}</h4>
+                      <p className={styles.eventSidebarDate}>
+                        {new Date(item.event.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toUpperCase()}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </div>
         {/* ── ACTION FOOTER ── */}
         <div className={styles.actionFooter}>
-          <button 
+          <button
             className={styles.messageBtn}
             onClick={() => router.push(`/messages?recipient=${profile.user.username}`)}
           >
             <Mail size={16} />
             <span>Message</span>
           </button>
-          <button 
+          <button
+            className={`${styles.followBtn} ${isFollowed ? styles.followBtnActive : ''}`}
+            onClick={handleFollow}
+            aria-label={isFollowed ? 'Unfollow artist' : 'Follow artist'}
+          >
+            <Heart size={16} fill={isFollowed ? 'currentColor' : 'none'} />
+            <span>{isFollowed ? 'Following' : 'Follow'}</span>
+          </button>
+          <button
             className={styles.hireBtn}
             onClick={() => setIsCommissionOpen(true)}
           >
@@ -366,7 +508,130 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       </aside>
 
       {/* ── RIGHT SECTION: THE STAGE ── */}
+      {/* ── RIGHT SECTION: THE STAGE ── */}
       <main className={styles.stage} ref={stageRef}>
+        {/* ── REVIEWS DROPDOWN (NEW TOP POSITION) ── */}
+        <section className={styles.reviewsDropdown}>
+          <button 
+            className={styles.dropdownHeader} 
+            onClick={() => setIsReviewsOpen(!isReviewsOpen)}
+            aria-expanded={isReviewsOpen}
+          >
+            <div className={styles.dropdownHeaderLeft}>
+              <span className={styles.navLabel}>// Public Feedback</span>
+              <div className={styles.avgRatingBrief}>
+                <div className={styles.starsRow}>
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Star 
+                      key={i} 
+                      size={12} 
+                      fill={i <= profile.review_average ? 'var(--color-yellow)' : 'none'} 
+                      color={i <= profile.review_average ? 'var(--color-yellow)' : 'var(--border-color)'} 
+                    />
+                  ))}
+                </div>
+                <span className={styles.avgValue}>
+                  {profile.review_average.toFixed(1)} AVG · {localReviews.length} REVIEWS
+                </span>
+              </div>
+            </div>
+            <motion.div
+              animate={{ rotate: isReviewsOpen ? 180 : 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <ChevronRight size={20} style={{ transform: 'rotate(90deg)', opacity: 0.5 }} />
+            </motion.div>
+          </button>
+
+          <AnimatePresence>
+            {isReviewsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className={styles.dropdownContent}
+              >
+                <div className={styles.reviewsInner}>
+                  {/* form — logged-in non-owners who haven't reviewed */}
+                  {user && user.id !== profile.user.id && !hasReviewed && (
+                    <div className={styles.reviewSubmissionForm}>
+                      <span className={styles.formLabel}>LEAVE A REVIEW</span>
+                      <div className={styles.starPickerRow}>
+                        {[1, 2, 3, 4, 5].map((i) => {
+                          const active = i <= (reviewHover || reviewStar);
+                          return (
+                            <button 
+                              key={i} 
+                              onMouseEnter={() => setReviewHover(i)} 
+                              onMouseLeave={() => setReviewHover(0)} 
+                              onClick={() => setReviewStar(i)}
+                              className={styles.starPickerBtn}
+                            >
+                              <Star size={20} fill={active ? 'var(--color-yellow)' : 'none'} color={active ? 'var(--color-yellow)' : 'var(--border-color)'} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <textarea 
+                        value={reviewBody} 
+                        onChange={(e) => setReviewBody(e.target.value)}
+                        placeholder="Share your experience... (optional)" 
+                        maxLength={500} 
+                        rows={3}
+                        className={styles.reviewInput}
+                      />
+                      <div className={styles.formActions}>
+                        <span className={styles.charCount}>{reviewBody.length}/500</span>
+                        <button 
+                          onClick={handleReviewSubmit} 
+                          disabled={reviewStar === 0 || reviewSubmitting}
+                          className={styles.submitReviewBtn}
+                        >
+                          {reviewSubmitting ? 'SUBMITTING...' : 'SUBMIT REVIEW'}
+                        </button>
+                      </div>
+                      {reviewError && <p className={styles.formError}>{reviewError}</p>}
+                    </div>
+                  )}
+
+                  {localReviews.length > 0 ? (
+                    <div className={styles.reviewsList}>
+                      {localReviews.map((review: any) => (
+                        <div key={review.id} className={styles.reviewCard}>
+                          <div className={styles.reviewCardHeader}>
+                            <div className={styles.reviewerInfo}>
+                              {review.reviewer?.avatar_url
+                                ? <img src={review.reviewer.avatar_url} alt="" className={styles.reviewerThumb} />
+                                : (
+                                  <div className={styles.reviewerThumbPlaceholder}>
+                                    <User size={16} color="var(--text-faint)" strokeWidth={1.5} />
+                                  </div>
+                                )}
+                              <div className={styles.reviewerText}>
+                                <span className={styles.reviewerName}>{review.reviewer?.full_name}</span>
+                                <div className={styles.reviewerStars}>
+                                  {[1,2,3,4,5].map(i => <Star key={i} size={8} fill={i <= review.rating ? 'var(--color-yellow)' : 'none'} color={i <= review.rating ? 'var(--color-yellow)' : 'var(--border-color)'} />)}
+                                </div>
+                              </div>
+                            </div>
+                            <span className={styles.reviewDate}>
+                              {new Date(review.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}
+                            </span>
+                          </div>
+                          {review.body && <p className={styles.reviewBodyText}>{review.body}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={styles.noReviews}>NO REVIEWS YET.</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+
         {projects.map((project: any, pIndex: number) => (
           <section key={project.id} id={project.id} className={styles.projectBlock}>
             <div className={styles.projectIdentity}>
@@ -424,9 +689,9 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   <p className={styles.projectDesc}>{project.description}</p>
                </div>
                <div className={styles.projectSpecs}>
-                  <span>// FORMAT: DIGITAL 35MM</span>
-                  <span>// YEAR: 2024</span>
-                  <span>// TAG: {project.discipline}</span>
+                  <span>// FORMAT: {project.format?.toUpperCase() || 'N/A'}</span>
+                  <span>// YEAR: {project.year || 'N/A'}</span>
+                  <span>// TAG: {project.discipline?.toUpperCase()}</span>
                </div>
             </div>
           </section>
@@ -463,14 +728,26 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
           </section>
         )}
 
-        {/* Spacer for bottom */}
+
         <div style={{ height: '200px' }} />
       </main>
       {/* Commission Modal */}
       {isCommissionOpen && (
-        <CommissionEnquiry 
-          artist={profile} 
-          onClose={() => setIsCommissionOpen(false)} 
+        <CommissionEnquiry
+          artist={profile}
+          onClose={() => setIsCommissionOpen(false)}
+        />
+      )}
+      {/* Follow Auth Modal */}
+      {isFollowAuthOpen && (
+        <FollowAuthModal
+          artistName={profile.user.full_name}
+          artistUsername={profile.user.username}
+          onAuthenticated={(userId) => {
+            setIsFollowAuthOpen(false);
+            applyFollow(userId);
+          }}
+          onClose={() => setIsFollowAuthOpen(false)}
         />
       )}
     </div>
