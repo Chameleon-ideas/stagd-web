@@ -408,6 +408,11 @@ export async function verifyTicket(ticketId: string, eventId?: string): Promise<
   return dbWrite('verifyTicket', { ticketId, eventId });
 }
 
+export async function getRecentScans(eventId?: string): Promise<(VerifyResult & { scanned_at: string })[]> {
+  const { scans } = await dbWrite('getRecentScans', { eventId, limit: 30 });
+  return scans ?? [];
+}
+
 // ════════════════════════════════════════════════════════════
 // MESSAGES
 // ════════════════════════════════════════════════════════════

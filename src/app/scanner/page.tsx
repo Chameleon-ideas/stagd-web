@@ -3,7 +3,7 @@
 import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import jsQR from 'jsqr';
-import { verifyTicket } from '@/lib/api';
+import { verifyTicket, getRecentScans } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import type { VerifyResult } from '@/lib/types';
 import { 
@@ -45,7 +45,8 @@ function ScannerInner() {
   const [scanError, setScanError] = useState<string | null>(null);
   const [lastScannedRaw, setLastScannedRaw] = useState<string | null>(null);
   const [recentScans, setRecentScans] = useState<RecentScan[]>([]);
-  
+  const [activityLoading, setActivityLoading] = useState(true);
+
   const [stats, setStats] = useState({ checkedIn: 0, total: 0 });
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -57,19 +58,25 @@ function ScannerInner() {
   
   useEffect(() => { eventIdRef.current = eventId; }, [eventId]);
 
-  // Load real attendance stats from DB
+  // Load attendance stats + scan history from DB
   useEffect(() => {
-    async function loadStats() {
+    async function loadData() {
       let totalQuery = supabase.from('tickets').select('*', { count: 'exact', head: true });
       let checkedInQuery = supabase.from('tickets').select('*', { count: 'exact', head: true }).not('scanned_at', 'is', null);
       if (eventId) {
         totalQuery = totalQuery.eq('event_id', eventId);
         checkedInQuery = checkedInQuery.eq('event_id', eventId);
       }
-      const [{ count: total }, { count: checkedIn }] = await Promise.all([totalQuery, checkedInQuery]);
+      const [{ count: total }, { count: checkedIn }, history] = await Promise.all([
+        totalQuery,
+        checkedInQuery,
+        getRecentScans(eventId),
+      ]);
       setStats({ total: total ?? 0, checkedIn: checkedIn ?? 0 });
+      setRecentScans(history.map(s => ({ ...s, timestamp: new Date(s.scanned_at) })));
+      setActivityLoading(false);
     }
-    loadStats();
+    loadData();
   }, [eventId]);
 
   const stopCamera = useCallback(() => {
@@ -112,13 +119,17 @@ function ScannerInner() {
           setScanResult(result);
           setScanState('result');
           
-          // Add to recent scans
-          setRecentScans(prev => [{ ...result, timestamp: new Date() }, ...prev].slice(0, 10));
-          
+          const now = new Date();
+          setRecentScans(prev => {
+            // For valid scans the DB record already exists — replace if present, otherwise prepend
+            const filtered = result.status === 'valid'
+              ? prev.filter(s => s.ticket_id !== result.ticket_id)
+              : prev;
+            return [{ ...result, timestamp: now }, ...filtered].slice(0, 30);
+          });
+
           if (result.status === 'valid') {
             setStats(s => ({ ...s, checkedIn: s.checkedIn + 1 }));
-          } else if (result.status === 'already_used') {
-            // already counted — no change needed
           }
         })
         .catch(() => {
@@ -287,26 +298,40 @@ function ScannerInner() {
 
       {/* ── ACTIVITY AREA ────────────────────────────────────────── */}
       <aside className={styles.activityArea}>
-        <div className={styles.activityHeader}>RECENT ACTIVITY</div>
-        
+        <div className={styles.activityHeader}>SCAN LOG</div>
+
         <div className={styles.activityList}>
-          {recentScans.length === 0 ? (
+          {activityLoading ? (
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-faint)', textAlign: 'center', padding: '40px 0' }}>
+              LOADING...
+            </div>
+          ) : recentScans.length === 0 ? (
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-faint)', textAlign: 'center', padding: '40px 0' }}>
               NO SCAN HISTORY YET
             </div>
           ) : (
             recentScans.map((scan, i) => {
               const cfg = getStatusConfig(scan.status);
+              const actionLabel = scan.status === 'valid' ? 'CHECKED IN'
+                : scan.status === 'already_used' ? 'ALREADY SCANNED'
+                : scan.status === 'wrong_event' ? 'WRONG EVENT'
+                : 'DENIED';
               return (
-                <div key={i} className={styles.activityItem}>
+                <div key={`${scan.ticket_id}-${i}`} className={styles.activityItem}>
                   <div className={styles.activityStatus} style={{ background: cfg.color }} />
                   <div className={styles.activityInfo}>
-                    <div className={styles.activityName}>{scan.buyer_name || 'ANONYMOUS GUEST'}</div>
+                    <div className={styles.activityName}>{scan.buyer_name || 'UNKNOWN GUEST'}</div>
                     <div className={styles.activityMeta}>
-                      {scan.tier_name} · {scan.timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      <span style={{ color: cfg.color, fontWeight: 600 }}>{actionLabel}</span>
+                      {scan.tier_name && <span> · {scan.tier_name}</span>}
+                    </div>
+                    <div className={styles.activityTime}>
+                      {scan.timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      {' · '}
+                      {scan.timestamp.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                     </div>
                   </div>
-                  <div style={{ color: cfg.color }}>
+                  <div style={{ color: cfg.color, flexShrink: 0 }}>
                     {scan.status === 'valid' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
                   </div>
                 </div>

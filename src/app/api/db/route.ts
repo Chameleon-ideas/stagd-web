@@ -33,7 +33,36 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { op } = body;
 
-  // verifyTicket is public — door staff may not be logged in.
+  // Public ops — door staff may not be logged in.
+  if (op === 'getRecentScans') {
+    const { eventId: evId, limit = 30 } = body;
+    let query = supabaseAdmin
+      .from('tickets')
+      .select(`
+        ticket_id, buyer_name, scanned_at,
+        tier:ticket_tiers(name),
+        event:events(title)
+      `)
+      .not('scanned_at', 'is', null)
+      .order('scanned_at', { ascending: false })
+      .limit(limit);
+    if (evId) query = query.eq('event_id', evId);
+    const { data } = await query;
+    const scans = (data ?? []).map((row: any) => {
+      const tier = Array.isArray(row.tier) ? row.tier[0] : row.tier;
+      const event = Array.isArray(row.event) ? row.event[0] : row.event;
+      return {
+        status: 'valid' as const,
+        ticket_id: row.ticket_id,
+        buyer_name: row.buyer_name,
+        tier_name: tier?.name,
+        event_title: event?.title,
+        scanned_at: row.scanned_at,
+      };
+    });
+    return NextResponse.json({ scans });
+  }
+
   if (op === 'verifyTicket') {
     const { ticketId, eventId: evId } = body;
     if (!ticketId) return NextResponse.json({ status: 'not_recognised' });
