@@ -15,7 +15,7 @@ import {
   sendProposal, acceptProposal, declineProposal,
   updatePaymentStatus, updateCommissionStatus,
   requestCompletion, confirmCompletion, rejectCompletion,
-  sendInvoice, submitCommissionReview,
+  sendInvoice, submitCommissionReview, submitReport,
   type Conversation, type Message,
 } from '@/lib/api';
 import type { CommissionDetails, Proposal, PaymentStatus } from '@/lib/types';
@@ -479,16 +479,21 @@ function MessagesContent() {
   const handleReportSubmit = async () => {
     if (!activeConv || !user) return;
     setReportSubmitting(true);
-    await supabase.from('reports').insert({
-      reporter_id: user.id,
-      reported_user_id: activeConv.otherParty.id,
-      commission_id: activeConvId,
-      reason: reportReason.trim() || null,
-    });
-    setReportSubmitting(false);
-    setShowReportModal(false);
-    setReportReason('');
-    alert('Report submitted.');
+    try {
+      const { error } = await submitReport(
+        activeConv.otherParty.id,
+        activeConvId,
+        reportReason.trim(),
+      );
+      if (error) throw new Error(error);
+      setShowReportModal(false);
+      setReportReason('');
+      alert('Report submitted.');
+    } catch {
+      alert('Failed to submit report. Please try again.');
+    } finally {
+      setReportSubmitting(false);
+    }
   };
 
   const openPreview = (msg: Message) => { setPreviewAsset(msg); setShowPreviewPane(true); };

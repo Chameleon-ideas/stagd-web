@@ -577,7 +577,7 @@ export async function uploadMessageAttachment(file: File, userId: string): Promi
 
 export async function submitCommission(
   artistProfileId: string,
-  clientId: string,
+  _clientId: string,
   data: {
     discipline: string;
     deliverable: string;
@@ -591,29 +591,10 @@ export async function submitCommission(
   const timeout = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error('Commission request timed out. Please try again.')), 12000)
   );
-  const insert = supabase
-    .from('commissions')
-    .insert({
-      artist_id: artistProfileId,
-      client_id: clientId,
-      status: 'enquiry',
-      payment_status: 'unpaid',
-      brief_what: `${data.discipline}: ${data.deliverable}${data.brief ? '\n\n' + data.brief : ''}`,
-      brief_budget: `PKR ${data.budget.toLocaleString()}`,
-      brief_timeline: `${data.deadline} (${data.duration})`,
-      brief_discipline: data.discipline,
-      brief_deliverable: data.deliverable,
-      brief_description: data.brief || null,
-      brief_deadline: data.deadline || null,
-      brief_duration: data.duration,
-      brief_budget_amount: data.budget,
-      brief_reference: data.referenceImageUrl ?? null,
-    })
-    .select('id')
-    .single()
-    .then(({ data: row, error }) => {
-      if (error) throw new Error(error.message ?? JSON.stringify(error));
-      return row.id as string;
+  const insert = dbWrite('submitCommission', { artistProfileId, data })
+    .then((res: any) => {
+      if (res.error) throw new Error(res.error);
+      return res.id as string;
     });
   return Promise.race([insert, timeout]);
 }
@@ -995,5 +976,13 @@ async function enrichTiersWithAvailability(events: any[]): Promise<any[]> {
       is_sold_out: tiers.length > 0 && tiers.every((t: any) => t.capacity > 0 && t.spots_remaining === 0),
     };
   });
+}
+
+export async function submitReport(
+  reportedUserId: string,
+  commissionId: string | null,
+  reason: string,
+): Promise<{ error: string | null }> {
+  return dbWrite('submitReport', { reportedUserId, commissionId, reason });
 }
 

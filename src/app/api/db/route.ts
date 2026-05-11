@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { sendMail } from '@/lib/mail';
 
 async function generateEventSlug(title: string, admin: SupabaseClient): Promise<string> {
   const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -406,6 +407,92 @@ export async function POST(req: NextRequest) {
 
       // ── COMMISSIONS FLOW ──────────────────────────────────
 
+      case 'submitCommission': {
+        if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const { artistProfileId, data: cd } = body;
+
+        const { data: row, error: insertErr } = await supabaseAdmin
+          .from('commissions')
+          .insert({
+            artist_id: artistProfileId,
+            client_id: userId,
+            status: 'enquiry',
+            payment_status: 'unpaid',
+            brief_what: `${cd.discipline}: ${cd.deliverable}${cd.brief ? '\n\n' + cd.brief : ''}`,
+            brief_budget: `PKR ${Number(cd.budget).toLocaleString()}`,
+            brief_timeline: `${cd.deadline} (${cd.duration})`,
+            brief_discipline: cd.discipline,
+            brief_deliverable: cd.deliverable,
+            brief_description: cd.brief || null,
+            brief_deadline: cd.deadline || null,
+            brief_duration: cd.duration,
+            brief_budget_amount: cd.budget,
+            brief_reference: cd.referenceImageUrl ?? null,
+          })
+          .select('id')
+          .single();
+        if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 });
+
+        // Fetch emails for both parties
+        const [{ data: { user: clientAuth } }, { data: artistRow }] = await Promise.all([
+          supabaseAdmin.auth.admin.getUserById(userId),
+          supabaseAdmin
+            .from('artist_profiles')
+            .select('id, profiles!inner(full_name, username)')
+            .eq('id', artistProfileId)
+            .single(),
+        ]);
+        const artistProfile = artistRow as any;
+        const artistUserId: string = artistProfile?.id;
+        const artistName: string = artistProfile?.profiles?.full_name ?? 'the creative';
+        const artistUsername: string = artistProfile?.profiles?.username ?? '';
+        const clientName: string = clientAuth?.user_metadata?.full_name ?? 'Someone';
+        const clientEmail: string | undefined = clientAuth?.email;
+
+        const { data: { user: artistAuth } } = await supabaseAdmin.auth.admin.getUserById(artistUserId);
+        const artistEmail: string | undefined = artistAuth?.email;
+
+        const messagesUrl = 'https://stagd.app/messages';
+
+        // Email to client
+        if (clientEmail) {
+          sendMail({
+            to: clientEmail,
+            subject: `Brief sent to ${artistName} — Stag'd`,
+            html: `
+              <p>Hi ${clientName},</p>
+              <p>Your brief has been sent to <strong>${artistName}</strong>. They'll review it and get back to you shortly.</p>
+              <p><strong>What you sent:</strong><br/>
+              ${cd.discipline} — ${cd.deliverable}<br/>
+              Budget: PKR ${Number(cd.budget).toLocaleString()}<br/>
+              Timeline: ${cd.deadline} (${cd.duration})</p>
+              <p><a href="${messagesUrl}">View your conversation →</a></p>
+              <p style="color:#888;font-size:12px;">Stag'd · stagd.app</p>
+            `,
+          }).catch(() => {});
+        }
+
+        // Email to artist
+        if (artistEmail) {
+          sendMail({
+            to: artistEmail,
+            subject: `New commission enquiry from ${clientName} — Stag'd`,
+            html: `
+              <p>Hi ${artistName},</p>
+              <p>You have a new commission enquiry from <strong>${clientName}</strong>.</p>
+              <p><strong>Brief:</strong><br/>
+              ${cd.discipline} — ${cd.deliverable}<br/>
+              Budget: PKR ${Number(cd.budget).toLocaleString()}<br/>
+              Timeline: ${cd.deadline} (${cd.duration})</p>
+              <p><a href="${messagesUrl}">Respond in messages →</a></p>
+              <p style="color:#888;font-size:12px;">Stag'd · stagd.app</p>
+            `,
+          }).catch(() => {});
+        }
+
+        return NextResponse.json({ id: row.id, error: null });
+      }
+
       case 'sendProposal': {
         const { commissionId, data: propData } = body;
         // Verify caller is the artist on this commission
@@ -739,6 +826,38 @@ export async function POST(req: NextRequest) {
             .eq('id', itemIds[i]);
           if (error) return NextResponse.json({ error: error.message });
         }
+        return NextResponse.json({ error: null });
+      }
+
+      case 'submitReport': {
+        const { reportedUserId, commissionId, reason } = body;
+        if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        const { error } = await supabaseAdmin.from('reports').insert({
+          reporter_id: userId,
+          reported_user_id: reportedUserId,
+          commission_id: commissionId ?? null,
+          reason: reason ?? null,
+        });
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+        // Slack DM to admin
+        const slackToken = process.env.SLACK_BOT_TOKEN;
+        if (slackToken) {
+          const { data: reporter } = await supabaseAdmin
+            .from('profiles').select('username, full_name').eq('id', userId).single();
+          const { data: reported } = await supabaseAdmin
+            .from('profiles').select('username, full_name').eq('id', reportedUserId).single();
+          await fetch('https://slack.com/api/chat.postMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${slackToken}` },
+            body: JSON.stringify({
+              channel: 'D0AP9DR4BC0',
+              text: `🚩 *User Report — Stag'd*\n*Reporter:* ${reporter?.full_name ?? 'unknown'} (@${reporter?.username ?? userId})\n*Reported:* ${reported?.full_name ?? 'unknown'} (@${reported?.username ?? reportedUserId})\n*Reason:* ${reason?.trim() || '_(no reason given)_'}${commissionId ? `\n*Commission ID:* ${commissionId}` : ''}`,
+            }),
+          });
+        }
+
         return NextResponse.json({ error: null });
       }
 
