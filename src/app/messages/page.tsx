@@ -933,37 +933,35 @@ function MessagesContent() {
                 </div>
               </footer>
             </>
-          ) : (
-            {activeConvId?.startsWith('new:') && newArtist ? (
-              <div className={styles.emptyThread}>
-                <div className={styles.newThreadPrompt}>
-                  <div className={styles.promptHeader}>
-                    <button className={styles.mobileBackBtn} onClick={() => setActiveConvId(null)} aria-label="Back">
-                      <ChevronLeft size={24} />
-                    </button>
-                    <Image 
-                      src={newArtist.user.avatar_url || '/placeholder-avatar.png'} 
-                      alt={newArtist.user.full_name} 
-                      width={64} 
-                      height={64} 
-                      className={styles.promptAvatar} 
-                    />
-                    <h2 className={styles.promptName}>{newArtist.user.full_name}</h2>
-                    <p className={styles.promptSub}>@{newArtist.user.username}</p>
-                  </div>
-                  <div className={styles.promptBody}>
-                    <p>You haven't started a project with {newArtist.user.full_name.split(' ')[0]} yet.</p>
-                    <button className={styles.btnStartEnquiry} onClick={() => setShowEnquiryModal(true)}>
-                      Send Project Brief
-                    </button>
-                  </div>
+          ) : activeConvId?.startsWith('new:') && newArtist ? (
+            <div className={styles.emptyThread}>
+              <div className={styles.newThreadPrompt}>
+                <div className={styles.promptHeader}>
+                  <button className={styles.mobileBackBtn} onClick={() => setActiveConvId(null)} aria-label="Back">
+                    <ChevronLeft size={24} />
+                  </button>
+                  <Image 
+                    src={newArtist.user.avatar_url || '/placeholder-avatar.png'} 
+                    alt={newArtist.user.full_name} 
+                    width={64} 
+                    height={64} 
+                    className={styles.promptAvatar} 
+                  />
+                  <h2 className={styles.promptName}>{newArtist.user.full_name}</h2>
+                  <p className={styles.promptSub}>@{newArtist.user.username}</p>
+                </div>
+                <div className={styles.promptBody}>
+                  <p>You haven't started a project with {newArtist.user.full_name.split(' ')[0]} yet.</p>
+                  <button className={styles.btnStartEnquiry} onClick={() => setShowEnquiryModal(true)}>
+                    Send Project Brief
+                  </button>
                 </div>
               </div>
-            ) : (
-              <div className={styles.emptyState}>
-                <p>{user ? 'Select a conversation to start messaging' : 'Log in to view your messages'}</p>
-              </div>
-            )}
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <p>{user ? 'Select a conversation to start messaging' : 'Log in to view your messages'}</p>
+            </div>
           )}
         </section>
 
