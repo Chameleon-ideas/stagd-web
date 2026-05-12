@@ -7,7 +7,7 @@ import styles from './page.module.css';
 import { GSAPEntrance, GSAPHeroReveal } from '@/components/animations/GSAPEntrance';
 
 export const metadata: Metadata = {
-  title: 'Manifesto — Stagd',
+  title: 'Manifesto — Stag'd',
   description: 'The creative economy is here. Found. Hired. Celebrated.',
 };
 
@@ -30,7 +30,7 @@ export default function AboutPage() {
                 Found. Hired. Celebrated.
               </div>
               <p className={styles.heroBody} data-animate="hero">
-                Stagd is Pakistan's premier professional registry and discovery engine,
+                Stag'd is Pakistan's premier professional registry and discovery engine,
                 architected specifically for the independent creative class. We provide the
                 infrastructure to connect world-class talent with the brands, collectors,
                 and global audiences who define modern culture.
@@ -49,7 +49,7 @@ export default function AboutPage() {
                   <div className={styles.cardNum}>[ 01 ]</div>
                   <h2 className={styles.cardTitle}>DISCOVERY</h2>
                   <p className={styles.cardBody}>
-                    The era of informal networks is over. Stagd provides a high-fidelity, verified
+                    The era of informal networks is over. Stag'd provides a high-fidelity, verified
                     database for the creative sector. Discover the precise talent required for
                     your next vision in seconds.
                   </p>
@@ -69,7 +69,7 @@ export default function AboutPage() {
                   <div className={styles.cardNum}>[ 03 ]</div>
                   <h2 className={styles.cardTitle}>EVENTS</h2>
                   <p className={styles.cardBody}>
-                    If it matters to the culture, it's on the map. Stagd is the central hub
+                    If it matters to the culture, it's on the map. Stag'd is the central hub
                     for independent shows, exhibitions, and cultural workshops that define
                     Pakistan's offline creative scene.
                   </p>
@@ -95,7 +95,7 @@ export default function AboutPage() {
                 <div className={styles.visionRight} data-animate="vision">
                   <p className={styles.visionBody}>
                     For too long, Pakistan's most talented creators have operated in the shadows
-                    of informal networks. Stagd was born out of a simple necessity: to give
+                    of informal networks. Stag'd was born out of a simple necessity: to give
                     independent creatives a professional workstation that matches the exceptional
                     quality of their output.
                   </p>

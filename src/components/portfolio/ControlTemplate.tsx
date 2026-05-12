@@ -6,7 +6,7 @@ import { useRef, useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { X, ZoomIn, Maximize2, ChevronLeft, ChevronRight, Mail, UserPlus, Heart, Star, User } from 'lucide-react';
+import { X, ZoomIn, Maximize2, ChevronLeft, ChevronRight, ChevronDown, Mail, UserPlus, Heart, Star, User } from 'lucide-react';
 import { CommissionEnquiry } from './CommissionEnquiry';
 import { FollowAuthModal } from './FollowAuthModal';
 import { followArtist, unfollowArtist, isFollowing } from '@/lib/api';
@@ -59,6 +59,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const [followerCount, setFollowerCount] = useState<number>(profile.follower_count ?? 0);
   const [isFollowAuthOpen, setIsFollowAuthOpen] = useState(false);
   const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [isProjectsOpen, setIsProjectsOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewStar, setReviewStar] = useState(0);
@@ -389,6 +390,14 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               <span className={styles.dot} />
               {profile.profile.availability}
             </div>
+
+            <button
+              className={`${styles.headerFollowBtn} ${isFollowed ? styles.followed : ''}`}
+              onClick={handleFollow}
+              aria-label={isFollowed ? 'Unfollow creative' : 'Follow creative'}
+            >
+              <span>{isFollowed ? 'Following' : 'Follow'}</span>
+            </button>
           </div>
 
           {/* ── DISCIPLINES ── */}
@@ -429,32 +438,63 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
           </div>
 
           <nav className={styles.navSection}>
-            <span className={styles.navLabel}>// Navigation Index</span>
             <button 
-              className={styles.aboutLink}
+              className={styles.sidebarSectionHeading}
+              style={{ color: 'var(--color-yellow)' }}
               onClick={() => setIsAboutOpen(true)}
-              aria-label="View artist biography and technical specifications"
+              aria-label="View creative biography and technical specifications"
             >
-              ABOUT THE ARTIST
+              <span className={styles.navLabelInline}>//</span> ABOUT THE CREATIVE
             </button>
-            {projects.map((project: any) => (
-              <button 
-                key={project.id} 
-                className={styles.projectLink}
-                onClick={() => {
-                  setIsAboutOpen(false);
-                  scrollToProject(project.id);
-                }}
-                aria-label={`Scroll to project: ${project.title}`}
+
+            <button 
+              className={styles.sidebarSectionHeading}
+              onClick={() => setIsProjectsOpen(!isProjectsOpen)}
+              aria-expanded={isProjectsOpen}
+            >
+              <span><span className={styles.navLabelInline}>//</span> PROJECTS</span>
+              <motion.div
+                animate={{ rotate: isProjectsOpen ? 180 : 0 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               >
-                {project.title}
-              </button>
-            ))}
+                <ChevronDown size={22} opacity={0.5} />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {isProjectsOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div className={styles.projectsListInner}>
+                    {projects.map((project: any) => (
+                      <button 
+                        key={project.id} 
+                        className={styles.projectLink}
+                        onClick={() => {
+                          setIsAboutOpen(false);
+                          scrollToProject(project.id);
+                        }}
+                        aria-label={`Scroll to project: ${project.title}`}
+                      >
+                        {project.title}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </nav>
 
           {events?.data?.length > 0 && (
             <div className={styles.navSection}>
-              <span className={styles.navLabel}>// Active Events</span>
+              <h3 className={styles.sidebarSectionHeading}>
+                <span className={styles.navLabelInline}>//</span> ACTIVE EVENTS
+              </h3>
               <div className={styles.sidebarEvents}>
                 {events.data.map((item: any) => (
                   <Link 
@@ -462,13 +502,25 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                     href={`/events/${item.event.slug ?? item.event.id}`}
                     className={styles.eventSidebarCard}
                   >
-                    <div className={styles.eventSidebarTop}>
-                      <div className={styles.eventSidebarBadge}>LIVE</div>
-                      <div className={styles.eventSidebarPrice}>
-                        {item.event.is_free ? 'FREE' : `PKR ${item.event.min_price.toLocaleString()}`}
+                    {item.event.cover_image_url && (
+                      <div className={styles.eventSidebarBg}>
+                        <Image 
+                          src={item.event.cover_image_url} 
+                          alt="" 
+                          fill 
+                          sizes="300px"
+                        />
                       </div>
-                    </div>
-                    <div className={styles.eventSidebarInfo}>
+                    )}
+                    <div className={styles.eventSidebarOverlay} />
+                    
+                    <div className={styles.eventSidebarContent}>
+                      <div className={styles.eventSidebarTop}>
+                        <div className={styles.eventSidebarBadge}>LIVE</div>
+                        <div className={styles.eventSidebarPrice}>
+                          {item.event.is_free ? 'FREE' : `PKR ${item.event.min_price.toLocaleString()}`}
+                        </div>
+                      </div>
                       <h4 className={styles.eventSidebarTitle}>{item.event.title}</h4>
                       <p className={styles.eventSidebarDate}>
                         {new Date(item.event.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toUpperCase()}
@@ -488,14 +540,6 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
           >
             <Mail size={16} />
             <span>Message</span>
-          </button>
-          <button
-            className={`${styles.followBtn} ${isFollowed ? styles.followBtnActive : ''}`}
-            onClick={handleFollow}
-            aria-label={isFollowed ? 'Unfollow artist' : 'Follow artist'}
-          >
-            <Heart size={16} fill={isFollowed ? 'currentColor' : 'none'} />
-            <span>{isFollowed ? 'Following' : 'Follow'}</span>
           </button>
           <button
             className={styles.hireBtn}

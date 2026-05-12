@@ -5,9 +5,9 @@ import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/utils';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: "Stagd — Pakistan's Creative Economy",
+  title: "Stag'd — Pakistan's Creative Economy",
   description:
-    'Find artists, book tickets, commission work. Stagd is where Karachi\'s independent creative scene shows up.',
+    "Find creatives, book tickets, commission work. Stag'd is where Karachi's independent creative scene shows up.",
 };
 
 import { searchEvents } from '@/lib/api';
@@ -112,7 +112,7 @@ export default async function HomePage() {
                   <span className={styles.pillarNum}>01</span>
                   <h3 className={styles.pillarTitle}>Discovery</h3>
                   <p className={styles.pillarBody}>
-                    Every creative on Stagd gets a proper portfolio page at their own URL. A masonry grid of their work, their rates, availability, and a direct way to hire them. Burns Road after dark is a different city — Stagd makes sure you know who's in it.
+                    Every creative on Stag'd gets a proper portfolio page at their own URL. A masonry grid of their work, their rates, availability, and a direct way to hire them. Burns Road after dark is a different city — Stag'd makes sure you know who's in it.
                   </p>
                   <Link href="/explore" className="btn btn-secondary btn-md" id="pillar-discover">
                     Browse artists
@@ -168,7 +168,7 @@ export default async function HomePage() {
                   <span className={styles.pillarNum}>03</span>
                   <h3 className={styles.pillarTitle}>Events &amp; Tickets</h3>
                   <p className={styles.pillarBody}>
-                    Creatives run nights. Stagd handles the ticketing — tiers, QR codes, door scanning, payouts. No third-party forms. No cash at the door. T2F Garden has housed the underground since before underground was a word people used.
+                    Creatives run nights. Stag'd handles the ticketing — tiers, QR codes, door scanning, payouts. No third-party forms. No cash at the door. T2F Garden has housed the underground since before underground was a word people used.
                   </p>
                   <Link href="/explore?tab=events" className="btn btn-secondary btn-md" id="pillar-events">
                     See what's on
@@ -229,7 +229,7 @@ export default async function HomePage() {
                     Sell tickets<br />before the night.
                   </h2>
                   <p className={styles.orgBody}>
-                    Create your event. Set ticket tiers. Share the poster. Stagd generates QR codes, runs Safepay checkout, and gives your door staff a phone scanner — no app download required.
+                    Create your event. Set ticket tiers. Share the poster. Stag'd generates QR codes, runs Safepay checkout, and gives your door staff a phone scanner — no app download required.
                   </p>
                   <a href={APP_STORE_URL} className="btn btn-secondary btn-md" target="_blank" rel="noopener noreferrer" id="org-cta">
                     Set up your first event
@@ -301,7 +301,7 @@ const DEMO_EVENTS = [
 ];
 
 const STATS = [
-  { value: '350+', label: 'Creatives on Stagd' },
+  { value: '350+', label: "Creatives on Stag'd" },
   { value: '12+', label: 'Disciplines' },
   { value: '3', label: 'Cities' },
 ];

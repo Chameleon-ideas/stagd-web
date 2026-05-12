@@ -20,6 +20,8 @@ import {
   Save,
   Star,
   GripVertical,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   DndContext,
@@ -383,6 +385,19 @@ export default function ManageWorkPage() {
     if (!error) setProjects(prev => prev.filter(p => p.id !== projectId));
   };
 
+  const toggleProjectVisibility = async (projectId: string, currentStatus: boolean) => {
+    const nextStatus = !currentStatus;
+    setProjects(prev => prev.map(p => p.id === projectId ? { ...p, is_public: nextStatus } : p));
+    const { error } = await updateProject(projectId, { is_public: nextStatus });
+    if (error) {
+      // Rollback on error
+      setProjects(prev => prev.map(p => p.id === projectId ? { ...p, is_public: currentStatus } : p));
+      console.error('Visibility toggle failed:', error);
+    } else {
+      router.refresh();
+    }
+  };
+
   if (isAuthLoading) {
     return <div className={styles.container}><div className={styles.loading}>// INITIALISING SECURE SESSION...</div></div>;
   }
@@ -644,6 +659,7 @@ export default function ManageWorkPage() {
                           handleRemoveImageFromProject={handleRemoveImageFromProject}
                           startEditingProject={startEditingProject}
                           handleItemDragEnd={handleItemDragEnd}
+                          toggleProjectVisibility={toggleProjectVisibility}
                         />
                       ))}
                     </SortableContext>
@@ -774,6 +790,7 @@ interface SortableProjectCardProps {
   handleRemoveImageFromProject: (projectId: string, itemId: string) => Promise<void>;
   startEditingProject: (project: Project) => void;
   handleItemDragEnd: (projectId: string, event: DragEndEvent) => Promise<void>;
+  toggleProjectVisibility: (projectId: string, currentStatus: boolean) => Promise<void>;
 }
 
 function SortableProjectCard({
@@ -791,6 +808,7 @@ function SortableProjectCard({
   handleRemoveImageFromProject,
   startEditingProject,
   handleItemDragEnd,
+  toggleProjectVisibility,
 }: SortableProjectCardProps) {
   const {
     attributes,
@@ -948,13 +966,21 @@ function SortableProjectCard({
               </div>
             </div>
             <div className={styles.projectActions}>
+              <button 
+                className={`btn btn-secondary btn-sm ${!project.is_public ? styles.hiddenBtn : ''}`}
+                onClick={() => toggleProjectVisibility(project.id, project.is_public)}
+                title={project.is_public ? 'Hide Project' : 'Show Project'}
+              >
+                {project.is_public ? <Eye size={14} /> : <EyeOff size={14} />}
+                <span>{project.is_public ? 'VISIBLE' : 'HIDDEN'}</span>
+              </button>
               <button className="btn btn-secondary btn-sm" onClick={() => startEditingProject(project)}>
                 <Pencil size={14} /> EDIT
               </button>
             </div>
           </div>
 
-          <div className={styles.projectImageGrid}>
+          <div className={`${styles.projectImageGrid} ${!project.is_public ? styles.dimmed : ''}`}>
             {(project.items || []).map(item => (
               <div key={item.id} className={styles.projectImageThumb}>
                 <img src={item.image_url} alt={item.title || ''} />

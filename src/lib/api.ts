@@ -46,10 +46,10 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
         invoice_auto_send, bank_account_title, bank_name, bank_account_number, bank_iban,
         behance_url, website_url, youtube_url, tiktok_url, linkedin_url, twitter_url,
         portfolio:portfolio_items!portfolio_items_artist_id_fkey(
-          id, image_url, title, description, category, sort_order, is_hidden, created_at
+          id, image_url, title, description, category, sort_order, is_hidden, created_at, project_id
         ),
         projects(
-          id, title, description, discipline, location, format, year, cover_image_url, sort_order, created_at,
+          id, title, description, discipline, location, format, year, cover_image_url, sort_order, created_at, is_public,
           items:project_items(id, image_url, title, description, sort_order)
         )
       ),
@@ -69,12 +69,41 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
     .eq('artist_id', data.id);
 
   const profile = Array.isArray(data.profile) ? data.profile[0] : data.profile;
+  const rawProjects = (profile?.projects || []) as any[];
+  
+  // 1. Identify visible project IDs and hidden image URLs
+  const visibleProjectIds = new Set();
+  const hiddenImageUrls = new Set();
+
+  rawProjects.forEach((p: any) => {
+    if (p.is_public !== false) {
+      visibleProjectIds.add(p.id);
+    } else {
+      // Collect URLs that belong to this hidden project
+      (p.items || []).forEach((item: any) => {
+        if (item.image_url) hiddenImageUrls.add(item.image_url);
+      });
+    }
+  });
+
+  // 2. Filter portfolio items
   const rawPortfolio = (profile?.portfolio || []) as any[];
   const portfolio = rawPortfolio
-    .filter((p: any) => !p.is_hidden)
+    .filter((p: any) => {
+      if (p.is_hidden) return false;
+      
+      // If it belongs to a project via ID, that project must be visible
+      if (p.project_id && !visibleProjectIds.has(p.project_id)) return false;
+      
+      // FALLBACK: If URL matches an image in a hidden project, hide it
+      if (hiddenImageUrls.has(p.image_url)) return false;
+      
+      return true;
+    })
     .sort((a: any, b: any) => a.sort_order - b.sort_order);
-  const rawProjects = (profile?.projects || []) as any[];
+
   const projects = rawProjects
+    .filter((p: any) => p.is_public !== false)
     .sort((a: any, b: any) => a.sort_order - b.sort_order)
     .map((p: any) => ({
     ...p,
@@ -140,6 +169,26 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
     follower_count: followerCount ?? 0,
     project_count: projects.length,
   };
+}
+
+export async function getArtistProfileBasic(username: string): Promise<any> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`
+      id, full_name, username, city, avatar_url, role, phone,
+      profile:artist_profiles(
+        id, bio, detailed_bio, disciplines, availability, available_from,
+        starting_rate, rates_on_request, travel_available,
+        instagram_handle, invoice_auto_send, bank_account_title, bank_name, 
+        bank_account_number, bank_iban, behance_url, website_url, linkedin_url, twitter_url, is_public
+      )
+    `)
+    .eq('username', username)
+    .single();
+
+  if (error || !data) return null;
+  const p = Array.isArray(data.profile) ? data.profile[0] : data.profile;
+  return { ...data, profile: p };
 }
 
 export async function checkUsernameAvailable(username: string, currentUserId: string): Promise<boolean> {
@@ -779,7 +828,7 @@ export async function getFollowerCount(artistId: string): Promise<number> {
 export async function getMyPortfolio(artistId: string): Promise<import('./types').PortfolioItem[]> {
   const { data, error } = await supabase
     .from('portfolio_items')
-    .select('id, image_url, title, description, category, sort_order, is_hidden, created_at')
+    .select('id, image_url, title, description, category, sort_order, is_hidden, created_at, project_id')
     .eq('artist_id', artistId)
     .eq('is_hidden', false)
     .order('sort_order', { ascending: true });
@@ -843,7 +892,7 @@ export async function deletePortfolioItem(itemId: string): Promise<{ error: stri
 export async function getMyProjects(artistId: string): Promise<import('./types').Project[]> {
   const { data, error } = await supabase
     .from('projects')
-    .select('id, title, description, discipline, location, format, year, cover_image_url, sort_order, created_at, items:project_items(id, image_url, title, description, sort_order)')
+    .select('id, title, description, discipline, location, format, year, cover_image_url, sort_order, created_at, is_public, items:project_items(id, image_url, title, description, sort_order)')
     .eq('artist_id', artistId)
     .order('sort_order', { ascending: true });
   if (error) return [];
@@ -909,6 +958,7 @@ export async function updateProject(
     location?: string | null;
     format?: string | null;
     year?: number | null;
+    is_public?: boolean;
   },
 ): Promise<{ error: string | null }> {
   return dbWrite('updateProject', { projectId, updates });

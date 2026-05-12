@@ -525,6 +525,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 6px;
+  min-height: 1.2em; /* Ensure height even if empty */
 }
 
 .cardName {

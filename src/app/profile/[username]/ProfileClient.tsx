@@ -50,7 +50,21 @@ export default function ProfileClient({ username, profile: initialProfile, event
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [lightboxItems, setLightboxItems] = useState<LightboxItem[]>([]);
   const [draftEvents, setDraftEvents] = useState<any[]>([]);
+  const [isSticky, setIsSticky] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll listener for sticky actions
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 150) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Initial Header & Bio reveal
   useGSAP(() => {
@@ -131,17 +145,43 @@ export default function ProfileClient({ username, profile: initialProfile, event
 
           <div className={styles.headerActions}>
             {isOwner && (
-              <div className={styles.actionRow}>
-                <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.editBtn}`}>
-                  <Edit3 size={15} />Edit Profile
-                </Link>
-                <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
-                  <ImageIcon size={15} />Manage Work
-                </Link>
-                <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
-                  <ExternalLink size={15} />View Portfolio
-                </Link>
-              </div>
+              <>
+                {/* Static Header Actions (Always in flow to prevent jump) */}
+                <div className={`${styles.actionRow} ${isSticky ? styles.actionRowHidden : ''}`}>
+                  <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.editBtn}`}>
+                    <Edit3 size={15} />Edit Profile
+                  </Link>
+                  <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
+                    <ImageIcon size={15} />Manage Work
+                  </Link>
+                  <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
+                    <ExternalLink size={15} />View Portfolio
+                  </Link>
+                </div>
+
+                {/* Sticky Floating Sidebar (Fixed, appears on scroll) */}
+                <AnimatePresence>
+                  {isSticky && (
+                    <motion.div 
+                      className={styles.actionRowSticky}
+                      initial={{ x: 100, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 100, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.editBtn}`}>
+                        <Edit3 size={15} />Edit Profile
+                      </Link>
+                      <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
+                        <ImageIcon size={15} />Manage Work
+                      </Link>
+                      <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
+                        <ExternalLink size={15} />View Portfolio
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
             )}
             {isCreative && (
               <div className={styles.compactStats}>

@@ -42,7 +42,7 @@ export function FollowAuthModal({ artistName, artistUsername, onAuthenticated, o
 
         <div className={styles.content}>
           <h2 className={styles.heading}>FOLLOW {artistName.split(' ')[0]}</h2>
-          <p className={styles.sub}>AUTHENTICATION_REQUIRED // SIGN IN TO FOLLOW THIS ARTIST</p>
+          <p className={styles.sub}>AUTHENTICATION_REQUIRED // SIGN IN TO FOLLOW THIS CREATIVE</p>
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>

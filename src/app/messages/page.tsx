@@ -100,6 +100,7 @@ function MessagesContent() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // ── Commission flow state ────────────────────────────────
   const [commissionDetails, setCommissionDetails] = useState<CommissionDetails | null>(null);
@@ -132,6 +133,15 @@ function MessagesContent() {
 
   const activeProposal = proposals.filter(p => p.status !== 'superseded').slice(-1)[0] ?? null;
   const pinnedCard = activeProposal?.status === 'accepted' ? 'proposal' : 'brief';
+
+  const filteredConversations = conversations.filter(conv => {
+    const q = searchQuery.toLowerCase();
+    return (
+      conv.otherParty.full_name.toLowerCase().includes(q) ||
+      conv.otherParty.username.toLowerCase().includes(q) ||
+      (conv.lastMessage || '').toLowerCase().includes(q)
+    );
+  });
 
   const isReviewUnlocked =
     commissionDetails?.status === 'completed' &&
@@ -563,12 +573,31 @@ function MessagesContent() {
           </div>
           <div className={styles.searchWrapper}>
             <Search size={16} className={styles.searchIcon} />
-            <input type="text" placeholder="Search conversations..." className={styles.searchInput} />
+            <input 
+              type="text" 
+              placeholder="Search conversations..." 
+              className={styles.searchInput} 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
           </div>
           <div className={styles.listContent}>
-            {loading && <p className={styles.emptyLabel}>Loading...</p>}
-            {!loading && conversations.length === 0 && <p className={styles.emptyLabel}>No conversations yet.</p>}
-            {conversations.map(conv => (
+            {loading && (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateText}>Loading Index...</p>
+              </div>
+            )}
+            {!loading && conversations.length === 0 && (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateText}>No conversations yet</p>
+              </div>
+            )}
+            {!loading && conversations.length > 0 && filteredConversations.length === 0 && (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateText}>No matches found</p>
+              </div>
+            )}
+            {filteredConversations.map(conv => (
               <div
                 key={conv.commissionId}
                 className={`${styles.chatItem} ${activeConvId === conv.commissionId ? styles.activeItem : ''}`}

@@ -121,6 +121,31 @@
   display: flex;
   gap: var(--space-3);
   align-items: center;
+  transition: all 0.5s var(--ease-expo);
+}
+
+.actionRowSticky {
+  position: fixed;
+  right: var(--gutter);
+  top: 100px;
+  flex-direction: column;
+  z-index: 1000;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+  display: flex;
+  gap: var(--space-3);
+}
+
+.actionRowHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.actionRowSticky .actionBtn {
+  width: 180px;
+  justify-content: flex-start;
 }
 
 .actionBtn {

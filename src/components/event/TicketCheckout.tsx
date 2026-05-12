@@ -371,7 +371,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
               <div className={styles.step}>
                 <span className={styles.stepTag}>Step 02 / 02</span>
                 <h2 id="checkout-title" className={styles.title}>Your Details</h2>
-                <p className={styles.subtitle}>Tickets will be sent to your email and accessible via the Stagd app.</p>
+                <p className={styles.subtitle}>Tickets will be sent to your email and accessible via the Stag'd app.</p>
 
                 <div className={styles.form}>
                   <div className={styles.inputGroup}>
@@ -536,7 +536,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
               </div>
 
               <div className={styles.ticketVisualFooter}>
-                VALID FOR ONE-TIME ENTRY ONLY · NO REFUNDS · STAGD V1.0
+                VALID FOR ONE-TIME ENTRY ONLY · NO REFUNDS · STAG'D V1.0
               </div>
             </div>
             

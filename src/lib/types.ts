@@ -103,6 +103,7 @@ export interface Project {
   year?: number;
   items: ProjectItem[];
   created_at: string;
+  is_public: boolean;
 }
 
 export interface Review {

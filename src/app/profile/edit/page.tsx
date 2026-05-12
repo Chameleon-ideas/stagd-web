@@ -19,7 +19,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { checkUsernameAvailable, updateUserProfile, getArtistProfile, updateArtistProfile, deleteAccount } from '@/lib/api';
+import { checkUsernameAvailable, updateUserProfile, getArtistProfile, getArtistProfileBasic, updateArtistProfile, deleteAccount } from '@/lib/api';
 import styles from './EditProfile.module.css';
 
 const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
@@ -188,8 +188,8 @@ export default function EditProfilePage() {
       setCity(user.city ?? '');
       setPhone(user.phone ?? '');
 
-      // Fetch artist-specific details
-      getArtistProfile(user.username).then(profile => {
+      // Fetch artist-specific details using optimized lightweight query
+      getArtistProfileBasic(user.username).then(profile => {
         if (profile) {
           const p = profile.profile;
           const data: InitialData = {
@@ -197,25 +197,25 @@ export default function EditProfilePage() {
             username: user.username,
             city: user.city ?? '',
             phone: user.phone ?? '',
-            bio: p.bio || '',
-            detailedBio: profile.detailed_bio || '',
-            disciplines: p.disciplines || [],
-            availability: p.availability,
-            availableFrom: p.available_from || '',
-            startingRate: p.starting_rate || '',
-            ratesOnRequest: p.rates_on_request || false,
-            travelAvailable: p.travel_available || false,
-            instagram: p.instagram_handle || '',
-            website: p.website_url || '',
-            behance: p.behance_url || '',
-            linkedin: p.linkedin_url || '',
-            twitter: p.twitter_url || '',
-            invoiceAutoSend: p.invoice_auto_send ?? true,
-            bankAccountTitle: p.bank_account_title || '',
-            bankName: p.bank_name || '',
-            bankAccountNumber: p.bank_account_number || '',
-            bankIban: p.bank_iban || '',
-            isPublic: p.is_public ?? true,
+            bio: p?.bio || '',
+            detailedBio: p?.detailed_bio || '',
+            disciplines: p?.disciplines || [],
+            availability: p?.availability || 'available',
+            availableFrom: p?.available_from || '',
+            startingRate: p?.starting_rate || '',
+            ratesOnRequest: p?.rates_on_request || false,
+            travelAvailable: p?.travel_available || false,
+            instagram: p?.instagram_handle || '',
+            website: p?.website_url || '',
+            behance: p?.behance_url || '',
+            linkedin: p?.linkedin_url || '',
+            twitter: p?.twitter_url || '',
+            invoiceAutoSend: p?.invoice_auto_send ?? true,
+            bankAccountTitle: p?.bank_account_title || '',
+            bankName: p?.bank_name || '',
+            bankAccountNumber: p?.bank_account_number || '',
+            bankIban: p?.bank_iban || '',
+            isPublic: p?.is_public ?? true,
             role: (user.role === 'creative' || user.role === 'both') ? 'creative' : 'general',
           };
 
@@ -466,53 +466,31 @@ export default function EditProfilePage() {
           </Link>
           <h1 className={styles.title}>Edit<br/>Profile</h1>
           
-          <div className={styles.avatarSection}>
-            <div className={styles.avatarPreview}>
-              {avatarPreview || user?.avatar_url ? (
-                <img src={avatarPreview ?? user!.avatar_url} alt={fullName} className={styles.avatarImg} />
-              ) : (
-                <span className={styles.avatarPlaceholder}>{initials}</span>
-              )}
-            </div>
-            <div className={styles.avatarInfo}>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                style={{ display: 'none' }}
-                onChange={handleAvatarChange}
-              />
-              <button
-                type="button"
-                className={styles.uploadBtn}
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingAvatar}
-              >
-                <Camera size={14} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-                {isUploadingAvatar ? 'Uploading...' : avatarFile ? 'Change Photo' : 'Update Photo'}
-              </button>
-              <p className={styles.hint}>JPG/PNG/WEBP. MAX 2MB.</p>
-              {avatarFile && <p className={styles.hint} style={{ color: 'var(--color-lime)' }}>✓ {avatarFile.name}</p>}
-            </div>
-          </div>
-
           {/* ── ACCOUNT TYPE TOGGLE ── */}
-          <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
-            <p style={{ fontSize: '10px', letterSpacing: '1px', color: 'var(--text-faint)', marginBottom: '12px', textTransform: 'uppercase' }}>Account Type</p>
+          <div className={styles.accountTypeContainer}>
+            <p className={styles.accountTypeLabel}>Account Type</p>
             <div
+              className={styles.typeToggle}
               onClick={() => setRole(r => r === 'creative' ? 'general' : 'creative')}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '10px 0' }}
             >
-              <div>
-                <p style={{ fontSize: '12px', fontWeight: 600, marginBottom: '2px' }}>{role === 'creative' ? 'Creative' : 'Visitor'}</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-faint)', lineHeight: 1.4 }}>
-                  {role === 'creative' ? 'Portfolio & commissions active' : 'Switch on to offer services'}
-                </p>
-              </div>
-              {role === 'creative'
-                ? <ToggleRight size={28} color="var(--color-yellow)" />
-                : <ToggleLeft size={28} color="var(--text-faint)" />
-              }
+              <div className={`${styles.typeSlider} ${role === 'creative' ? styles.typeSliderCreative : styles.typeSliderVisitor}`} />
+              <div className={`${styles.typeOption} ${role !== 'creative' ? styles.typeOptionActive : ''}`}>Visitor</div>
+              <div className={`${styles.typeOption} ${role === 'creative' ? styles.typeOptionActive : ''}`}>Creative</div>
+            </div>
+            <div className={styles.typeDescription}>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={role}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {role === 'creative' 
+                    ? 'Showcase your portfolio, offer services, and apply for projects. You will be visible on the Explore page.' 
+                    : 'Browse artists and projects. Your profile will be private and portfolio features will be disabled.'}
+                </motion.p>
+              </AnimatePresence>
             </div>
           </div>
         </aside>
@@ -761,9 +739,9 @@ export default function EditProfilePage() {
               </div>
             )}
 
-            {/* ── SECTION 05: CONNECT ── */}
+            {/* ── SECTION 05: DIGITAL INDEX ── */}
             {role === 'creative' && <div className={styles.section}>
-              <div className={styles.sectionNumber}>04</div>
+              <div className={styles.sectionNumber}>05</div>
               <div className={styles.sectionContent}>
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Digital Index</h2>
@@ -823,22 +801,22 @@ export default function EditProfilePage() {
 
             {/* ── SECTION: ACCOUNT SECURITY ── */}
             <div className={styles.section}>
-              <div className={styles.sectionNumber}>05</div>
+              <div className={styles.sectionNumber}>{role === 'creative' ? '06' : '02'}</div>
               <div className={styles.sectionContent}>
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Account Security</h2>
                 </div>
 
                 {securityMsg && (
-                  <p style={{ fontSize: '13px', marginBottom: '20px', color: securityMsg.type === 'success' ? 'var(--color-lime)' : 'var(--color-red)' }}>
+                  <p className={`${styles.securityMsg} ${securityMsg.type === 'success' ? styles.securityMsgSuccess : styles.securityMsgError}`}>
                     {securityMsg.type === 'success' ? '✓' : '⚠'} {securityMsg.text}
                   </p>
                 )}
 
-                <div style={{ marginBottom: '32px' }}>
+                <div style={{ marginBottom: '40px' }}>
                   <label className={styles.label}>Change Email</label>
-                  <p style={{ fontSize: '12px', color: 'var(--text-faint)', marginBottom: '10px' }}>
-                    Current: <strong>{user?.email}</strong>
+                  <p className={styles.hint} style={{ marginBottom: '12px' }}>
+                    Current: <strong style={{ color: 'var(--text)' }}>{user?.email}</strong>
                   </p>
                   <div className={styles.grid}>
                     <div className={styles.field}>
@@ -852,7 +830,7 @@ export default function EditProfilePage() {
                       />
                     </div>
                     <div className={styles.field}>
-                      <button type="button" className="btn btn-ghost btn-md" disabled={isUpdatingEmail} onClick={handleEmailChange}>
+                      <button type="button" className={styles.securityBtn} disabled={isUpdatingEmail} onClick={handleEmailChange}>
                         {isUpdatingEmail ? 'Sending...' : 'Send confirmation'}
                       </button>
                     </div>
@@ -861,7 +839,7 @@ export default function EditProfilePage() {
 
                 <div>
                   <label className={styles.label}>Change Password</label>
-                  <div className={styles.grid} style={{ marginTop: '10px' }}>
+                  <div className={styles.grid} style={{ marginTop: '12px', marginBottom: '16px' }}>
                     <div className={styles.field}>
                       <input
                         type="password"
@@ -882,7 +860,7 @@ export default function EditProfilePage() {
                       />
                     </div>
                   </div>
-                  <button type="button" className="btn btn-ghost btn-md" disabled={isUpdatingPassword} onClick={handlePasswordChange} style={{ marginTop: '12px' }}>
+                  <button type="button" className={styles.securityBtn} disabled={isUpdatingPassword} onClick={handlePasswordChange}>
                     {isUpdatingPassword ? 'Updating...' : 'Update password'}
                   </button>
                 </div>
@@ -890,60 +868,52 @@ export default function EditProfilePage() {
             </div>
 
             {/* ── DANGER ZONE ── */}
-            <div className={styles.section} style={{ borderColor: 'var(--color-red)', opacity: 0.85 }}>
-              <div className={styles.sectionNumber} style={{ color: 'var(--color-red)' }}>!</div>
+            <div className={`${styles.section} ${styles.dangerSection}`}>
+              <div className={`${styles.sectionNumber} ${styles.dangerSectionNumber}`}>!</div>
               <div className={styles.sectionContent}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle} style={{ color: 'var(--color-red)' }}>Danger Zone</h2>
+                <div className={styles.sectionHeader} style={{ border: 'none' }}>
+                  <h2 className={`${styles.sectionTitle} ${styles.dangerTitle}`}>Danger Zone</h2>
                 </div>
 
                 {!showDeleteConfirm ? (
                   <div>
-                    <p style={{ fontSize: '13px', color: 'var(--text-faint)', marginBottom: '16px', lineHeight: 1.6 }}>
+                    <p className={styles.dangerText}>
                       Permanently delete your account and all associated data — portfolio, projects, commission history, and events. This cannot be undone.
                     </p>
                     <button
                       type="button"
+                      className={styles.deleteBtn}
                       onClick={() => setShowDeleteConfirm(true)}
-                      style={{
-                        padding: '9px 20px', fontSize: '12px', fontWeight: 600,
-                        border: '1.5px solid var(--color-red)', borderRadius: '100px',
-                        background: 'transparent', color: 'var(--color-red)',
-                        cursor: 'pointer', letterSpacing: '0.3px',
-                      }}
                     >
                       Delete my account
                     </button>
                   </div>
                 ) : (
                   <AnimatePresence>
-                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-                      <p style={{ fontSize: '13px', color: 'var(--text-faint)', marginBottom: '16px', lineHeight: 1.6 }}>
-                        Type your username <strong>@{user?.username}</strong> to confirm deletion.
+                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ padding: '8px 0' }}>
+                      <p className={styles.dangerText}>
+                        Type your username <strong style={{ color: 'var(--color-red)' }}>@{user?.username}</strong> to confirm deletion.
                       </p>
                       <input
                         className="input"
                         placeholder={user?.username}
                         value={deleteInput}
                         onChange={e => setDeleteInput(e.target.value)}
-                        style={{ marginBottom: '12px', borderColor: deleteInput && deleteInput !== user?.username ? 'var(--color-red)' : undefined }}
+                        style={{ marginBottom: '16px', borderColor: deleteInput && deleteInput !== user?.username ? 'var(--color-red)' : undefined }}
                         autoFocus
                       />
                       {deleteError && (
-                        <p style={{ fontSize: '12px', color: 'var(--color-red)', marginBottom: '12px' }}>⚠ {deleteError}</p>
+                        <p className={styles.error} style={{ textAlign: 'left', marginBottom: '16px' }}>⚠ {deleteError}</p>
                       )}
-                      <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ display: 'flex', gap: '16px' }}>
                         <button
                           type="button"
+                          className={styles.deleteBtn}
                           onClick={handleDeleteAccount}
                           disabled={deleteInput !== user?.username || isDeleting}
                           style={{
-                            padding: '9px 20px', fontSize: '12px', fontWeight: 600,
-                            border: '1.5px solid var(--color-red)', borderRadius: '100px',
-                            background: deleteInput === user?.username ? 'var(--color-red)' : 'transparent',
-                            color: deleteInput === user?.username ? '#fff' : 'var(--color-red)',
-                            cursor: deleteInput === user?.username ? 'pointer' : 'not-allowed',
-                            opacity: deleteInput !== user?.username ? 0.5 : 1,
+                            backgroundColor: deleteInput === user?.username ? 'var(--color-red)' : 'transparent',
+                            color: deleteInput === user?.username ? 'var(--color-white)' : 'var(--color-red)',
                           }}
                         >
                           {isDeleting ? 'Deleting...' : 'Yes, delete everything'}
@@ -951,7 +921,7 @@ export default function EditProfilePage() {
                         <button
                           type="button"
                           onClick={() => { setShowDeleteConfirm(false); setDeleteInput(''); setDeleteError(null); }}
-                          className="btn btn-ghost btn-md"
+                          className={styles.securityBtn}
                         >
                           Cancel
                         </button>
@@ -988,6 +958,44 @@ export default function EditProfilePage() {
 
           </form>
         </main>
+
+        {/* ── RIGHT SIDEBAR (DP UPDATE) ── */}
+        <aside className={styles.rightSidebar}>
+          <div className={styles.avatarSection}>
+            <p className={styles.accountTypeLabel}>Profile Image</p>
+            <div className={styles.avatarPreview}>
+              {avatarPreview || user?.avatar_url ? (
+                <img src={avatarPreview ?? user!.avatar_url} alt={fullName} className={styles.avatarImg} />
+              ) : (
+                <span className={styles.avatarPlaceholder}>
+                  {fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'}
+                </span>
+              )}
+            </div>
+            
+            <div style={{ marginTop: '16px', textAlign: 'center' }}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleAvatarChange}
+              />
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <Camera size={14} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                {isUploadingAvatar ? 'Uploading...' : avatarFile ? 'Change Photo' : 'Update Photo'}
+              </button>
+              <p className={styles.hint} style={{ marginTop: '12px' }}>JPG/PNG/WEBP. MAX 2MB.</p>
+              {avatarFile && <p className={styles.hint} style={{ color: 'var(--color-lime)', marginTop: '8px' }}>✓ {avatarFile.name}</p>}
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

@@ -329,12 +329,12 @@ function ArtistCard({ artist }: { artist: any }) {
           </div>
         )}
         <div className={styles.cardBadge}>
-          <span className={styles.tag}>{artist.profile?.disciplines?.[0] || 'ARTIST'}</span>
+          <span className={styles.tag}>{artist.profile?.disciplines?.[0] || 'CREATIVE'}</span>
         </div>
       </div>
       <div className={styles.cardInfo}>
         <div className={styles.cardMeta}>
-          <span>{artist.user.city?.toUpperCase() ?? ''}</span>
+          <span>{artist.user.city?.toUpperCase() || '// LOCATION N/A'}</span>
           <span>{artist.profile?.verified ? '// VERIFIED' : ''}</span>
         </div>
         <h3 className={styles.cardName}>

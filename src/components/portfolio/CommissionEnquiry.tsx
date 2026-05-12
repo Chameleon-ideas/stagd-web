@@ -350,7 +350,7 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
                   </table>
 
                   <div className={styles.reviewFootnote}>
-                    // NOTE: BY SENDING THIS BRIEF, YOU COMMIT TO THE TERMS DISCUSSED. THE ARTIST WILL REVIEW AND RESPOND WITHIN 48 HOURS.
+                    // NOTE: BY SENDING THIS BRIEF, YOU COMMIT TO THE TERMS DISCUSSED. THE CREATIVE WILL REVIEW AND RESPOND WITHIN 48 HOURS.
                   </div>
                 </div>
               )}
