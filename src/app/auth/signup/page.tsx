@@ -49,7 +49,7 @@ export default function SignupPage() {
       >
         <div className={styles.authHeader}>
           <Link href="/" className={styles.backLink}>← Back</Link>
-          <h1>Join Stagd</h1>
+          <h1>Join Stag'd</h1>
           <p>Pakistan's infrastructure for the creative class.</p>
         </div>
 

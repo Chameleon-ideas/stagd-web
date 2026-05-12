@@ -137,7 +137,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
               )}
               {isCreative && (
                 <span className={`${styles.statusPill} ${styles[`status${profile.profile.availability.charAt(0).toUpperCase() + profile.profile.availability.slice(1)}` as keyof typeof styles]}`}>
-                  <span className={styles.dot} />{profile.profile.availability}
+                  {profile.profile.availability}
                 </span>
               )}
             </div>

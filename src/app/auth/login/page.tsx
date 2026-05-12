@@ -61,7 +61,7 @@ export default function LoginPage() {
         <div className={styles.authHeader}>
           <Link href="/" className={styles.backLink}>← Back</Link>
           <h1>Welcome back</h1>
-          <p>Login to your Stagd account</p>
+          <p>Login to your Stag'd account</p>
         </div>
 
         {/* Mode tabs */}

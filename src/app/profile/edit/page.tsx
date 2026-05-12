@@ -242,6 +242,9 @@ export default function EditProfilePage() {
           setIsPublic(data.isPublic);
           setRole(data.role);
         }
+      }).catch(err => {
+        console.error('Failed to fetch profile basics:', err);
+      }).finally(() => {
         setIsFetchingProfile(false);
       });
     }
@@ -450,7 +453,7 @@ export default function EditProfilePage() {
   };
 
   if (isAuthLoading || isFetchingProfile) {
-    return <div className={styles.container}><div className={styles.loading}>INITIALISING_PROFILE...</div></div>;
+    return <div className={styles.loadingContainer}><div className={styles.loading}>INITIALISING_PROFILE...</div></div>;
   }
 
   const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -611,12 +614,14 @@ export default function EditProfilePage() {
                       onChange={e => setAvailableFrom(e.target.value)}
                     />
                   </div>
-                  <div className={styles.field}>
-                    <label className={styles.label} htmlFor="city">Base City</label>
-                    <select id="city" className="input" value={city} onChange={e => setCity(e.target.value)}>
-                      <option value="">— Select city —</option>
-                      {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                  <div className={styles.fieldFull}>
+                    <div className={styles.toggleRow} onClick={() => setIsPublic(!isPublic)}>
+                      <div className={styles.toggleLabel}>
+                        <span className={styles.toggleTitle}>Public Visibility</span>
+                        <span className={styles.toggleDesc}>Show my profile on the Explore page</span>
+                      </div>
+                      {isPublic ? <ToggleRight size={28} color="var(--color-yellow)" /> : <ToggleLeft size={28} color="var(--text-faint)" />}
+                    </div>
                   </div>
                 </div>
               </div>

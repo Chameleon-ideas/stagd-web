@@ -265,13 +265,10 @@ export async function searchArtists(params?: {
     .from('profiles')
     .select(`
       id, full_name, username, avatar_url, city,
-      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified),
+      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified, is_public),
       reviews!reviews_reviewee_id_fkey(rating)
     `)
     .in('role', ['creative', 'both']);
-
-  // TODO: uncomment after running: ALTER TABLE artist_profiles ADD COLUMN IF NOT EXISTS is_public boolean NOT NULL DEFAULT true;
-  // query = query.filter('profile.is_public', 'eq', true);
 
   if (params?.city && params.city !== 'All') {
     query = query.eq('city', params.city);
@@ -286,6 +283,12 @@ export async function searchArtists(params?: {
   if (error) return { data: [], total: 0, page: 1, per_page: 50, has_more: false };
 
   let results = data || [];
+
+  // Visibility Filter (Strict JS Fallback)
+  results = results.filter((a: any) => {
+    const p = Array.isArray(a.profile) ? a.profile[0] : a.profile;
+    return p?.is_public !== false;
+  });
 
   if (params?.discipline && params.discipline !== 'All') {
     results = results.filter((a: any) =>

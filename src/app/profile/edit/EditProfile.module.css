@@ -425,12 +425,20 @@
   color: var(--text-muted);
 }
 
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg);
+  background-image: var(--stripe-bg-dark);
+}
+
 .loading {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.15em;
   color: var(--text-muted);
-  padding-top: var(--space-16);
   text-align: center;
   font-weight: 700;
 }

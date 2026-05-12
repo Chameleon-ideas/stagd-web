@@ -10,6 +10,7 @@ import { getViewingConv } from '@/lib/viewState';
 import { ThemeToggle } from './ThemeToggle';
 import { StagdLogo } from './StagdLogo';
 import { CreateModal } from './CreateModal';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import styles from './Header.module.css';
 
@@ -25,7 +26,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
   const isHome = pathname === '/';
@@ -104,65 +105,77 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
           <div className={styles.headerMeta}>VOL. 01 // KHI</div>
           <ThemeToggle />
 
-          {user && (
-            <button
-              className={styles.createBtn}
-              onClick={() => setIsCreateOpen(true)}
-              aria-label="Create"
-            >
-              <Plus size={14} />
-              CREATE
-            </button>
-          )}
-
-          {user ? (
-            <div className={styles.userMenu} ref={userMenuRef}>
-              <button
-                className={styles.userBtn}
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                aria-label="User menu"
+          <AnimatePresence mode="wait">
+            {!isLoading && (
+              <motion.div 
+                key="auth-section"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className={styles.authWrapper}
               >
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.full_name} className={styles.userAvatar} />
-                ) : (
-                  <span className={styles.userInitial}>{user.full_name[0]}</span>
-                )}
-                <span className={styles.userHandle}>@{user.username}</span>
-              </button>
-              {unreadCount > 0 && (
-                <span className={styles.navUnreadBadge}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-              {isUserMenuOpen && (
-                <div className={styles.userDropdown}>
-                  <Link href="/messages" className={styles.dropdownItem} onClick={() => { setIsUserMenuOpen(false); setUnreadCount(0); }}>
-                    <Inbox size={14} />
-                    <span>Inbox</span>
-                    {unreadCount > 0 && <span className={styles.unreadBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
-                  </Link>
-                  <Link href={`/profile/${user.username}`} className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
-                    <User size={14} />
-                    <span>My Profile</span>
-                  </Link>
+                {user && (
                   <button
-                    className={styles.dropdownItem}
-                    onClick={() => { setIsUserMenuOpen(false); logout(); }}
+                    className={styles.createBtn}
+                    onClick={() => setIsCreateOpen(true)}
+                    aria-label="Create"
                   >
-                    <LogOut size={14} />
-                    <span>Sign out</span>
+                    <Plus size={14} />
+                    CREATE
                   </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className={styles.authLinks}>
-              <Link href="/auth/login" className={styles.loginLink}>Log in</Link>
-              <Link href="/auth/signup" className={`btn btn-accent btn-sm ${styles.cta}`}>
-                Sign up
-              </Link>
-            </div>
-          )}
+                )}
+
+                {user ? (
+                  <div className={styles.userMenu} ref={userMenuRef}>
+                    <button
+                      className={styles.userBtn}
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      aria-label="User menu"
+                    >
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.full_name} className={styles.userAvatar} />
+                      ) : (
+                        <span className={styles.userInitial}>{user.full_name[0]}</span>
+                      )}
+                      <span className={styles.userHandle}>@{user.username}</span>
+                    </button>
+                    {unreadCount > 0 && (
+                      <span className={styles.navUnreadBadge}>
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                    {isUserMenuOpen && (
+                      <div className={styles.userDropdown}>
+                        <Link href="/messages" className={styles.dropdownItem} onClick={() => { setIsUserMenuOpen(false); setUnreadCount(0); }}>
+                          <Inbox size={14} />
+                          <span>Inbox</span>
+                          {unreadCount > 0 && <span className={styles.unreadBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
+                        </Link>
+                        <Link href={`/profile/${user.username}`} className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
+                          <User size={14} />
+                          <span>My Profile</span>
+                        </Link>
+                        <button
+                          className={styles.dropdownItem}
+                          onClick={() => { setIsUserMenuOpen(false); logout(); }}
+                        >
+                          <LogOut size={14} />
+                          <span>Sign out</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className={styles.authLinks}>
+                    <Link href="/auth/login" className={styles.loginLink}>Log in</Link>
+                    <Link href="/auth/signup" className={`btn btn-accent btn-sm ${styles.cta}`}>
+                      Sign up
+                    </Link>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Mobile Toggle */}
           <button
