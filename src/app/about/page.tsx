@@ -7,7 +7,7 @@ import styles from './page.module.css';
 import { GSAPEntrance, GSAPHeroReveal } from '@/components/animations/GSAPEntrance';
 
 export const metadata: Metadata = {
-  title: 'Manifesto — Stag'd',
+  title: "Manifesto — Stag'd",
   description: 'The creative economy is here. Found. Hired. Celebrated.',
 };
 
