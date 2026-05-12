@@ -3,6 +3,7 @@ import { anton, dmSans, jetbrainsMono, playfair } from '@/styles/fonts';
 import React, { Suspense } from 'react';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
+import { Analytics } from "@vercel/analytics/next"
 import '@/styles/globals.css';
 import '@/styles/components.css';
 import { Header } from '@/components/layout/Header';
@@ -61,6 +62,7 @@ export default function RootLayout({
               </main>
               <ConditionalFooter />
             </div>
+            <Analytics />
           </AuthProvider>
         </ThemeProvider>
       </body>
