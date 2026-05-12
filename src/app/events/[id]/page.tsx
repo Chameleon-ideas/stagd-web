@@ -276,6 +276,7 @@ export async function generateStaticParams() {
   const { data: events } = await supabaseAdmin
     .from('events')
     .select('id')
+    .eq('status', 'live')
     .limit(100);
 
   return (events ?? []).map((event) => ({
