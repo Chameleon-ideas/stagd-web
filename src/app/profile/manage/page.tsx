@@ -210,7 +210,7 @@ export default function ManageWorkPage() {
     setIsUploadingPortfolio(true);
     setPortfolioError(null);
     for (const file of Array.from(files).slice(0, 10)) {
-      if (file.size > 8 * 1024 * 1024) { setPortfolioError(`${file.name} exceeds 8MB`); continue; }
+      if (file.size > 20 * 1024 * 1024) { setPortfolioError(`${file.name} exceeds 20MB`); continue; }
       const { item, error } = await uploadPortfolioImage(user.id, file);
       if (error) setPortfolioError(error);
       else if (item) setPortfolio(prev => [...prev, item]);
@@ -320,7 +320,7 @@ export default function ManageWorkPage() {
     if (!files || !user || !projectId) return;
     setUploadingProjectId(projectId);
     for (const file of Array.from(files).slice(0, 10)) {
-      if (file.size > 8 * 1024 * 1024) continue;
+      if (file.size > 20 * 1024 * 1024) continue;
       const { imageUrl, error } = await addImageToProject(projectId, user.id, file);
       if (!error && imageUrl) {
         const newItem = { id: `tmp-${Date.now()}-${Math.random()}`, image_url: imageUrl, sort_order: 0 };
@@ -480,7 +480,7 @@ export default function ManageWorkPage() {
               >
                 <Upload size={32} className={styles.dropIcon} />
                 <span className={styles.dropText}>Click or Drop to Index Work</span>
-                <span className={styles.dropHint}>JPG / PNG / WEBP · MAX 8MB · MAX 10 AT ONCE</span>
+                <span className={styles.dropHint}>JPG / PNG / WEBP · MAX 20MB · MAX 10 AT ONCE</span>
               </div>
 
               {portfolioError && <p className={styles.error}>⚠ {portfolioError}</p>}

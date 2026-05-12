@@ -327,7 +327,7 @@ export default function EditProfilePage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { setSaveError('Image must be under 2MB'); return; }
+    if (file.size > 20 * 1024 * 1024) { setSaveError('Image must be under 20MB'); return; }
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
@@ -1005,7 +1005,7 @@ export default function EditProfilePage() {
                 <Camera size={14} style={{ marginRight: 8, verticalAlign: 'middle' }} />
                 {isUploadingAvatar ? 'Uploading...' : avatarFile ? 'Change Photo' : 'Update Photo'}
               </button>
-              <p className={styles.hint} style={{ marginTop: '12px' }}>JPG/PNG/WEBP. MAX 2MB.</p>
+              <p className={styles.hint} style={{ marginTop: '12px' }}>JPG/PNG/WEBP. MAX 20MB.</p>
               {avatarFile && <p className={styles.hint} style={{ color: 'var(--color-lime)', marginTop: '8px' }}>✓ {avatarFile.name}</p>}
             </div>
           </div>

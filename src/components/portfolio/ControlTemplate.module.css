@@ -1215,7 +1215,7 @@
 
   .stage {
     padding: 0; /* Full bleed images */
-    gap: 1px; /* Minimal gap between blocks */
+    gap: 4px; /* Hairline more gap */
   }
 
   .projectBlock {
@@ -1231,11 +1231,11 @@
   }
 
   .bentoGrid {
-    gap: 1px; /* Hairline gap */
+    gap: 4px; /* Hairline gap */
   }
 
   .subGrid {
-    gap: 1px; /* Hairline gap */
+    gap: 4px; /* Hairline gap */
   }
 
   .imageWrapper {
@@ -1267,12 +1267,12 @@
 
   .denseGrid {
     column-count: 2;
-    column-gap: 1px;
+    column-gap: 4px;
     padding: 0;
   }
 
   .denseGrid .imageWrapper {
-    margin-bottom: 1px;
+    margin-bottom: 4px;
     border: none;
   }
 }
