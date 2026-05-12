@@ -19,7 +19,15 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { checkUsernameAvailable, updateUserProfile, getArtistProfile, getArtistProfileBasic, updateArtistProfile, deleteAccount } from '@/lib/api';
+import { 
+  checkUsernameAvailable, 
+  updateUserProfile, 
+  getArtistProfile, 
+  getArtistProfileBasic, 
+  updateArtistProfile, 
+  deleteAccount,
+  uploadAvatar 
+} from '@/lib/api';
 import styles from './EditProfile.module.css';
 
 const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
@@ -337,7 +345,6 @@ export default function EditProfilePage() {
       let avatarUrl: string | undefined;
       if (avatarFile) {
         setIsUploadingAvatar(true);
-        const { uploadAvatar } = await import('@/lib/api');
         const { url, error: uploadErr } = await uploadAvatar(user.id, avatarFile);
         setIsUploadingAvatar(false);
         if (uploadErr) throw new Error(uploadErr);
@@ -375,13 +382,15 @@ export default function EditProfilePage() {
         is_public: isPublic,
       };
 
-      const [{ error: basicError }, artistResult] = await Promise.all([
-        updateUserProfile(user.id, basicUpdates),
-        role === 'creative' ? updateArtistProfile(user.id, artistUpdates) : Promise.resolve({ error: null }),
-      ]);
-
+      // 1. Update basic profile
+      const { error: basicError } = await updateUserProfile(user.id, basicUpdates);
       if (basicError) throw new Error(basicError);
-      if (artistResult.error) throw new Error(artistResult.error);
+
+      // 2. Update artist profile if creative
+      if (role === 'creative') {
+        const { error: artistError } = await updateArtistProfile(user.id, artistUpdates);
+        if (artistError) throw new Error(artistError);
+      }
 
       // Update auth cache synchronously — no extra round trips
       patchUser({ 

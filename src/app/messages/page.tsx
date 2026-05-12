@@ -16,13 +16,15 @@ import {
   updatePaymentStatus, updateCommissionStatus,
   requestCompletion, confirmCompletion, rejectCompletion,
   sendInvoice, submitCommissionReview, submitReport,
+  getArtistProfile,
   type Conversation, type Message,
 } from '@/lib/api';
-import type { CommissionDetails, Proposal, PaymentStatus } from '@/lib/types';
+import type { CommissionDetails, Proposal, PaymentStatus, ArtistPublicProfile } from '@/lib/types';
 import { setViewingConv } from '@/lib/viewState';
 import { BriefCard } from '@/components/commissions/BriefCard';
 import { ProposalCard } from '@/components/commissions/ProposalCard';
 import { ProposalForm, type ProposalFormData } from '@/components/commissions/ProposalForm';
+import { CommissionEnquiry } from '@/components/portfolio/CommissionEnquiry';
 import styles from './page.module.css';
 
 const ACCEPTED_TYPES = [
@@ -118,6 +120,8 @@ function MessagesContent() {
   const [reviewBody, setReviewBody] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
+  const [newArtist, setNewArtist] = useState<ArtistPublicProfile | null>(null);
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const notifyChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -134,14 +138,39 @@ function MessagesContent() {
   const activeProposal = proposals.filter(p => p.status !== 'superseded').slice(-1)[0] ?? null;
   const pinnedCard = activeProposal?.status === 'accepted' ? 'proposal' : 'brief';
 
-  const filteredConversations = conversations.filter(conv => {
+  const filteredConversations = useMemo(() => {
+    let list = [...conversations];
+    
+    // If we have a recipient param but no matching conversation, add a virtual one
+    if (recipientParam && !conversations.some(c => c.otherParty.username === recipientParam) && newArtist) {
+      const virtual: Conversation = {
+        commissionId: `new:${newArtist.user.username}`,
+        status: 'enquiry',
+        paymentStatus: 'unpaid',
+        briefWhat: null,
+        clientId: user?.id || '',
+        artistId: newArtist.user.id,
+        otherParty: {
+          id: newArtist.user.id,
+          full_name: newArtist.user.full_name,
+          username: newArtist.user.username,
+          avatar_url: newArtist.user.avatar_url
+        },
+        lastMessage: 'Start a new project',
+        lastMessageAt: new Date().toISOString(),
+      };
+      list = [virtual, ...list];
+    }
+
     const q = searchQuery.toLowerCase();
-    return (
-      conv.otherParty.full_name.toLowerCase().includes(q) ||
-      conv.otherParty.username.toLowerCase().includes(q) ||
-      (conv.lastMessage || '').toLowerCase().includes(q)
-    );
-  });
+    return list.filter(conv => {
+      return (
+        conv.otherParty.full_name.toLowerCase().includes(q) ||
+        conv.otherParty.username.toLowerCase().includes(q) ||
+        (conv.lastMessage || '').toLowerCase().includes(q)
+      );
+    });
+  }, [conversations, recipientParam, newArtist, user, searchQuery]);
 
   const isReviewUnlocked =
     commissionDetails?.status === 'completed' &&
@@ -158,9 +187,20 @@ function MessagesContent() {
     getConversations(user.id).then(convs => {
       setConversations(convs);
       setLoading(false);
+      
       if (recipientParam) {
         const match = convs.find(c => c.otherParty.username === recipientParam);
-        if (match) setActiveConvId(match.commissionId);
+        if (match) {
+          setActiveConvId(match.commissionId);
+        } else {
+          // No existing conversation, fetch the profile to show a virtual conversation
+          getArtistProfile(recipientParam).then(profile => {
+            if (profile) {
+              setNewArtist(profile);
+              setActiveConvId(`new:${profile.user.username}`);
+            }
+          });
+        }
       } else if (window.innerWidth > 768 && convs.length > 0) {
         setActiveConvId(convs[0].commissionId);
       }
@@ -174,7 +214,7 @@ function MessagesContent() {
 
   // ── Load messages + commission details on thread open ────
   useEffect(() => {
-    if (!activeConvId) {
+    if (!activeConvId || activeConvId.startsWith('new:')) {
       setCommissionDetails(null);
       setProposals([]);
       return;
@@ -894,11 +934,45 @@ function MessagesContent() {
               </footer>
             </>
           ) : (
-            <div className={styles.emptyState}>
-              <p>{user ? 'Select a conversation to start messaging' : 'Log in to view your messages'}</p>
-            </div>
+            {activeConvId?.startsWith('new:') && newArtist ? (
+              <div className={styles.emptyThread}>
+                <div className={styles.newThreadPrompt}>
+                  <div className={styles.promptHeader}>
+                    <button className={styles.mobileBackBtn} onClick={() => setActiveConvId(null)} aria-label="Back">
+                      <ChevronLeft size={24} />
+                    </button>
+                    <Image 
+                      src={newArtist.user.avatar_url || '/placeholder-avatar.png'} 
+                      alt={newArtist.user.full_name} 
+                      width={64} 
+                      height={64} 
+                      className={styles.promptAvatar} 
+                    />
+                    <h2 className={styles.promptName}>{newArtist.user.full_name}</h2>
+                    <p className={styles.promptSub}>@{newArtist.user.username}</p>
+                  </div>
+                  <div className={styles.promptBody}>
+                    <p>You haven't started a project with {newArtist.user.full_name.split(' ')[0]} yet.</p>
+                    <button className={styles.btnStartEnquiry} onClick={() => setShowEnquiryModal(true)}>
+                      Send Project Brief
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <p>{user ? 'Select a conversation to start messaging' : 'Log in to view your messages'}</p>
+              </div>
+            )}
           )}
         </section>
+
+        {showEnquiryModal && newArtist && (
+          <CommissionEnquiry 
+            artist={newArtist} 
+            onClose={() => setShowEnquiryModal(false)} 
+          />
+        )}
 
         {/* ── RIGHT: PREVIEW PANE ─────────────────── */}
         {showPreviewPane && (

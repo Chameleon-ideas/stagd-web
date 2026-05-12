@@ -136,7 +136,9 @@ export async function POST(req: NextRequest) {
       }
       case 'updateArtistProfile': {
         const { updates } = body;
-        const { error } = await supabaseAdmin.from('artist_profiles').update(updates).eq('id', userId);
+        const { error } = await supabaseAdmin
+          .from('artist_profiles')
+          .upsert({ id: userId, ...updates });
         return NextResponse.json({ error: error?.message ?? null });
       }
       case 'updateProject': {
