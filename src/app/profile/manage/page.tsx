@@ -660,6 +660,7 @@ export default function ManageWorkPage() {
                           startEditingProject={startEditingProject}
                           handleItemDragEnd={handleItemDragEnd}
                           toggleProjectVisibility={toggleProjectVisibility}
+                          isUploading={uploadingProjectId === project.id}
                         />
                       ))}
                     </SortableContext>
@@ -685,7 +686,8 @@ export default function ManageWorkPage() {
           <div className={styles.helpText}>
             • PORTFOLIO IMAGES AUTOMATICALLY APPEAR IN YOUR PUBLIC GRID.<br /><br />
             • PROJECTS ALLOW YOU TO GROUP WORK WITH TECHNICAL SPECS AND LOCATION DATA.<br /><br />
-            • USE THE 'STAR' ICON ON PROJECT ASSETS TO SET A COVER IMAGE FOR THAT COLLECTION.
+            • USE THE 'STAR' ICON ON PROJECT ASSETS TO SET A COVER IMAGE FOR THAT COLLECTION.<br /><br />
+            • YOU CAN UPLOAD UP TO 20MB PER IMAGE FOR BOTH PORTFOLIO ENTRIES AND PROJECT ASSETS.
           </div>
         </div>
 
@@ -791,6 +793,7 @@ interface SortableProjectCardProps {
   startEditingProject: (project: Project) => void;
   handleItemDragEnd: (projectId: string, event: DragEndEvent) => Promise<void>;
   toggleProjectVisibility: (projectId: string, currentStatus: boolean) => Promise<void>;
+  isUploading: boolean;
 }
 
 function SortableProjectCard({
@@ -809,6 +812,7 @@ function SortableProjectCard({
   startEditingProject,
   handleItemDragEnd,
   toggleProjectVisibility,
+  isUploading,
 }: SortableProjectCardProps) {
   const {
     attributes,
@@ -916,8 +920,9 @@ function SortableProjectCard({
               <button className="btn btn-secondary btn-sm" onClick={() => openPortfolioPicker(project.id)}>
                 <ImageIcon size={14} /> CHOOSE FROM PORTFOLIO
               </button>
-              <button className="btn btn-secondary btn-sm" onClick={() => openUploadPicker(project.id)}>
-                <Upload size={14} /> UPLOAD
+              <button className="btn btn-secondary btn-sm" onClick={() => openUploadPicker(project.id)} disabled={isUploading}>
+                {isUploading ? <Loader size={14} className={styles.spin} /> : <Upload size={14} />}
+                {isUploading ? 'UPLOADING...' : 'UPLOAD'}
               </button>
             </div>
             
