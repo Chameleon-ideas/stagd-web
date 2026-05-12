@@ -154,7 +154,7 @@ function MessagesContent() {
           id: newArtist.user.id,
           full_name: newArtist.user.full_name,
           username: newArtist.user.username,
-          avatar_url: newArtist.user.avatar_url
+          avatar_url: newArtist.user.avatar_url || null
         },
         lastMessage: 'Start a new project',
         lastMessageAt: new Date().toISOString(),
