@@ -273,5 +273,12 @@ export default async function EventPage({ params }: EventPageProps) {
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return [{ id: 'event_1' }, { id: 'event_2' }];
+  const { data: events } = await supabaseAdmin
+    .from('events')
+    .select('id')
+    .limit(100);
+
+  return (events ?? []).map((event) => ({
+    id: event.id,
+  }));
 }
