@@ -775,6 +775,25 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
         <div style={{ height: '200px' }} />
       </main>
+
+      {/* ── MOBILE FLOATING ACTIONS ── */}
+      <div className={styles.mobileActions}>
+        <button
+          className={styles.mobileActionBtn}
+          onClick={() => router.push(`/messages?recipient=${profile.user.username}`)}
+          aria-label="Message"
+        >
+          <Mail size={20} />
+        </button>
+        <button
+          className={`${styles.mobileActionBtn} ${styles.mobileHireBtn}`}
+          onClick={() => setIsCommissionOpen(true)}
+          aria-label="Hire"
+        >
+          <UserPlus size={20} />
+        </button>
+      </div>
+
       {/* Commission Modal */}
       {isCommissionOpen && (
         <CommissionEnquiry
