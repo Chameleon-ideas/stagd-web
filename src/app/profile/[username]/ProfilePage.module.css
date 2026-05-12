@@ -117,23 +117,74 @@
   color: var(--color-cyan);
 }
 
+.actionRow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+  height: 44px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border: 1.5px solid var(--border-color);
+  transition: all var(--duration-ui) var(--ease-expo);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+  position: relative;
+}
+
+.actionBtn:active {
+  transform: translate(-1px, -1px);
+  box-shadow: 1px 1px 0px var(--btn-shadow, var(--text));
+}
+
 .editBtn {
-  margin-left: auto;
+  background-color: var(--color-cyan);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+  --btn-shadow: var(--color-ink);
 }
 
 .manageBtn {
-  background-color: var(--color-orange) !important;
-  border-color: var(--color-ink) !important;
-  color: var(--color-white) !important;
-  box-shadow: 4px 4px 0px var(--color-ink);
-  transition: all 0.2s var(--ease-expo);
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+  --btn-shadow: var(--color-ink);
 }
 
-.manageBtn:hover {
-  background-color: var(--color-ink) !important;
-  color: var(--color-orange) !important;
-  box-shadow: 2px 2px 0px var(--color-orange);
-  transform: translate(2px, 2px);
+.viewBtn {
+  background-color: var(--color-green);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+  --btn-shadow: var(--color-ink);
+}
+
+.actionBtn:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0px var(--btn-shadow, var(--text));
+  background-color: var(--color-white) !important;
+  color: var(--color-ink) !important;
+  border-color: var(--color-ink) !important;
+}
+
+[data-theme="dark"] .actionBtn:hover {
+  box-shadow: 4px 4px 0px var(--color-white);
+}
+
+[data-theme="dark"] .editBtn,
+[data-theme="dark"] .manageBtn,
+[data-theme="dark"] .viewBtn {
+  border-color: rgba(0, 0, 0, 0.4);
 }
 
 /* ── COMPACT STATS ── */
@@ -654,6 +705,19 @@
   .metaRow {
     flex-direction: column;
     gap: 8px;
+  }
+  .actionRow {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .actionBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  .headerActions {
+    width: 100%;
+    align-items: center;
   }
   .statsBar {
     grid-template-columns: 1fr;

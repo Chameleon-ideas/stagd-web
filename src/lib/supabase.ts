@@ -13,6 +13,7 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
 // getSession() hangs on page load when multiple auth calls happen concurrently.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
+    detectSessionInUrl: true,
     lock: async <R>(_name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => fn(),
   },
 });

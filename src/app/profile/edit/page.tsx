@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
-import { checkUsernameAvailable, updateUserProfile, getArtistProfile, updateArtistProfile } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+import { checkUsernameAvailable, updateUserProfile, getArtistProfile, updateArtistProfile, deleteAccount } from '@/lib/api';
 import styles from './EditProfile.module.css';
 
 const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
@@ -159,6 +160,20 @@ export default function EditProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
+
+  // Account security
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [securityMsg, setSecurityMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  // Delete account
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -357,10 +372,9 @@ export default function EditProfilePage() {
         is_public: isPublic,
       };
 
-      const isArtist = user.role === 'creative' || user.role === 'both';
       const [{ error: basicError }, artistResult] = await Promise.all([
         updateUserProfile(user.id, basicUpdates),
-        isArtist ? updateArtistProfile(user.id, artistUpdates) : Promise.resolve({ error: null }),
+        role === 'creative' ? updateArtistProfile(user.id, artistUpdates) : Promise.resolve({ error: null }),
       ]);
 
       if (basicError) throw new Error(basicError);
@@ -382,6 +396,56 @@ export default function EditProfilePage() {
       setSaveError(err.message || 'Failed to save changes');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleEmailChange = async () => {
+    if (!newEmail.trim()) return;
+    setIsUpdatingEmail(true);
+    setSecurityMsg(null);
+    const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+    setIsUpdatingEmail(false);
+    if (error) {
+      setSecurityMsg({ type: 'error', text: error.message });
+    } else {
+      setSecurityMsg({ type: 'success', text: `Confirmation sent to ${newEmail}. Click the link to confirm the change.` });
+      setNewEmail('');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || deleteInput !== user.username) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    const { error } = await deleteAccount();
+    if (error) {
+      setDeleteError(error);
+      setIsDeleting(false);
+      return;
+    }
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      setSecurityMsg({ type: 'error', text: 'Passwords do not match.' });
+      return;
+    }
+    if (newPassword.length < 8) {
+      setSecurityMsg({ type: 'error', text: 'Password must be at least 8 characters.' });
+      return;
+    }
+    setIsUpdatingPassword(true);
+    setSecurityMsg(null);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setIsUpdatingPassword(false);
+    if (error) {
+      setSecurityMsg({ type: 'error', text: error.message });
+    } else {
+      setSecurityMsg({ type: 'success', text: 'Password updated successfully.' });
+      setNewPassword('');
+      setConfirmPassword('');
     }
   };
 
@@ -429,6 +493,26 @@ export default function EditProfilePage() {
               </button>
               <p className={styles.hint}>JPG/PNG/WEBP. MAX 2MB.</p>
               {avatarFile && <p className={styles.hint} style={{ color: 'var(--color-lime)' }}>✓ {avatarFile.name}</p>}
+            </div>
+          </div>
+
+          {/* ── ACCOUNT TYPE TOGGLE ── */}
+          <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+            <p style={{ fontSize: '10px', letterSpacing: '1px', color: 'var(--text-faint)', marginBottom: '12px', textTransform: 'uppercase' }}>Account Type</p>
+            <div
+              onClick={() => setRole(r => r === 'creative' ? 'general' : 'creative')}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '10px 0' }}
+            >
+              <div>
+                <p style={{ fontSize: '12px', fontWeight: 600, marginBottom: '2px' }}>{role === 'creative' ? 'Creative' : 'Visitor'}</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-faint)', lineHeight: 1.4 }}>
+                  {role === 'creative' ? 'Portfolio & commissions active' : 'Switch on to offer services'}
+                </p>
+              </div>
+              {role === 'creative'
+                ? <ToggleRight size={28} color="var(--color-yellow)" />
+                : <ToggleLeft size={28} color="var(--text-faint)" />
+              }
             </div>
           </div>
         </aside>
@@ -481,7 +565,7 @@ export default function EditProfilePage() {
             </div>
 
             {/* ── SECTION 02: PROFESSIONAL ── */}
-            <div className={styles.section}>
+            {role === 'creative' && <div className={styles.section}>
               <div className={styles.sectionNumber}>02</div>
               <div className={styles.sectionContent}>
                 <div className={styles.sectionHeader}>
@@ -558,10 +642,10 @@ export default function EditProfilePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>}
 
             {/* ── SECTION 03: LOGISTICS ── */}
-            <div className={styles.section}>
+            {role === 'creative' && <div className={styles.section}>
               <div className={styles.sectionNumber}>03</div>
               <div className={styles.sectionContent}>
                 <div className={styles.sectionHeader}>
@@ -607,10 +691,10 @@ export default function EditProfilePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>}
 
             {/* ── SECTION 04: COMMISSION PREFERENCES ── */}
-            {(user?.role === 'creative' || user?.role === 'both') && (
+            {role === 'creative' && (
               <div className={styles.section}>
                 <div className={styles.sectionNumber}>04</div>
                 <div className={styles.sectionContent}>
@@ -678,7 +762,7 @@ export default function EditProfilePage() {
             )}
 
             {/* ── SECTION 05: CONNECT ── */}
-            <div className={styles.section}>
+            {role === 'creative' && <div className={styles.section}>
               <div className={styles.sectionNumber}>04</div>
               <div className={styles.sectionContent}>
                 <div className={styles.sectionHeader}>
@@ -734,6 +818,147 @@ export default function EditProfilePage() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>}
+
+            {/* ── SECTION: ACCOUNT SECURITY ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionNumber}>05</div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Account Security</h2>
+                </div>
+
+                {securityMsg && (
+                  <p style={{ fontSize: '13px', marginBottom: '20px', color: securityMsg.type === 'success' ? 'var(--color-lime)' : 'var(--color-red)' }}>
+                    {securityMsg.type === 'success' ? '✓' : '⚠'} {securityMsg.text}
+                  </p>
+                )}
+
+                <div style={{ marginBottom: '32px' }}>
+                  <label className={styles.label}>Change Email</label>
+                  <p style={{ fontSize: '12px', color: 'var(--text-faint)', marginBottom: '10px' }}>
+                    Current: <strong>{user?.email}</strong>
+                  </p>
+                  <div className={styles.grid}>
+                    <div className={styles.field}>
+                      <input
+                        type="email"
+                        className="input"
+                        placeholder="New email address"
+                        value={newEmail}
+                        onChange={e => setNewEmail(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleEmailChange()}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <button type="button" className="btn btn-ghost btn-md" disabled={isUpdatingEmail} onClick={handleEmailChange}>
+                        {isUpdatingEmail ? 'Sending...' : 'Send confirmation'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className={styles.label}>Change Password</label>
+                  <div className={styles.grid} style={{ marginTop: '10px' }}>
+                    <div className={styles.field}>
+                      <input
+                        type="password"
+                        className="input"
+                        placeholder="New password"
+                        value={newPassword}
+                        onChange={e => setNewPassword(e.target.value)}
+                        minLength={8}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <input
+                        type="password"
+                        className="input"
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <button type="button" className="btn btn-ghost btn-md" disabled={isUpdatingPassword} onClick={handlePasswordChange} style={{ marginTop: '12px' }}>
+                    {isUpdatingPassword ? 'Updating...' : 'Update password'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ── DANGER ZONE ── */}
+            <div className={styles.section} style={{ borderColor: 'var(--color-red)', opacity: 0.85 }}>
+              <div className={styles.sectionNumber} style={{ color: 'var(--color-red)' }}>!</div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle} style={{ color: 'var(--color-red)' }}>Danger Zone</h2>
+                </div>
+
+                {!showDeleteConfirm ? (
+                  <div>
+                    <p style={{ fontSize: '13px', color: 'var(--text-faint)', marginBottom: '16px', lineHeight: 1.6 }}>
+                      Permanently delete your account and all associated data — portfolio, projects, commission history, and events. This cannot be undone.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(true)}
+                      style={{
+                        padding: '9px 20px', fontSize: '12px', fontWeight: 600,
+                        border: '1.5px solid var(--color-red)', borderRadius: '100px',
+                        background: 'transparent', color: 'var(--color-red)',
+                        cursor: 'pointer', letterSpacing: '0.3px',
+                      }}
+                    >
+                      Delete my account
+                    </button>
+                  </div>
+                ) : (
+                  <AnimatePresence>
+                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+                      <p style={{ fontSize: '13px', color: 'var(--text-faint)', marginBottom: '16px', lineHeight: 1.6 }}>
+                        Type your username <strong>@{user?.username}</strong> to confirm deletion.
+                      </p>
+                      <input
+                        className="input"
+                        placeholder={user?.username}
+                        value={deleteInput}
+                        onChange={e => setDeleteInput(e.target.value)}
+                        style={{ marginBottom: '12px', borderColor: deleteInput && deleteInput !== user?.username ? 'var(--color-red)' : undefined }}
+                        autoFocus
+                      />
+                      {deleteError && (
+                        <p style={{ fontSize: '12px', color: 'var(--color-red)', marginBottom: '12px' }}>⚠ {deleteError}</p>
+                      )}
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          type="button"
+                          onClick={handleDeleteAccount}
+                          disabled={deleteInput !== user?.username || isDeleting}
+                          style={{
+                            padding: '9px 20px', fontSize: '12px', fontWeight: 600,
+                            border: '1.5px solid var(--color-red)', borderRadius: '100px',
+                            background: deleteInput === user?.username ? 'var(--color-red)' : 'transparent',
+                            color: deleteInput === user?.username ? '#fff' : 'var(--color-red)',
+                            cursor: deleteInput === user?.username ? 'pointer' : 'not-allowed',
+                            opacity: deleteInput !== user?.username ? 0.5 : 1,
+                          }}
+                        >
+                          {isDeleting ? 'Deleting...' : 'Yes, delete everything'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setShowDeleteConfirm(false); setDeleteInput(''); setDeleteError(null); }}
+                          className="btn btn-ghost btn-md"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
               </div>
             </div>
 

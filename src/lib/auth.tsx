@@ -19,6 +19,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  sendMagicLink: (email: string) => Promise<void>;
   signup: (data: { fullName: string; email: string; password: string; role: 'creative' | 'visitor' }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -86,6 +87,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/explore?tab=artists');
   };
 
+  const sendMagicLink = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/magic`,
+      },
+    });
+    if (error) throw error;
+  };
+
   const signup = async (data: { fullName: string; email: string; password: string; role: 'creative' | 'visitor' }) => {
     setIsLoading(true);
     const username = data.fullName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
@@ -125,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshUser, patchUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, sendMagicLink, signup, logout, refreshUser, patchUser }}>
       {children}
     </AuthContext.Provider>
   );

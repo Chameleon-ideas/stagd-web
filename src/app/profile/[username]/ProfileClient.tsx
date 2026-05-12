@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Globe, ExternalLink, CheckCircle, Star, MapPin,
   Edit3, Calendar, MessageSquare, ArrowRight, Image as ImageIcon,
@@ -131,12 +131,15 @@ export default function ProfileClient({ username, profile: initialProfile, event
 
           <div className={styles.headerActions}>
             {isOwner && (
-              <div style={{ display: 'flex', gap: 8 }}>
-                <Link href="/profile/edit" className="btn btn-secondary btn-sm">
-                  <Edit3 size={14} style={{ marginRight: 8 }} />Edit Profile
+              <div className={styles.actionRow}>
+                <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.editBtn}`}>
+                  <Edit3 size={15} />Edit Profile
                 </Link>
-                <Link href="/profile/manage" className={`btn btn-sm ${styles.manageBtn}`}>
-                  <ImageIcon size={14} style={{ marginRight: 8 }} />Manage Work
+                <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
+                  <ImageIcon size={15} />Manage Work
+                </Link>
+                <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
+                  <ExternalLink size={15} />View Portfolio
                 </Link>
               </div>
             )}

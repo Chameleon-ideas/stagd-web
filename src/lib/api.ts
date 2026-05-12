@@ -978,6 +978,10 @@ async function enrichTiersWithAvailability(events: any[]): Promise<any[]> {
   });
 }
 
+export async function deleteAccount(): Promise<{ error: string | null }> {
+  return dbWrite('deleteAccount', {});
+}
+
 export async function submitReport(
   reportedUserId: string,
   commissionId: string | null,

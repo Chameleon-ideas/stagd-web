@@ -829,6 +829,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: null });
       }
 
+      case 'deleteAccount': {
+        if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: null });
+      }
+
       case 'submitReport': {
         const { reportedUserId, commissionId, reason } = body;
         if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
