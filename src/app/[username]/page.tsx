@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!profile) return { title: 'Not Found' };
 
     const fullName = profile.user.full_name;
-    const disciplines = profile.disciplines?.join(', ') || 'Creative';
+    const disciplines = profile.profile.disciplines?.join(', ') || 'Creative';
     const city = profile.user.city || 'Pakistan';
 
     return {
