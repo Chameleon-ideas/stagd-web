@@ -1,64 +1,33 @@
-"use client";
+import { Metadata } from 'next';
+import { getArtistProfile } from '@/lib/api';
+import ProfileClient from './ProfileClient';
 
-import { useState, useEffect, use } from 'react';
-import { getArtistProfile, getArtistEvents } from '@/lib/api';
-import { ControlTemplate } from '@/components/portfolio/ControlTemplate';
-import styles from './page.module.css';
-
-interface ArtistPageProps {
+interface Props {
   params: Promise<{ username: string }>;
 }
 
-import { WorkstationLayout } from '@/components/layout/WorkstationLayout';
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { username } = await params;
+  try {
+    const profile = await getArtistProfile(username);
+    if (!profile) return { title: 'Not Found' };
 
-export default function ArtistPage({ params }: ArtistPageProps) {
-  const { username } = use(params);
-  const [profile, setProfile] = useState<any>(null);
-  const [events, setEvents] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const p = await getArtistProfile(username);
-        setProfile(p);
-        if (p) {
-          const e = await getArtistEvents(p.user.id);
-          setEvents(e);
-        }
-      } catch (err) {
-        console.error('Failed to load artist profile:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, [username]);
+    const fullName = profile.user.full_name;
+    const disciplines = profile.disciplines?.join(', ') || 'Creative';
+    const city = profile.user.city || 'Pakistan';
 
-  if (loading) {
-    return (
-      <WorkstationLayout>
-        <main className={styles.main} style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <p style={{ color: 'var(--text-faint)', fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase' }}>
-            Initializing installation...
-          </p>
-        </main>
-      </WorkstationLayout>
-    );
+    return {
+      title: `${fullName} (@${username})`,
+      description: `${fullName} is a ${disciplines} based in ${city}. Explore their portfolio and professional commissions on Stag'd.`,
+      openGraph: {
+        images: profile.user.avatar_url ? [profile.user.avatar_url] : [],
+      },
+    };
+  } catch (error) {
+    return { title: 'Creative Profile' };
   }
+}
 
-  if (!profile) return (
-    <WorkstationLayout>
-      <main className={styles.main} style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <p>Portfolio not found</p>
-      </main>
-    </WorkstationLayout>
-  );
-
-  return (
-    <WorkstationLayout>
-      <ControlTemplate profile={profile} events={events} />
-    </WorkstationLayout>
-  );
+export default async function Page({ params }: Props) {
+  return <ProfileClient params={params} />;
 }

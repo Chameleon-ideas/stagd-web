@@ -12,7 +12,7 @@ import { ConditionalFooter } from '@/components/layout/ConditionalFooter';
 export const metadata: Metadata = {
   title: {
     default: "Stag'd — Pakistan's Creative Economy",
-    template: "%s | Stag'd",
+    template: "%s — Stag'd",
   },
   description:
     "Discover and hire independent creatives in Pakistan. Find concerts, workshops, gallery nights, and more. Stag'd connects creatives with the people who want to experience them.",
