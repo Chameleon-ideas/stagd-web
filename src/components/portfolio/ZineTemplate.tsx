@@ -89,12 +89,14 @@ export function ZineTemplate({ profile, events }: ZineTemplateProps) {
           transition={{ duration: 1, ease: "circOut" }}
           viewport={{ once: true }}
         >
-          <Image
-            src={narrativePiece?.image_url || heroPiece?.image_url}
-            alt="Narrative"
-            width={800}
-            height={1000}
-          />
+          {(narrativePiece?.image_url || heroPiece?.image_url) && (
+            <Image
+              src={narrativePiece?.image_url || heroPiece?.image_url}
+              alt="Narrative"
+              width={800}
+              height={1000}
+            />
+          )}
         </motion.div>
       </section>
 
@@ -117,11 +119,13 @@ export function ZineTemplate({ profile, events }: ZineTemplateProps) {
               variants={itemVariants}
             >
               <span className={styles.metaBadge}>{item.category}</span>
-              <Image
-                src={item.image_url}
-                alt={item.title}
-                fill
-              />
+              {item.image_url && (
+                <Image
+                  src={item.image_url}
+                  alt={item.title}
+                  fill
+                />
+              )}
             </motion.div>
           );
         })}

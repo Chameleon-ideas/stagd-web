@@ -300,11 +300,13 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   <p>{profile.detailed_bio || profile.profile.bio}</p>
                 </div>
                 <div className={styles.aboutPortraitWrapper}>
-                  <img 
-                    src={profile.user.avatar_url} 
-                    alt={profile.user.full_name} 
-                    className={styles.aboutPortrait}
-                  />
+                  {profile.user.avatar_url && (
+                    <img 
+                      src={profile.user.avatar_url} 
+                      alt={profile.user.full_name} 
+                      className={styles.aboutPortrait}
+                    />
+                  )}
                   <div className={styles.portraitLabel}>// PROFILE_ID: {profile.user.username?.toUpperCase()}</div>
                 </div>
               </div>
@@ -504,12 +506,14 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   >
                     {item.event.cover_image_url && (
                       <div className={styles.eventSidebarBg}>
-                        <Image 
-                          src={item.event.cover_image_url} 
-                          alt="" 
-                          fill 
-                          sizes="300px"
-                        />
+                        {item.event.cover_image_url && (
+                          <Image 
+                            src={item.event.cover_image_url} 
+                            alt="" 
+                            fill 
+                            sizes="300px"
+                          />
+                        )}
                       </div>
                     )}
                     <div className={styles.eventSidebarOverlay} />
@@ -692,12 +696,14 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 onClick={() => openLightbox(project.cover_image_url)}
               >
                 <div className={styles.imageHover}><ZoomIn size={40} /></div>
-                <img 
-                  src={project.cover_image_url} 
-                  alt={project.title} 
-                  className={styles.projectImage} 
-                  loading={pIndex === 0 ? "eager" : "lazy"} 
-                />
+                {project.cover_image_url && (
+                  <img 
+                    src={project.cover_image_url} 
+                    alt={project.title} 
+                    className={styles.projectImage} 
+                    loading={pIndex === 0 ? "eager" : "lazy"} 
+                  />
+                )}
               </div>
 
               {/* Sub items in bento pattern */}
@@ -709,12 +715,14 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                     onClick={() => openLightbox(item.image_url)}
                   >
                     <div className={styles.imageHover}><Maximize2 size={24} /></div>
-                    <img 
-                      src={item.image_url} 
-                      alt={item.title} 
-                      className={styles.projectImage} 
-                      loading="lazy" 
-                    />
+                    {item.image_url && (
+                      <img 
+                        src={item.image_url} 
+                        alt={item.title} 
+                        className={styles.projectImage} 
+                        loading="lazy" 
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -760,12 +768,14 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   onClick={() => openLightbox(item.image_url)}
                  >
                    <div className={styles.imageHover}><Maximize2 size={20} /></div>
-                   <img 
-                     src={item.image_url} 
-                     alt={item.title} 
-                     className={styles.projectImage} 
-                     loading="lazy" 
-                   />
+                   {item.image_url && (
+                     <img 
+                       src={item.image_url} 
+                       alt={item.title} 
+                       className={styles.projectImage} 
+                       loading="lazy" 
+                     />
+                   )}
                  </motion.div>
                ))}
              </div>

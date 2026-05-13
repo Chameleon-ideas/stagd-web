@@ -29,7 +29,7 @@ export async function generateBrandedQR(ticketId: string): Promise<string> {
       resolve();
     };
     logo.onerror = () => resolve(); // QR still works without logo
-    logo.src = '/images/logo.png';
+    logo.src = '/images/stagd-logo.svg';
   });
 
   return canvas.toDataURL('image/png');

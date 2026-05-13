@@ -352,13 +352,15 @@ function EventCard({ item }: { item: any }) {
   return (
     <Link href={`/events/${event.slug ?? event.id}`} className={styles.editorialEventCard}>
       <div className={styles.editorialCover}>
-        <Image
-          src={event.cover_image_url ?? ""}
-          alt={event.title}
-          fill
-          className={styles.editorialImg}
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
+        {event.cover_image_url && (
+          <Image
+            src={event.cover_image_url}
+            alt={event.title}
+            fill
+            className={styles.editorialImg}
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+        )}
         
         {/* Top Badges */}
         <div className={styles.editorialTopLeft}>

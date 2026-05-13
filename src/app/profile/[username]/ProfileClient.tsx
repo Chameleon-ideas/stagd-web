@@ -263,7 +263,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
                     });
                     return (
                       <div key={item.id} className={styles.portfolioItem} onClick={() => openLightbox(navItems, idx)}>
-                        <img src={item.image_url} alt={item.title || 'Work'} className={styles.portfolioImage} />
+                        {item.image_url && <img src={item.image_url} alt={item.title || 'Work'} className={styles.portfolioImage} />}
                       </div>
                     );
                   })}
@@ -305,7 +305,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
                             <div className={styles.projectThumbRow}>
                               {projNavItems.slice(0, 5).map((pi, i) => (
                                 <div key={pi.itemId} className={styles.projectThumb} onClick={() => openLightbox(projNavItems, i)}>
-                                  <img src={pi.image_url} alt={pi.title || ''} />
+                                  {pi.image_url && <img src={pi.image_url} alt={pi.title || ''} />}
                                 </div>
                               ))}
                               {projNavItems.length > 5 && (

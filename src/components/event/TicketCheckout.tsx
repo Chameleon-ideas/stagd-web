@@ -148,7 +148,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       ctx.fillRect(0, 0, canvas.width, 100);
       
       // Load and draw the wordmark logo
-      const logoImg = await loadImage('/stagd-wordmark.svg');
+      const logoImg = await loadImage('/images/stagd-logo.svg');
       const logoWidth = 140;
       const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
       ctx.drawImage(logoImg, 40, (100 - logoHeight) / 2, logoWidth, logoHeight);
@@ -470,7 +470,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
               <div className={styles.ticketVisualTop}>
                 <div className={styles.ticketVisualLogo}>
                   <Image 
-                    src="/stagd-wordmark.svg" 
+                    src="/images/stagd-logo.svg" 
                     alt="Stagd" 
                     width={80} 
                     height={32} 
@@ -481,7 +481,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
               </div>
 
               <div className={styles.ticketVisualImage}>
-                <Image src={event.cover_image_url ?? ""} alt="" fill className={styles.img} />
+                {event.cover_image_url && <Image src={event.cover_image_url} alt="" fill className={styles.img} />}
                 <div className={styles.editorialGradient} />
                 <div className={styles.ticketVisualType}>OFFICIAL PASS</div>
                 <div className={styles.ticketVisualWatermark}>{event.event_type?.toUpperCase()}</div>

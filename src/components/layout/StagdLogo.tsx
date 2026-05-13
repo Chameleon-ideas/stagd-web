@@ -21,7 +21,7 @@ export function StagdLogo({ className, width = 110, height = 44 }: StagdLogoProp
       style={{ width, height }}
     >
       <Image
-        src="/stagd-wordmark.svg"
+        src="/images/stagd-logo.svg"
         alt="Stagd"
         width={width}
         height={height}
