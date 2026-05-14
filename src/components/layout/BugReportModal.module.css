@@ -110,6 +110,13 @@
   cursor: not-allowed;
 }
 
+.error {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #e53e3e;
+  margin-bottom: 8px;
+}
+
 .successState {
   display: flex;
   flex-direction: column;

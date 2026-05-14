@@ -4,26 +4,39 @@ import { X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './BugReportModal.module.css';
 
-export function BugReportModal({ onClose }: { onClose: () => void }) {
+interface BugReportModalProps {
+  onClose: () => void;
+  username?: string;
+  email?: string;
+}
+
+export function BugReportModal({ onClose, username, email }: BugReportModalProps) {
   const [report, setReport] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!report.trim()) return;
-    
+
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    
-    // Auto close after success
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    setError('');
+
+    try {
+      const res = await fetch('/api/bug-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: report, username, email }),
+      });
+      if (!res.ok) throw new Error('Failed to send');
+      setIsSuccess(true);
+      setTimeout(() => onClose(), 2000);
+    } catch {
+      setError('Failed to send — please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -82,8 +95,9 @@ export function BugReportModal({ onClose }: { onClose: () => void }) {
                 rows={5}
                 required
               />
-              <button 
-                type="submit" 
+              {error && <p className={styles.error}>{error}</p>}
+              <button
+                type="submit"
                 className={`btn btn-accent ${styles.submitBtn}`}
                 disabled={isSubmitting || !report.trim()}
               >

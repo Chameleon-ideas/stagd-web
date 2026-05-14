@@ -190,14 +190,16 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
         </div>
       </div>
       
-      <div className={styles.ticker}>
-        <div className={styles.tickerContent}>
-          // Early access build · Something not working?{' '}
-          <button onClick={() => setIsBugReportOpen(true)} className={styles.tickerLink}>
-            Tell us →
-          </button>
+      {user && (
+        <div className={styles.ticker}>
+          <div className={styles.tickerContent}>
+            // Early access build · Something not working?{' '}
+            <button onClick={() => setIsBugReportOpen(true)} className={styles.tickerLink}>
+              Tell us →
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
@@ -231,7 +233,11 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
       )}
 
       {isBugReportOpen && createPortal(
-        <BugReportModal onClose={() => setIsBugReportOpen(false)} />,
+        <BugReportModal
+          onClose={() => setIsBugReportOpen(false)}
+          username={user?.username}
+          email={user?.email}
+        />,
         document.body
       )}
     </header>
