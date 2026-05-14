@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
   CheckCircle, 
@@ -29,6 +29,7 @@ import {
   uploadAvatar 
 } from '@/lib/api';
 import styles from './EditProfile.module.css';
+import RequestCreativeModal from '@/components/auth/RequestCreativeModal';
 
 const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
 const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
@@ -118,6 +119,8 @@ interface InitialData {
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isOnboarding = searchParams.get('onboarding') === 'true';
   const { user, isLoading: isAuthLoading, patchUser } = useAuth();
 
   // Basic Profile (profiles table)
@@ -177,6 +180,11 @@ export default function EditProfilePage() {
   const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+  // Creative upgrade request
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [lastRequestSentAt, setLastRequestSentAt] = useState<string | null>(null);
+  const [requestJustSent, setRequestJustSent] = useState(false);
+
   // Delete account
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
@@ -195,6 +203,16 @@ export default function EditProfilePage() {
       setUsername(user.username);
       setCity(user.city ?? '');
       setPhone(user.phone ?? '');
+
+      // Load creative_request_sent_at for cooldown display
+      supabase
+        .from('profiles')
+        .select('creative_request_sent_at')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.creative_request_sent_at) setLastRequestSentAt(data.creative_request_sent_at);
+        });
 
       // Fetch artist-specific details using optimized lightweight query
       getArtistProfileBasic(user.username).then(profile => {
@@ -358,7 +376,6 @@ export default function EditProfilePage() {
         username: newUsername,
         city: city || null,
         phone: phone.trim() || null,
-        role: role as any,
       };
       const artistUpdates = {
         bio: bio.trim(),
@@ -393,17 +410,18 @@ export default function EditProfilePage() {
       }
 
       // Update auth cache synchronously — no extra round trips
-      patchUser({ 
-        full_name: fullName.trim(), 
-        username: newUsername, 
-        city: city || undefined, 
-        phone: phone.trim() || undefined, 
-        role: role as any,
-        ...(avatarUrl ? { avatar_url: avatarUrl } : {}) 
+      patchUser({
+        full_name: fullName.trim(),
+        username: newUsername,
+        city: city || undefined,
+        phone: phone.trim() || undefined,
+        ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
       });
 
       setSaved(true);
-      setTimeout(() => router.push(`/profile/${newUsername}`), 600);
+      if (role === 'creative') {
+        setTimeout(() => router.push(`/profile/${newUsername}`), 600);
+      }
     } catch (err: any) {
       setSaveError(err.message || 'Failed to save changes');
     } finally {
@@ -473,42 +491,96 @@ export default function EditProfilePage() {
         
         {/* ── SIDEBAR ── */}
         <aside className={styles.sidebar}>
-          <Link href={`/profile/${user?.username}`} className={styles.backLink}>
-            <ArrowLeft size={14} /> Back to Profile
+          <Link
+            href={role === 'creative' ? `/profile/${user?.username}` : '/explore?tab=artists'}
+            className={styles.backLink}
+          >
+            <ArrowLeft size={14} /> {role === 'creative' ? 'Back to Profile' : 'Back to Explore'}
           </Link>
           <h1 className={styles.title}>Edit<br/>Profile</h1>
           
-          {/* ── ACCOUNT TYPE TOGGLE ── */}
+          {/* ── ACCOUNT TYPE (locked) ── */}
           <div className={styles.accountTypeContainer}>
             <p className={styles.accountTypeLabel}>Account Type</p>
-            <div
-              className={styles.typeToggle}
-              onClick={() => setRole(r => r === 'creative' ? 'general' : 'creative')}
-            >
-              <div className={`${styles.typeSlider} ${role === 'creative' ? styles.typeSliderCreative : styles.typeSliderVisitor}`} />
-              <div className={`${styles.typeOption} ${role !== 'creative' ? styles.typeOptionActive : ''}`}>Visitor</div>
-              <div className={`${styles.typeOption} ${role === 'creative' ? styles.typeOptionActive : ''}`}>Creative</div>
+            <div className={styles.accountTypeBadge}>
+              <span className={`${styles.rolePill} ${role === 'creative' ? styles.rolePillCreative : styles.rolePillPatron}`}>
+                {role === 'creative' ? 'Creative' : 'Patron'}
+              </span>
             </div>
-            <div className={styles.typeDescription}>
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={role}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {role === 'creative' 
-                    ? 'Showcase your portfolio, offer services, and apply for projects. You will be visible on the Explore page.' 
-                    : 'Browse artists and projects. Your profile will be private and portfolio features will be disabled.'}
-                </motion.p>
-              </AnimatePresence>
-            </div>
+            <p className={styles.accountTypeLocked}>
+              {role === 'creative'
+                ? 'You have a Creative account. This cannot be changed.'
+                : 'You have a Patron account. Request an upgrade to become a Creative.'}
+            </p>
+
+            {role === 'general' && (
+              <div className={styles.requestSection}>
+                {requestJustSent ? (
+                  <p className={styles.requestSent}>// Request sent. We'll be in touch.</p>
+                ) : (() => {
+                  const onCooldown = lastRequestSentAt
+                    ? Date.now() - new Date(lastRequestSentAt).getTime() < 24 * 60 * 60 * 1000
+                    : false;
+                  const hoursLeft = lastRequestSentAt
+                    ? Math.ceil((24 * 60 * 60 * 1000 - (Date.now() - new Date(lastRequestSentAt).getTime())) / (60 * 60 * 1000))
+                    : 0;
+                  return (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.requestBtn}
+                        disabled={onCooldown}
+                        onClick={() => setShowRequestModal(true)}
+                      >
+                        Request Creative Access
+                      </button>
+                      {onCooldown && (
+                        <p className={styles.cooldownNote}>
+                          Request sent. Try again in {hoursLeft}h.
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </aside>
 
         {/* ── MAIN CONTENT ── */}
         <main className={styles.main}>
+
+          {/* ── ONBOARDING CHECKLIST ── */}
+          {isOnboarding && role === 'creative' && (
+            <div className={styles.onboardingBanner}>
+              <div className={styles.onboardingHeader}>
+                <p className={styles.onboardingEyebrow}>// Setup Checklist</p>
+                <p className={styles.onboardingTitle}>Build your presence on Stag'd</p>
+                <p className={styles.onboardingSubtitle}>Fill these out to get discovered. You can always come back later.</p>
+              </div>
+              <ul className={styles.checklistItems}>
+                {[
+                  { label: 'Profile photo', done: !!avatarPreview || !!avatarFile },
+                  { label: 'Short bio', done: bio.trim().length > 0 },
+                  { label: 'At least one discipline', done: disciplines.length > 0 },
+                  { label: 'Your city', done: city !== '' },
+                  { label: 'Rate or "Rates on request"', done: startingRate !== '' || ratesOnRequest },
+                ].map(({ label, done }) => (
+                  <li key={label} className={`${styles.checklistItem} ${done ? styles.checklistItemDone : ''}`}>
+                    <span className={styles.checklistDot} />
+                    {label}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={`/profile/${user?.username}`}
+                className={styles.onboardingSkip}
+              >
+                Skip for now →
+              </Link>
+            </div>
+          )}
+
           <form onSubmit={handleSave} className={styles.form}>
             
             {/* ── SECTION 01: IDENTITY ── */}
@@ -1011,6 +1083,19 @@ export default function EditProfilePage() {
           </div>
         </aside>
       </div>
+
+      <AnimatePresence>
+        {showRequestModal && (
+          <RequestCreativeModal
+            onClose={() => setShowRequestModal(false)}
+            onSent={() => {
+              setShowRequestModal(false);
+              setRequestJustSent(true);
+              setLastRequestSentAt(new Date().toISOString());
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

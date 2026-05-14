@@ -21,7 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   sendMagicLink: (email: string) => Promise<void>;
-  signup: (data: { fullName: string; email: string; password: string; role: 'creative' | 'visitor' }) => Promise<void>;
+  signup: (data: { fullName: string; email: string; password: string; role: 'creative' | 'patron' }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   patchUser: (updates: Partial<User>) => void;
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const signup = async (data: { fullName: string; email: string; password: string; role: 'creative' | 'visitor' }) => {
+  const signup = async (data: { fullName: string; email: string; password: string; role: 'creative' | 'patron' }) => {
     setIsLoading(true);
     const username = data.fullName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
     const { error: signUpError } = await supabase.auth.signUp({
@@ -131,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           full_name: data.fullName,
           username,
-          role: data.role === 'creative' ? 'creative' : 'general',
+          role: data.role === 'creative' ? 'creative' : 'general', // 'patron' maps to 'general' in DB
         },
       },
     });
@@ -143,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/');
+    router.refresh();
   };
 
   const refreshUser = async () => {

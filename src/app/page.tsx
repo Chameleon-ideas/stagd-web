@@ -115,7 +115,7 @@ export default async function HomePage() {
                     Every creative on Stag'd gets a proper portfolio page at their own URL. A masonry grid of their work, their rates, availability, and a direct way to hire them. Burns Road after dark is a different city — Stag'd makes sure you know who's in it.
                   </p>
                   <Link href="/explore" className="btn btn-secondary btn-md" id="pillar-discover">
-                    Browse artists
+                    Explore
                   </Link>
                 </div>
                 <div className={styles.pillarRight} data-animate="pillar-1">

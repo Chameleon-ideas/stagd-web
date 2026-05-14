@@ -151,18 +151,22 @@ export default function ProfileClient({ username, profile: initialProfile, event
                   <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.editBtn}`}>
                     <Edit3 size={15} />Edit Profile
                   </Link>
-                  <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
-                    <ImageIcon size={15} />Manage Work
-                  </Link>
-                  <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
-                    <ExternalLink size={15} />View Portfolio
-                  </Link>
+                  {isCreative && (
+                    <>
+                      <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
+                        <ImageIcon size={15} />Manage Work
+                      </Link>
+                      <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
+                        <ExternalLink size={15} />View Portfolio
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 {/* Sticky Floating Sidebar (Fixed, appears on scroll) */}
                 <AnimatePresence>
                   {isSticky && (
-                    <motion.div 
+                    <motion.div
                       className={styles.actionRowSticky}
                       initial={{ x: 100, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
@@ -172,12 +176,16 @@ export default function ProfileClient({ username, profile: initialProfile, event
                       <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.editBtn}`}>
                         <Edit3 size={15} />Edit Profile
                       </Link>
-                      <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
-                        <ImageIcon size={15} />Manage Work
-                      </Link>
-                      <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
-                        <ExternalLink size={15} />View Portfolio
-                      </Link>
+                      {isCreative && (
+                        <>
+                          <Link href="/profile/manage" className={`${styles.actionBtn} ${styles.manageBtn}`}>
+                            <ImageIcon size={15} />Manage Work
+                          </Link>
+                          <Link href={`/${username}`} className={`${styles.actionBtn} ${styles.viewBtn}`}>
+                            <ExternalLink size={15} />View Portfolio
+                          </Link>
+                        </>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -153,9 +153,13 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
                           <span>Inbox</span>
                           {unreadCount > 0 && <span className={styles.unreadBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
                         </Link>
-                        <Link href={`/profile/${user.username}`} className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
+                        <Link
+                          href={user.role === 'general' ? '/profile/edit' : `/profile/${user.username}`}
+                          className={styles.dropdownItem}
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
                           <User size={14} />
-                          <span>My Profile</span>
+                          <span>{user.role === 'general' ? 'Edit Profile' : 'My Profile'}</span>
                         </Link>
                         <button
                           className={styles.dropdownItem}

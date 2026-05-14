@@ -129,6 +129,67 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (op) {
+      case 'requestCreativeUpgrade': {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('full_name, username, role, creative_request_sent_at')
+          .eq('id', userId)
+          .single();
+        if (!profile) return NextResponse.json({ error: 'Profile not found.' });
+        if (profile.role !== 'general') {
+          return NextResponse.json({ error: 'Only Patron accounts can request this.' });
+        }
+        if (profile.creative_request_sent_at) {
+          const elapsed = Date.now() - new Date(profile.creative_request_sent_at).getTime();
+          if (elapsed < 24 * 60 * 60 * 1000) {
+            const hoursLeft = Math.ceil((24 * 60 * 60 * 1000 - elapsed) / (60 * 60 * 1000));
+            return NextResponse.json({ error: `You already sent a request. Try again in ${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}.` });
+          }
+        }
+        const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
+        await sendMail({
+          to: 'info@stagd.app',
+          subject: `Creative Access Request — @${profile.username}`,
+          html: `
+            <h2 style="font-family:sans-serif">Creative Access Request</h2>
+            <p style="font-family:sans-serif"><strong>${profile.full_name}</strong> (@${profile.username}) wants to upgrade from Patron to Creative on Stag'd.</p>
+            <table style="font-family:sans-serif;border-collapse:collapse;margin-top:16px">
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Name</td><td><strong>${profile.full_name}</strong></td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Username</td><td>@${profile.username}</td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Email</td><td>${authUser?.email ?? 'unknown'}</td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">User ID</td><td style="font-family:monospace;font-size:12px">${userId}</td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Requested at</td><td>${new Date().toUTCString()}</td></tr>
+            </table>
+          `,
+        });
+        await supabaseAdmin
+          .from('profiles')
+          .update({ creative_request_sent_at: new Date().toISOString() })
+          .eq('id', userId);
+        return NextResponse.json({ error: null });
+      }
+      case 'completeOnboarding': {
+        const { role } = body;
+        if (role !== 'creative' && role !== 'general') {
+          return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+        }
+        // Critical: set the role (always succeeds — column exists from initial schema)
+        const { error: roleErr } = await supabaseAdmin
+          .from('profiles')
+          .update({ role })
+          .eq('id', userId);
+        if (roleErr) return NextResponse.json({ error: roleErr.message });
+        // Critical: seed artist_profiles row so the profile page resolves
+        if (role === 'creative') {
+          await supabaseAdmin.from('artist_profiles').upsert({ id: userId }, { onConflict: 'id' });
+        }
+        // Optional: stamp onboarding complete — requires migration, swallow if missing
+        await supabaseAdmin
+          .from('profiles')
+          .update({ onboarding_complete: true, role_selected_at: new Date().toISOString() })
+          .eq('id', userId);
+        return NextResponse.json({ error: null });
+      }
       case 'updateUserProfile': {
         const { updates } = body;
         const { error } = await supabaseAdmin.from('profiles').update(updates).eq('id', userId);

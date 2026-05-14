@@ -13,7 +13,7 @@ export async function sendMail(opts: {
   }
 
   await resend.emails.send({
-    from: 'Stag\'d <info@stagd.app>',
+    from: "STAG'D <info@stagd.app>",
     to: opts.to,
     subject: opts.subject,
     html: opts.html,

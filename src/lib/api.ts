@@ -62,6 +62,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
     .single();
 
   if (error || !data) return null as unknown as ArtistPublicProfile;
+  if (data.role === 'general') return null as unknown as ArtistPublicProfile;
 
   const { count: followerCount } = await supabase
     .from('follows')

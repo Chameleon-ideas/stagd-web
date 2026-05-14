@@ -1,0 +1,130 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  background-image: var(--stripe-bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--gutter);
+  z-index: 100;
+}
+
+.modal {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-surface);
+  border: var(--border);
+  box-shadow: 8px 8px 0 var(--color-ink);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+[data-theme="dark"] .modal {
+  box-shadow: 8px 8px 0 var(--color-cream);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+  color: var(--text-muted);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: var(--text-muted);
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .roleGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roleCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--duration-ui) var(--ease-expo);
+  border-radius: var(--radius-none);
+}
+
+.roleCard:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.roleActive {
+  border-color: var(--color-yellow);
+  background-color: var(--color-yellow);
+  color: var(--color-ink) !important;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+[data-theme="dark"] .roleActive {
+  box-shadow: 4px 4px 0 var(--color-cream);
+}
+
+.roleCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.roleTitle {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: inherit;
+}
+
+.roleDesc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: inherit;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+.error {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-red);
+  text-transform: uppercase;
+  overflow: hidden;
+}

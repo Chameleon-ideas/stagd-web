@@ -1,13 +1,15 @@
 'use client';
 
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import RolePickerModal from '@/components/auth/RolePickerModal';
 
 function GoogleCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ran = useRef(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
     if (ran.current) return;
@@ -31,19 +33,50 @@ function GoogleCallback() {
       .then(res => res.json())
       .then(async ({ id_token, error: tokenError }) => {
         if (tokenError || !id_token) throw new Error(tokenError ?? 'No id_token');
-        const { error: signInError } = await supabase.auth.signInWithIdToken({
+
+        const { data, error: signInError } = await supabase.auth.signInWithIdToken({
           provider: 'google',
           token: id_token,
           nonce,
         });
         if (signInError) throw signInError;
         sessionStorage.removeItem('google_oauth_nonce');
-        router.replace('/explore?tab=artists');
+
+        const { data: profileRow, error: profileErr } = await supabase
+          .from('profiles')
+          .select('onboarding_complete')
+          .eq('id', data.user.id)
+          .single();
+
+        // Fall back to timestamp heuristic if migration hasn't been applied yet
+        const needsOnboarding = profileErr
+          ? new Date(data.user.last_sign_in_at ?? data.user.created_at).getTime() - new Date(data.user.created_at).getTime() < 10_000
+          : !profileRow?.onboarding_complete;
+
+        if (needsOnboarding) {
+          setShowPicker(true);
+        } else {
+          router.replace('/explore?tab=artists');
+        }
       })
       .catch(() => {
         router.replace('/auth/login?error=google_failed');
       });
   }, []);
+
+  if (showPicker) {
+    return (
+      <RolePickerModal
+        onComplete={(role) => {
+          if (role === 'creative') {
+            router.replace('/profile/edit?onboarding=true');
+          } else {
+            router.replace('/explore?tab=artists');
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>

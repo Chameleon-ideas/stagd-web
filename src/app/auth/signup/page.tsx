@@ -12,7 +12,7 @@ export default function SignupPage() {
     fullName: '',
     email: '',
     password: '',
-    role: '' as 'creative' | 'visitor' | '',
+    role: '' as 'creative' | 'patron' | '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export default function SignupPage() {
     setError(null);
 
     if (!formData.role) {
-      setError('Please select if you are a Creative or a Visitor.');
+      setError('Please select if you are a Creative or a Patron.');
       return;
     }
 
@@ -156,15 +156,15 @@ export default function SignupPage() {
               </button>
               <button
                 type="button"
-                className={`${styles.roleCard} ${formData.role === 'visitor' ? styles.roleActive : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'visitor' })}
+                className={`${styles.roleCard} ${formData.role === 'patron' ? styles.roleActive : ''}`}
+                onClick={() => setFormData({ ...formData, role: 'patron' })}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <User size={20} />
-                  {formData.role === 'visitor' && <Check size={16} />}
+                  {formData.role === 'patron' && <Check size={16} />}
                 </div>
-                <span className={styles.roleTitle}>Visitor</span>
-                <span className={styles.roleDesc}>Find artists, book tickets.</span>
+                <span className={styles.roleTitle}>Patron</span>
+                <span className={styles.roleDesc}>Explore, hire, attend events, and create them too.</span>
               </button>
             </div>
           </div>

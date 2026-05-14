@@ -45,6 +45,7 @@ export default function RootLayout({
     <html lang="en" className={`${anton.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${playfair.variable}`} suppressHydrationWarning>
       <head>
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('stagd-theme');var sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',s||sys);}catch(e){}})();`
           }}

@@ -490,62 +490,86 @@
   margin-bottom: var(--space-4);
 }
 
-.typeToggle {
-  display: flex;
-  background-color: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  padding: 4px;
-  position: relative;
-  cursor: pointer;
-  height: 44px;
-  align-items: center;
+.accountTypeBadge {
+  margin-top: var(--space-2);
 }
 
-.typeOption {
-  flex: 1;
-  text-align: center;
+.rolePill {
+  display: inline-block;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-faint);
-  transition: color 0.3s;
-  z-index: 2;
-  user-select: none;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border: 1.5px solid var(--border-color);
 }
 
-.typeOptionActive {
+.rolePillCreative {
+  background: var(--color-yellow);
+  border-color: var(--color-yellow);
   color: var(--color-ink);
 }
 
-.typeSlider {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc(50% - 4px);
-  z-index: 1;
-  border: 1px solid var(--border-color);
-  transition: transform 0.4s var(--ease-expo), background-color 0.4s var(--ease-expo);
+.rolePillPatron {
+  background: transparent;
+  color: var(--text-muted);
 }
 
-.typeSliderVisitor {
-  background-color: var(--border-color);
-  transform: translateX(0);
-}
-
-.typeSliderCreative {
-  background-color: var(--color-yellow);
-  transform: translateX(100%);
-}
-
-.typeDescription {
+.accountTypeLocked {
   margin-top: var(--space-3);
   font-family: var(--font-body);
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-muted);
+}
+
+.requestSection {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.requestBtn {
+  width: 100%;
+  padding: 10px var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1.5px solid var(--color-yellow);
+  background: transparent;
+  color: var(--color-yellow);
+  cursor: pointer;
+  transition: background var(--duration-ui), color var(--duration-ui);
+}
+
+.requestBtn:hover:not(:disabled) {
+  background: var(--color-yellow);
+  color: var(--color-ink);
+}
+
+.requestBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.requestSent {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-lime);
+}
+
+.cooldownNote {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
 }
 
 /* ── SECURITY & DANGER ZONE ── */
@@ -678,3 +702,97 @@
   opacity: 0.3;
   cursor: not-allowed;
 }
+
+/* ── ONBOARDING CHECKLIST BANNER ── */
+.onboardingBanner {
+  border: var(--border);
+  border-left: 3px solid var(--color-yellow);
+  background: var(--bg-surface);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
+}
+
+.onboardingHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.onboardingEyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+  color: var(--color-yellow);
+}
+
+.onboardingTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+}
+
+.onboardingSubtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.checklistItems {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.checklistItem.checklistItemDone {
+  color: var(--text);
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.checklistDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.checklistItemDone .checklistDot {
+  background: var(--color-yellow);
+  border-color: var(--color-yellow);
+}
+
+.onboardingSkip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+  color: var(--text-muted);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.onboardingSkip:hover {
+  color: var(--text);
+}
+
