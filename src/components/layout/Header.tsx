@@ -10,6 +10,7 @@ import { getViewingConv } from '@/lib/viewState';
 import { ThemeToggle } from './ThemeToggle';
 import { StagdLogo } from './StagdLogo';
 import { CreateModal } from './CreateModal';
+import { BugReportModal } from './BugReportModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import styles from './Header.module.css';
@@ -25,6 +26,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, logout, isLoading } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -187,6 +189,15 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
           </button>
         </div>
       </div>
+      
+      <div className={styles.ticker}>
+        <div className={styles.tickerContent}>
+          // Early access build · Something not working?{' '}
+          <button onClick={() => setIsBugReportOpen(true)} className={styles.tickerLink}>
+            Tell us →
+          </button>
+        </div>
+      </div>
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
@@ -216,6 +227,11 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
 
       {isCreateOpen && createPortal(
         <CreateModal onClose={() => setIsCreateOpen(false)} />,
+        document.body
+      )}
+
+      {isBugReportOpen && createPortal(
+        <BugReportModal onClose={() => setIsBugReportOpen(false)} />,
         document.body
       )}
     </header>

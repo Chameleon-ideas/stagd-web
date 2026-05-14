@@ -89,13 +89,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+    // Generate a nonce and store it; hash is sent to Google, original verified by Supabase
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    const nonce = btoa(String.fromCharCode(...array));
+    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(nonce));
+    const hashedNonce = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    sessionStorage.setItem('google_oauth_nonce', nonce);
+
+    const params = new URLSearchParams({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      redirect_uri: `${window.location.origin}/auth/google/callback`,
+      response_type: 'code',
+      scope: 'openid email profile',
+      access_type: 'offline',
+      prompt: 'select_account',
+      nonce: hashedNonce,
     });
-    if (error) throw error;
+
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
   };
 
   const sendMagicLink = async (email: string) => {
