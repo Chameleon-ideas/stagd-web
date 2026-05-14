@@ -1,12 +1,10 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function GoogleCallbackPage() {
+function GoogleCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ran = useRef(false);
@@ -53,5 +51,13 @@ export default function GoogleCallbackPage() {
       <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Signing you in...</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense>
+      <GoogleCallback />
+    </Suspense>
   );
 }
