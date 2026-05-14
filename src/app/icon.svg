@@ -1,4 +1,10 @@
 <svg width="131" height="201" viewBox="0 0 131 201" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style>
+  :root { color-scheme: light dark; }
+  @media (prefers-color-scheme: light) {
+    image { filter: invert(1) brightness(0.2); }
+  }
+</style>
 <rect width="131" height="201" fill="url(#pattern0_28_2)"/>
 <defs>
 <pattern id="pattern0_28_2" patternContentUnits="objectBoundingBox" width="1" height="1">
