@@ -250,6 +250,19 @@ export async function updateArtistProfile(_userId: string, updates: {
   return dbWrite('updateArtistProfile', { updates });
 }
 
+export async function getStandardDisciplines(): Promise<string[]> {
+  const { data } = await supabase
+    .from('standard_disciplines')
+    .select('name')
+    .order('display_order');
+  return (data ?? []).map((r: any) => r.name);
+}
+
+export async function submitCustomDisciplines(disciplines: string[]): Promise<void> {
+  if (disciplines.length === 0) return;
+  await dbWrite('submitCustomDisciplines', { disciplines });
+}
+
 // ════════════════════════════════════════════════════════════
 // SEARCH — ARTISTS
 // ════════════════════════════════════════════════════════════
@@ -889,7 +902,12 @@ export async function uploadPortfolioImage(
   return { item: data, error: null };
 }
 
-export async function deletePortfolioItem(itemId: string): Promise<{ error: string | null }> {
+export async function deletePortfolioItem(itemId: string, imageUrl?: string): Promise<{ error: string | null }> {
+  if (imageUrl) {
+    const marker = '/storage/v1/object/public/portfolio/';
+    const path = imageUrl.split(marker)[1];
+    if (path) await supabase.storage.from('portfolio').remove([decodeURIComponent(path)]);
+  }
   return dbWrite('deletePortfolioItem', { itemId });
 }
 

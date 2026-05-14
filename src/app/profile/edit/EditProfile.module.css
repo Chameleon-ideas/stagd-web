@@ -270,6 +270,59 @@
   box-shadow: 4px 4px 0 var(--color-cream);
 }
 
+.disciplineSearchRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.disciplineSearchInput {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.disciplineSearchInput::placeholder {
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.disciplineSearchInput:focus {
+  border-color: var(--color-yellow);
+}
+
+.disciplineAddBtn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 14px;
+  border: 1.5px solid var(--color-yellow);
+  background-color: transparent;
+  color: var(--color-yellow);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.disciplineAddBtn:hover {
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+}
+
 /* ── TOGGLES & RATES ── */
 .toggleRow {
   display: flex;

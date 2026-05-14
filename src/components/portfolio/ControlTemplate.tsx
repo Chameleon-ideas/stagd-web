@@ -29,22 +29,35 @@ interface Project {
   items: any[];
 }
 
-const DISCIPLINE_COLORS: Record<string, string> = {
-  'Food Photography': 'var(--color-orange)',
-  'Product Photography': 'var(--color-yellow)',
-  'Marketing Content': 'var(--color-cyan)',
-  'Product Design': 'var(--color-lime)',
-  'Studio': 'var(--color-red)',
-  'Photography': 'var(--color-orange)',
-  'Fashion': 'var(--color-pink)',
-  'Textile Design': 'var(--color-cyan)',
-  'Calligraphy': 'var(--color-yellow)',
-  'Visual Arts': 'var(--color-lime)',
-  'Journalism': 'var(--color-red)',
-  'Street Art': 'var(--color-orange)'
-};
+const DISCIPLINE_COLORS = [
+  { bg: 'var(--color-yellow)', text: 'var(--color-ink)' },
+  { bg: 'var(--color-red)', text: '#fff' },
+  { bg: 'var(--color-cyan)', text: '#fff' },
+  { bg: 'var(--color-lime)', text: 'var(--color-ink)' },
+  { bg: 'var(--color-orange)', text: '#fff' },
+  { bg: 'var(--color-green)', text: '#fff' },
+];
 
-const getTagColor = (d: string) => DISCIPLINE_COLORS[d] || 'var(--color-yellow)';
+const getDisciplineColors = (items: string[]) => {
+  const result = [];
+  let prevIndex = -1;
+  for (let i = 0; i < items.length; i++) {
+    const d = items[i];
+    let hash = 0;
+    for (let j = 0; j < d.length; j++) {
+      hash = d.charCodeAt(j) + ((hash << 5) - hash);
+    }
+    const random = Math.floor(Math.abs(Math.sin(hash) * 10000));
+    let colorIndex = random % DISCIPLINE_COLORS.length;
+    if (colorIndex === prevIndex) {
+      const shift = (random % (DISCIPLINE_COLORS.length - 1)) + 1;
+      colorIndex = (colorIndex + shift) % DISCIPLINE_COLORS.length;
+    }
+    result.push(DISCIPLINE_COLORS[colorIndex]);
+    prevIndex = colorIndex;
+  }
+  return result;
+};
 
 export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -333,7 +346,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               <ChevronLeft size={48} />
             </button>
 
-            <div className={styles.lightboxContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.lightboxContent} onClick={(e) => e.stopPropagation()} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
               <motion.div 
                 className={styles.lightboxImageWrapper}
                 key={selectedIndex}
@@ -358,6 +371,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   alt={selectedImage.title || ''}
                   fill
                   className={styles.lightboxImage}
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
                 />
               </motion.div>
 
@@ -404,15 +418,21 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
           {/* ── DISCIPLINES ── */}
           <div className={styles.disciplines}>
-            {profile.profile.disciplines?.map((d: string) => (
-              <span 
-                key={d} 
-                className={styles.disciplineTag}
-                style={{ backgroundColor: getTagColor(d) }}
-              >
-                {d}
-              </span>
-            ))}
+            {(() => {
+              const colorsArray = getDisciplineColors(profile.profile.disciplines || []);
+              return profile.profile.disciplines?.map((d: string, i: number) => {
+                const colors = colorsArray[i];
+                return (
+                  <span 
+                    key={d} 
+                    className={styles.disciplineTag}
+                    style={{ backgroundColor: colors.bg, color: colors.text }}
+                  >
+                    {d}
+                  </span>
+                );
+              });
+            })()}
           </div>
 
           <p className={styles.bio}>{profile.profile.bio}</p>
@@ -689,19 +709,20 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                <h2 className={styles.verticalTitle}>{project.title}</h2>
             </div>
 
-            <div className={styles.bentoGrid}>
+            <div className={styles.bentoGrid} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
               {/* Primary Hero */}
-              <div 
+              <div
                 className={styles.imageWrapper}
                 onClick={() => openLightbox(project.cover_image_url)}
               >
                 <div className={styles.imageHover}><ZoomIn size={40} /></div>
                 {project.cover_image_url && (
-                  <img 
-                    src={project.cover_image_url} 
-                    alt={project.title} 
-                    className={styles.projectImage} 
-                    loading={pIndex === 0 ? "eager" : "lazy"} 
+                  <img
+                    src={project.cover_image_url}
+                    alt={project.title || ''}
+                    className={styles.projectImage}
+                    loading={pIndex === 0 ? 'eager' : 'lazy'}
+                    style={{ pointerEvents: 'none' }}
                   />
                 )}
               </div>
@@ -709,18 +730,19 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               {/* Sub items in bento pattern */}
               <div className={styles.subGrid}>
                 {project.items.map((item: any) => (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     className={styles.imageWrapper}
                     onClick={() => openLightbox(item.image_url)}
                   >
                     <div className={styles.imageHover}><Maximize2 size={24} /></div>
                     {item.image_url && (
-                      <img 
-                        src={item.image_url} 
-                        alt={item.title} 
-                        className={styles.projectImage} 
-                        loading="lazy" 
+                      <img
+                        src={item.image_url}
+                        alt={item.title || ''}
+                        className={styles.projectImage}
+                        loading="lazy"
+                        style={{ pointerEvents: 'none' }}
                       />
                     )}
                   </div>
@@ -730,14 +752,17 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
             <div className={styles.projectInfoFooter}>
                <div className={styles.projectDescWrapper}>
-                  {project.discipline && (
-                    <span 
-                      className={styles.projectDiscipline}
-                      style={{ color: getTagColor(project.discipline), borderBottomColor: getTagColor(project.discipline) }}
-                    >
-                      {project.discipline}
-                    </span>
-                  )}
+                  {project.discipline && (() => {
+                    const colors = getDisciplineColors([project.discipline])[0];
+                    return (
+                      <span 
+                        className={styles.projectDiscipline}
+                        style={{ color: colors.bg, borderBottomColor: colors.bg }}
+                      >
+                        {project.discipline}
+                      </span>
+                    );
+                  })()}
                   <p className={styles.projectDesc}>{project.description}</p>
                </div>
                <div className={styles.projectSpecs}>
@@ -756,10 +781,10 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 <span className={styles.navLabel}>// Full Catalog</span>
                 <h2 className={styles.archiveTitle}>Archive Study</h2>
              </div>
-             <div className={styles.denseGrid}>
+             <div className={styles.denseGrid} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
                {profile.portfolio.map((item: any, i: number) => (
-                 <motion.div 
-                  key={item.id} 
+                 <motion.div
+                  key={item.id}
                   className={styles.imageWrapper}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -769,11 +794,12 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                  >
                    <div className={styles.imageHover}><Maximize2 size={20} /></div>
                    {item.image_url && (
-                     <img 
-                       src={item.image_url} 
-                       alt={item.title} 
-                       className={styles.projectImage} 
-                       loading="lazy" 
+                     <img
+                       src={item.image_url}
+                       alt={item.title || ''}
+                       className={styles.projectImage}
+                       loading="lazy"
+                       style={{ pointerEvents: 'none' }}
                      />
                    )}
                  </motion.div>

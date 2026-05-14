@@ -931,6 +931,66 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: null });
       }
 
+      case 'submitCustomDisciplines': {
+        const { disciplines: customDisciplines } = body;
+        if (!Array.isArray(customDisciplines) || customDisciplines.length === 0) {
+          return NextResponse.json({ error: null });
+        }
+        const rows = customDisciplines.map((v: string) => ({
+          value: v.trim(),
+          user_id: userId,
+          created_at: new Date().toISOString(),
+        }));
+        await supabaseAdmin.from('custom_discipline_submissions').insert(rows);
+        return NextResponse.json({ error: null });
+      }
+
+      case 'getCustomDisciplineSubmissions': {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .single();
+        const adminEmail = process.env.ADMIN_EMAIL ?? 'info@stagd.app';
+        const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
+        if (authUser?.email !== adminEmail && profile?.role !== 'admin') {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+        const { data } = await supabaseAdmin
+          .from('custom_discipline_submissions')
+          .select('value, user_id, created_at');
+        const counts: Record<string, { count: number; users: Set<string>; latest: string }> = {};
+        for (const row of data ?? []) {
+          const key = row.value.toLowerCase();
+          if (!counts[key]) counts[key] = { count: 0, users: new Set(), latest: row.created_at };
+          counts[key].count++;
+          counts[key].users.add(row.user_id);
+          if (row.created_at > counts[key].latest) counts[key].latest = row.created_at;
+        }
+        const result = Object.entries(counts).map(([, v]) => ({
+          value: (data ?? []).find(r => r.value.toLowerCase() === Object.keys(counts).find(k => counts[k] === v))?.value ?? '',
+          submission_count: v.count,
+          unique_users: v.users.size,
+          latest_at: v.latest,
+        })).sort((a, b) => b.unique_users - a.unique_users);
+        return NextResponse.json({ data: result, error: null });
+      }
+
+      case 'promoteCustomDiscipline': {
+        const adminEmail = process.env.ADMIN_EMAIL ?? 'info@stagd.app';
+        const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
+        if (authUser?.email !== adminEmail) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+        const { name } = body;
+        if (!name) return NextResponse.json({ error: 'name required' }, { status: 400 });
+        const { error } = await supabaseAdmin
+          .from('standard_disciplines')
+          .insert({ name: name.trim(), promoted_from_custom: true })
+          .single();
+        return NextResponse.json({ error: error?.message ?? null });
+      }
+
       default:
         return NextResponse.json({ error: `Unknown op: ${op}` }, { status: 400 });
     }

@@ -19,14 +19,16 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { 
-  checkUsernameAvailable, 
-  updateUserProfile, 
-  getArtistProfile, 
-  getArtistProfileBasic, 
-  updateArtistProfile, 
+import {
+  checkUsernameAvailable,
+  updateUserProfile,
+  getArtistProfile,
+  getArtistProfileBasic,
+  updateArtistProfile,
   deleteAccount,
-  uploadAvatar 
+  uploadAvatar,
+  getStandardDisciplines,
+  submitCustomDisciplines,
 } from '@/lib/api';
 import styles from './EditProfile.module.css';
 import RequestCreativeModal from '@/components/auth/RequestCreativeModal';
@@ -34,35 +36,43 @@ import RequestCreativeModal from '@/components/auth/RequestCreativeModal';
 const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
 const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
 
-const DISCIPLINE_OPTIONS = [
-  'Food Photography',
-  'Product Photography',
-  'Marketing Content',
-  'Product Design',
-  'Studio',
-  'Photography',
-  'Fashion',
-  'Textile Design',
-  'Calligraphy',
-  'Visual Arts',
-  'Journalism',
-  'Street Art'
+const DISCIPLINE_COLORS = [
+  { bg: 'var(--color-yellow)', text: 'var(--color-ink)' },
+  { bg: 'var(--color-red)', text: '#fff' },
+  { bg: 'var(--color-cyan)', text: '#fff' },
+  { bg: 'var(--color-lime)', text: 'var(--color-ink)' },
+  { bg: 'var(--color-orange)', text: '#fff' },
+  { bg: 'var(--color-green)', text: '#fff' },
 ];
 
-const DISCIPLINE_COLORS: Record<string, string> = {
-  'Food Photography': 'var(--color-orange)',
-  'Product Photography': 'var(--color-yellow)',
-  'Marketing Content': 'var(--color-cyan)',
-  'Product Design': 'var(--color-lime)',
-  'Studio': 'var(--color-red)',
-  'Photography': 'var(--color-orange)',
-  'Fashion': 'var(--color-pink)',
-  'Textile Design': 'var(--color-cyan)',
-  'Calligraphy': 'var(--color-yellow)',
-  'Visual Arts': 'var(--color-lime)',
-  'Journalism': 'var(--color-red)',
-  'Street Art': 'var(--color-orange)'
+const getDisciplineColors = (items: string[]) => {
+  const result = [];
+  let prevIndex = -1;
+  for (let i = 0; i < items.length; i++) {
+    const d = items[i];
+    let hash = 0;
+    for (let j = 0; j < d.length; j++) {
+      hash = d.charCodeAt(j) + ((hash << 5) - hash);
+    }
+    const random = Math.floor(Math.abs(Math.sin(hash) * 10000));
+    let colorIndex = random % DISCIPLINE_COLORS.length;
+    if (colorIndex === prevIndex) {
+      const shift = (random % (DISCIPLINE_COLORS.length - 1)) + 1;
+      colorIndex = (colorIndex + shift) % DISCIPLINE_COLORS.length;
+    }
+    result.push(DISCIPLINE_COLORS[colorIndex]);
+    prevIndex = colorIndex;
+  }
+  return result;
 };
+
+const FALLBACK_DISCIPLINES = [
+  'Cinematographer', 'Photographer', 'Filmmaker', 'Illustrator', 'Musician',
+  'Graphic Designer', 'Muralist', 'Animator', 'Art Director',
+  'Dancer', 'Poet', 'Sound Designer', 'Sculptor', 'Calligrapher',
+  'Fashion Designer', 'Textile Designer', 'Theatre', 'Journalist', 'Architect',
+  'Painter', 'Ceramicist', 'Street Artist', 'Comedian',
+];
 
 const IgIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -128,6 +138,10 @@ function EditProfilePage() {
   const [username, setUsername] = useState('');
   const [city, setCity] = useState('');
   const [phone, setPhone] = useState('');
+
+  // Discipline selector
+  const [standardDisciplines, setStandardDisciplines] = useState<string[]>(FALLBACK_DISCIPLINES);
+  const [disciplineSearch, setDisciplineSearch] = useState('');
 
   // Artist Profile (artist_profiles table)
   const [bio, setBio] = useState('');
@@ -198,6 +212,11 @@ function EditProfilePage() {
     }
 
     if (user) {
+      // Load standard disciplines from DB (non-blocking)
+      getStandardDisciplines().then(list => {
+        if (list.length > 0) setStandardDisciplines(list);
+      }).catch(() => { /* keep fallback */ });
+
       // Basic fields
       setFullName(user.full_name);
       setUsername(user.username);
@@ -337,9 +356,16 @@ function EditProfilePage() {
   const toggleDiscipline = (d: string) => {
     if (disciplines.includes(d)) {
       setDisciplines(disciplines.filter(item => item !== d));
-    } else if (disciplines.length < 3) {
+    } else {
       setDisciplines([...disciplines, d]);
     }
+  };
+
+  const addCustomDiscipline = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed || disciplines.includes(trimmed)) return;
+    setDisciplines([...disciplines, trimmed]);
+    setDisciplineSearch('');
   };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -407,6 +433,12 @@ function EditProfilePage() {
       if (role === 'creative') {
         const { error: artistError } = await updateArtistProfile(user.id, artistUpdates);
         if (artistError) throw new Error(artistError);
+
+        // Record any non-standard disciplines for admin review (fire-and-forget)
+        const customOnes = disciplines.filter(d => !standardDisciplines.includes(d));
+        if (customOnes.length > 0) {
+          submitCustomDisciplines(customOnes).catch(() => {});
+        }
       }
 
       // Update auth cache synchronously — no extra round trips
@@ -500,20 +532,18 @@ function EditProfilePage() {
           <h1 className={styles.title}>Edit<br/>Profile</h1>
           
           {/* ── ACCOUNT TYPE (locked) ── */}
-          <div className={styles.accountTypeContainer}>
-            <p className={styles.accountTypeLabel}>Account Type</p>
-            <div className={styles.accountTypeBadge}>
-              <span className={`${styles.rolePill} ${role === 'creative' ? styles.rolePillCreative : styles.rolePillPatron}`}>
-                {role === 'creative' ? 'Creative' : 'Patron'}
-              </span>
-            </div>
-            <p className={styles.accountTypeLocked}>
-              {role === 'creative'
-                ? 'You have a Creative account. This cannot be changed.'
-                : 'You have a Patron account. Request an upgrade to become a Creative.'}
-            </p>
+          {role === 'general' && (
+            <div className={styles.accountTypeContainer}>
+              <p className={styles.accountTypeLabel}>Account Type</p>
+              <div className={styles.accountTypeBadge}>
+                <span className={`${styles.rolePill} ${styles.rolePillPatron}`}>
+                  Patron
+                </span>
+              </div>
+              <p className={styles.accountTypeLocked}>
+                You have a Patron account. Request an upgrade to become a Creative.
+              </p>
 
-            {role === 'general' && (
               <div className={styles.requestSection}>
                 {requestJustSent ? (
                   <p className={styles.requestSent}>// Request sent. We'll be in touch.</p>
@@ -543,8 +573,8 @@ function EditProfilePage() {
                   );
                 })()}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </aside>
 
         {/* ── MAIN CONTENT ── */}
@@ -635,22 +665,88 @@ function EditProfilePage() {
                 </div>
                 
                 <div className={styles.field}>
-                  <label className={styles.label}>Disciplines (Select 1-3)</label>
+                  <label className={styles.label}>Disciplines</label>
                   <div className={styles.disciplineSelect}>
-                    {DISCIPLINE_OPTIONS.map(d => (
-                      <button
-                        key={d}
-                        type="button"
-                        onClick={() => toggleDiscipline(d)}
-                        className={`${styles.disciplineChip} ${disciplines.includes(d) ? styles.disciplineChipActive : ''}`}
-                        style={{ 
-                          backgroundColor: disciplines.includes(d) ? DISCIPLINE_COLORS[d] : 'var(--bg)',
-                          color: disciplines.includes(d) ? 'var(--color-ink)' : 'var(--text)'
+                    {(() => {
+                      const query = disciplineSearch.trim().toLowerCase();
+                      const filtered = query
+                        ? standardDisciplines.filter(d => d.toLowerCase().includes(query))
+                        : standardDisciplines;
+                      return (
+                        <>
+                          {(() => {
+                            const filteredColors = getDisciplineColors(filtered);
+                            return filtered.map((d, i) => {
+                              const active = disciplines.includes(d);
+                              const colors = filteredColors[i];
+                              return (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => toggleDiscipline(d)}
+                                  className={`${styles.disciplineChip} ${active ? styles.disciplineChipActive : ''}`}
+                                  style={{
+                                    backgroundColor: active ? colors.bg : 'var(--bg)',
+                                    color: active ? colors.text : 'var(--text)',
+                                  }}
+                                >
+                                  {d}
+                                </button>
+                              );
+                            });
+                          })()}
+                          {(() => {
+                            const customDisciplines = disciplines.filter(d => !standardDisciplines.includes(d));
+                            const customColors = getDisciplineColors(customDisciplines);
+                            return customDisciplines.map((d, i) => {
+                              const colors = customColors[i];
+                              return (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => toggleDiscipline(d)}
+                                  className={`${styles.disciplineChip} ${styles.disciplineChipActive}`}
+                                  style={{ backgroundColor: colors.bg, color: colors.text }}
+                                >
+                                  {d}
+                                </button>
+                              );
+                            });
+                          })()}
+                        </>
+                      );
+                    })()}
+                    <div className={styles.disciplineSearchRow}>
+                      <input
+                        className={styles.disciplineSearchInput}
+                        value={disciplineSearch}
+                        onChange={e => setDisciplineSearch(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const q = disciplineSearch.trim();
+                            if (!q) return;
+                            const match = standardDisciplines.find(
+                              d => d.toLowerCase() === q.toLowerCase()
+                            );
+                            if (match) { toggleDiscipline(match); setDisciplineSearch(''); }
+                            else { addCustomDiscipline(q); }
+                          }
                         }}
-                      >
-                        {d}
-                      </button>
-                    ))}
+                        placeholder="Search or add your own..."
+                      />
+                      {disciplineSearch.trim() &&
+                        !standardDisciplines.some(d => d.toLowerCase() === disciplineSearch.trim().toLowerCase()) &&
+                        !disciplines.some(d => d.toLowerCase() === disciplineSearch.trim().toLowerCase()) && (
+                        <button
+                          type="button"
+                          className={styles.disciplineAddBtn}
+                          onClick={() => addCustomDiscipline(disciplineSearch.trim())}
+                        >
+                          Add &ldquo;{disciplineSearch.trim()}&rdquo;
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -60,6 +60,7 @@ import {
   reorderProjectItems,
 } from '@/lib/api';
 import type { PortfolioItem, Project } from '@/lib/types';
+import { IMAGE_CONFIG, validateImageFiles } from '@/lib/mediaConfig';
 import styles from './ManageWork.module.css';
 
 const DISCIPLINE_OPTIONS = [
@@ -209,8 +210,9 @@ export default function ManageWorkPage() {
     if (!files || !user) return;
     setIsUploadingPortfolio(true);
     setPortfolioError(null);
-    for (const file of Array.from(files).slice(0, 10)) {
-      if (file.size > 20 * 1024 * 1024) { setPortfolioError(`${file.name} exceeds 20MB`); continue; }
+    const { valid, errors } = validateImageFiles(Array.from(files).slice(0, IMAGE_CONFIG.upload.maxFiles));
+    if (errors.length > 0) setPortfolioError(errors[0]);
+    for (const file of valid) {
       const { item, error } = await uploadPortfolioImage(user.id, file);
       if (error) setPortfolioError(error);
       else if (item) setPortfolio(prev => [...prev, item]);
@@ -225,7 +227,8 @@ export default function ManageWorkPage() {
 
   const handleDeletePortfolioItem = async (itemId: string) => {
     if (!confirm('Permanently delete this image from your portfolio?')) return;
-    const { error } = await deletePortfolioItem(itemId);
+    const item = portfolio.find(p => p.id === itemId);
+    const { error } = await deletePortfolioItem(itemId, item?.image_url);
     if (!error) setPortfolio(prev => prev.filter(p => p.id !== itemId));
   };
 
@@ -319,8 +322,8 @@ export default function ManageWorkPage() {
     const projectId = pendingProjectId.current;
     if (!files || !user || !projectId) return;
     setUploadingProjectId(projectId);
-    for (const file of Array.from(files).slice(0, 10)) {
-      if (file.size > 20 * 1024 * 1024) continue;
+    const { valid } = validateImageFiles(Array.from(files).slice(0, IMAGE_CONFIG.upload.maxFiles));
+    for (const file of valid) {
       const { imageUrl, error } = await addImageToProject(projectId, user.id, file);
       if (!error && imageUrl) {
         const newItem = { id: `tmp-${Date.now()}-${Math.random()}`, image_url: imageUrl, sort_order: 0 };

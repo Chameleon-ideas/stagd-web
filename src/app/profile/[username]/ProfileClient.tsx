@@ -21,21 +21,35 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const DISCIPLINE_COLORS: Record<string, string> = {
-  'Food Photography': 'var(--color-orange)',
-  'Product Photography': 'var(--color-yellow)',
-  'Marketing Content': 'var(--color-cyan)',
-  'Product Design': 'var(--color-lime)',
-  'Studio': 'var(--color-red)',
-  'Photography': 'var(--color-orange)',
-  'Fashion': 'var(--color-pink)',
-  'Textile Design': 'var(--color-cyan)',
-  'Calligraphy': 'var(--color-yellow)',
-  'Visual Arts': 'var(--color-lime)',
-  'Journalism': 'var(--color-red)',
-  'Street Art': 'var(--color-orange)',
+const DISCIPLINE_COLORS = [
+  { bg: 'var(--color-yellow)', text: 'var(--color-ink)' },
+  { bg: 'var(--color-red)', text: '#fff' },
+  { bg: 'var(--color-cyan)', text: '#fff' },
+  { bg: 'var(--color-lime)', text: 'var(--color-ink)' },
+  { bg: 'var(--color-orange)', text: '#fff' },
+  { bg: 'var(--color-green)', text: '#fff' },
+];
+
+const getDisciplineColors = (items: string[]) => {
+  const result = [];
+  let prevIndex = -1;
+  for (let i = 0; i < items.length; i++) {
+    const d = items[i];
+    let hash = 0;
+    for (let j = 0; j < d.length; j++) {
+      hash = d.charCodeAt(j) + ((hash << 5) - hash);
+    }
+    const random = Math.floor(Math.abs(Math.sin(hash) * 10000));
+    let colorIndex = random % DISCIPLINE_COLORS.length;
+    if (colorIndex === prevIndex) {
+      const shift = (random % (DISCIPLINE_COLORS.length - 1)) + 1;
+      colorIndex = (colorIndex + shift) % DISCIPLINE_COLORS.length;
+    }
+    result.push(DISCIPLINE_COLORS[colorIndex]);
+    prevIndex = colorIndex;
+  }
+  return result;
 };
-const getTagColor = (d: string) => DISCIPLINE_COLORS[d] || 'var(--color-yellow)';
 
 interface ProfileClientProps {
   username: string;
@@ -227,9 +241,21 @@ export default function ProfileClient({ username, profile: initialProfile, event
                 </div>
               )}
               <div className={styles.disciplines}>
-                {profile.profile.disciplines.map(d => (
-                  <span key={d} className={styles.disciplineTag} style={{ backgroundColor: getTagColor(d) }}>{d}</span>
-                ))}
+                {(() => {
+                  const colorsArray = getDisciplineColors(profile.profile.disciplines || []);
+                  return profile.profile.disciplines.map((d: string, i: number) => {
+                    const colors = colorsArray[i];
+                    return (
+                      <span 
+                        key={d} 
+                        className={styles.disciplineTag} 
+                        style={{ backgroundColor: colors.bg, color: colors.text }}
+                      >
+                        {d}
+                      </span>
+                    );
+                  });
+                })()}
               </div>
             </div>
             {isCreative && (
@@ -258,7 +284,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
             
             {profile.portfolio.length > 0 ? (
               <GSAPEntrance selector={`.${styles.portfolioItem}`} stagger={0.04}>
-                <div className={styles.portfolioGrid}>
+                <div className={styles.portfolioGrid} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
                   {profile.portfolio.map((item, idx) => {
                     const matchingProject = profile.projects.find(p => p.items?.some(pi => pi.image_url === item.image_url));
                     const navItems: LightboxItem[] = profile.portfolio.map((p) => {
@@ -271,7 +297,9 @@ export default function ProfileClient({ username, profile: initialProfile, event
                     });
                     return (
                       <div key={item.id} className={styles.portfolioItem} onClick={() => openLightbox(navItems, idx)}>
-                        {item.image_url && <img src={item.image_url} alt={item.title || 'Work'} className={styles.portfolioImage} />}
+                        {item.image_url && (
+                          <img src={item.image_url} alt={item.title || 'Work'} className={styles.portfolioImage} style={{ pointerEvents: 'none' }} />
+                        )}
                       </div>
                     );
                   })}
@@ -292,14 +320,20 @@ export default function ProfileClient({ username, profile: initialProfile, event
 
             {profile.projects.length > 0 ? (
               <GSAPEntrance selector={`.${styles.projectCard}`} stagger={0.06}>
-                <div className={styles.projectsList}>
+                <div className={styles.projectsList} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
                   {profile.projects.map((project) => {
                     const projCtx = { title: project.title, discipline: project.discipline, format: project.format, year: project.year, location: project.location, description: project.description };
                     const projNavItems: LightboxItem[] = (project.items || []).map(pi => ({ image_url: pi.image_url, title: pi.title, description: pi.description, itemId: pi.id, isProjectItem: true, projectContext: projCtx }));
                     return (
                       <div key={project.id} className={styles.projectCard}>
                         {project.cover_image_url && (
-                          <img src={project.cover_image_url} alt={project.title} className={styles.projectCover} onClick={() => projNavItems.length > 0 && openLightbox(projNavItems, 0)} style={{ cursor: projNavItems.length > 0 ? 'pointer' : 'default' }} />
+                          <img
+                            src={project.cover_image_url}
+                            alt={project.title}
+                            className={styles.projectCover}
+                            onClick={() => projNavItems.length > 0 && openLightbox(projNavItems, 0)}
+                            style={{ cursor: projNavItems.length > 0 ? 'pointer' : 'default' }}
+                          />
                         )}
                         <div className={styles.projectBody}>
                           <h3 className={styles.projectTitle}>{project.title}</h3>
@@ -313,7 +347,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
                             <div className={styles.projectThumbRow}>
                               {projNavItems.slice(0, 5).map((pi, i) => (
                                 <div key={pi.itemId} className={styles.projectThumb} onClick={() => openLightbox(projNavItems, i)}>
-                                  {pi.image_url && <img src={pi.image_url} alt={pi.title || ''} />}
+                                  {pi.image_url && <img src={pi.image_url} alt={pi.title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
                                 </div>
                               ))}
                               {projNavItems.length > 5 && (

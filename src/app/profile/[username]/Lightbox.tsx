@@ -159,6 +159,8 @@ export default function Lightbox({ items, startIndex, isOwner, artistName, onClo
       <div
         style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px', overflow: 'hidden' }}
         onClick={e => e.stopPropagation()}
+        onContextMenu={e => e.preventDefault()}
+        onDragStart={e => e.preventDefault()}
       >
         <AnimatePresence mode="wait">
           <motion.img
@@ -169,13 +171,15 @@ export default function Lightbox({ items, startIndex, isOwner, artistName, onClo
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            style={{ 
-              maxWidth: '100%', 
-              maxHeight: '100%', 
-              objectFit: 'contain', 
-              display: 'block', 
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              display: 'block',
               boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
-              border: '1px solid var(--border-color)'
+              border: '1px solid var(--border-color)',
+              pointerEvents: 'none',
+              userSelect: 'none',
             }}
           />
         </AnimatePresence>
