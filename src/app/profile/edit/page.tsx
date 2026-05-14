@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -117,7 +117,7 @@ interface InitialData {
   role: 'creative' | 'general';
 }
 
-export default function EditProfilePage() {
+function EditProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isOnboarding = searchParams.get('onboarding') === 'true';
@@ -1097,5 +1097,13 @@ export default function EditProfilePage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function EditProfilePageWrapper() {
+  return (
+    <Suspense>
+      <EditProfilePage />
+    </Suspense>
   );
 }
