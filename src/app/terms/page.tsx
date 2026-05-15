@@ -46,8 +46,8 @@ export default function TermsPage() {
           <section>
             <h2 style={h2}>3. Account Types</h2>
             <p><strong style={strong}>Creative</strong> — For independent artists, musicians, photographers, illustrators, filmmakers, and other creators. Creatives receive a public portfolio page at stagd.app/[username], a commission inbox, and the ability to list ticketed events.</p>
-            <p style={{ marginTop: '12px' }}><strong style={strong}>General</strong> — For people who discover, hire creatives, and attend events. General accounts do not have public portfolio pages.</p>
-            <p style={{ marginTop: '12px' }}>Your account type is set at registration. General users may request a Creative upgrade through their profile settings — this is reviewed manually. Once upgraded, accounts cannot revert to General status.</p>
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Patron</strong> — For people who discover, hire creatives, and attend events. Patron accounts do not have public portfolio pages.</p>
+            <p style={{ marginTop: '12px' }}>Your account type is set at registration. Patron users may request a Creative upgrade through their profile settings — this is reviewed manually. Once upgraded, accounts cannot revert to Patron status.</p>
           </section>
 
           <section>

@@ -81,9 +81,12 @@ export function Footer() {
           </div>
         </div>
 
-        <div className={styles.copyright}>
-          © {new Date().getFullYear()} ALL RIGHTS RESERVED<br />
-
+        <div className={styles.bottomRight}>
+          <Link href="/privacy" className={styles.policyLink}>PRIVACY POLICY</Link>
+          <Link href="/terms" className={styles.policyLink}>TERMS OF SERVICE</Link>
+          <div className={styles.copyright}>
+            © {new Date().getFullYear()} ALL RIGHTS RESERVED
+          </div>
         </div>
       </div>
     </footer>

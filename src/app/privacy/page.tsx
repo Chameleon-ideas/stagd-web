@@ -192,8 +192,8 @@ const link: React.CSSProperties = {
 };
 
 const list: React.CSSProperties = {
-  paddingLeft: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '6px',
+  paddingLeft: '24px',
+  listStyleType: 'disc',
+  marginTop: '8px',
+  marginBottom: '8px',
 };

@@ -143,6 +143,24 @@
   line-height: 1.4;
 }
 
+.bottomRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.policyLink {
+  transition: opacity 0.2s;
+}
+
+.policyLink:hover {
+  opacity: 0.6;
+}
+
 /* ── DARK MODE OVERRIDES ───────────────────────────── */
 [data-theme="dark"] .footer {
   background-color: var(--color-ink);
