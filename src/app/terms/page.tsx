@@ -230,10 +230,3 @@ const link: React.CSSProperties = {
   textDecorationThickness: '1px',
   textUnderlineOffset: '3px',
 };
-
-const list: React.CSSProperties = {
-  paddingLeft: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '6px',
-};

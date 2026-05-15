@@ -22,6 +22,22 @@ export default function PrivacyPage() {
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-faint)', marginBottom: '60px' }}>
           Last updated: {LAST_UPDATED}
         </p>
+        <style>{`
+          .legal-list {
+            list-style-type: disc;
+            padding-left: 24px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+          }
+          .legal-list li {
+            display: list-item;
+            list-style-type: disc;
+            margin-bottom: 8px;
+          }
+          .legal-list li:last-child {
+            margin-bottom: 0;
+          }
+        `}</style>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', fontFamily: 'var(--font-body)', fontSize: '15px', lineHeight: 1.7, color: 'var(--text-muted)' }}>
 
@@ -62,7 +78,7 @@ export default function PrivacyPage() {
           <section>
             <h2 style={h2}>3. How We Use Your Information</h2>
             <p>We use the information we collect to:</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li>Create and maintain your account</li>
               <li>Display your public Creative profile to other users</li>
               <li>Facilitate commissions, briefs, and negotiations between creatives and clients</li>
@@ -93,7 +109,7 @@ export default function PrivacyPage() {
           <section>
             <h2 style={h2}>5. Third-Party Services</h2>
             <p>We use the following services to operate the platform. Each processes only the data necessary for its function.</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li><strong style={strong}>Supabase</strong> — Database, authentication, and file storage</li>
               <li><strong style={strong}>Vercel</strong> — Web hosting and delivery</li>
               <li><strong style={strong}>Safepay</strong> — Payment processing (tickets and payouts)</li>
@@ -115,7 +131,7 @@ export default function PrivacyPage() {
           <section>
             <h2 style={h2}>7. Your Rights</h2>
             <p>You may at any time:</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li>Access and update your profile information from your profile settings</li>
               <li>Delete your account from the profile settings page — this removes your public profile and portfolio</li>
               <li>Request a copy of your data by emailing <a href="mailto:info@stagd.app" style={link}>info@stagd.app</a></li>
@@ -189,11 +205,4 @@ const link: React.CSSProperties = {
   textDecorationLine: 'underline',
   textDecorationThickness: '1px',
   textUnderlineOffset: '3px',
-};
-
-const list: React.CSSProperties = {
-  paddingLeft: '24px',
-  listStyleType: 'disc',
-  marginTop: '8px',
-  marginBottom: '8px',
 };
