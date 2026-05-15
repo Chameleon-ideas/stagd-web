@@ -13,7 +13,7 @@ interface ExplorePageProps {
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   const params = await searchParams;
-  const activeTab = params.tab || 'artists';
+  const activeTab = params.tab || 'creatives';
 
   return (
     <WorkstationLayout>

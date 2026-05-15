@@ -621,8 +621,8 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 className={styles.dropdownContent}
               >
                 <div className={styles.reviewsInner}>
-                  {/* form — logged-in non-owners who haven't reviewed */}
-                  {user && user.id !== profile.user.id && !hasReviewed && (
+                  {/* form — logged-in non-owners who aren't creatives and haven't reviewed */}
+                  {user && user.id !== profile.user.id && user.role !== 'creative' && user.role !== 'both' && !hasReviewed && (
                     <div className={styles.reviewSubmissionForm}>
                       <span className={styles.formLabel}>LEAVE A REVIEW</span>
                       <div className={styles.starPickerRow}>

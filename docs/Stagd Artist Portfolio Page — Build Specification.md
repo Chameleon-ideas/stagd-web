@@ -87,7 +87,7 @@ Grid: Two columns, gap: 12px.
 Each review card: border: 1.5px solid #111, border-radius: 16px, padding: 22px. No shadow.
 Inside each card: reviewer name, font-size: 14px, font-weight: 600. Star rating displayed as a pill — background: #111, color: #FFDE0D, font-size: 11px, padding: 4px 10px, border-radius: 100px. Review body text, font-size: 13.5px, color: #555, line-height: 1.6, maximum 150 characters as enforced at input. Below the body: project type, location, and year in font-size: 11px, color: #bbb, letter-spacing: 0.3px.
 Initial load shows the 4 most recent reviews. If more exist, a "See all reviews" link below the grid in color: #888, text-decoration: underline. Clicking it expands to show all reviews inline — no new page.
-Reviews are only submittable by clients who have a completed commission with this artist. The review prompt appears to the client after the commission is marked complete. Artists cannot review themselves. Neither party can edit a submitted review in V1.
+Reviews are only submittable by clients who have a completed commission with this artist. The review prompt appears to the client after the commission is marked complete. Creatives cannot review themselves. Neither party can edit a submitted review in V1.
 
 Footer
 Background #111111. Padding 36px 80px. Three-column flex row, space-between, align-items center.

@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(profile);
     }
     setIsLoading(false);
-    router.push('/explore?tab=artists');
+    router.push('/explore?tab=creatives');
   };
 
   const loginWithGoogle = async () => {

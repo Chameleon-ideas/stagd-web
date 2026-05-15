@@ -2,11 +2,11 @@
 
 It solves three problems in one place:
 
-**Discovery.** Artists — illustrators, photographers, filmmakers, musicians, muralists, dancers, and more — build a public portfolio profile on Stag'd that works as their creative identity online. Clients and fans can find them by discipline, city, and availability, and reach out to hire them directly through the app.
+**Discovery.** Creatives — illustrators, photographers, filmmakers, musicians, muralists, dancers, and more — build a public portfolio profile on Stag'd that works as their creative identity online. Clients and fans can find them by discipline, city, and availability, and reach out to hire them directly through the app.
 
 **Commissions.** When a client wants to hire an artist, they send an enquiry through the app. The artist responds, they negotiate through a structured proposal, agree on deliverables, timeline, and payment terms — all documented in one place. No WhatsApp chaos, no lost threads.
 
-**Events.** Any artist or organiser can create a ticketed event — a concert, workshop, gallery night, pottery class, spoken word evening. Audiences discover events by city and discipline, buy tickets in-app, and get a QR code for entry. Artists get paid directly, Stag'd takes a service fee.
+**Events.** Any artist or organiser can create a ticketed event — a concert, workshop, gallery night, pottery class, spoken word evening. Audiences discover events by city and discipline, buy tickets in-app, and get a QR code for entry. Creatives get paid directly, Stag'd takes a service fee.
 
 ---
 

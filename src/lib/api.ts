@@ -71,7 +71,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
 
   const profile = Array.isArray(data.profile) ? data.profile[0] : data.profile;
   const rawProjects = (profile?.projects || []) as any[];
-  
+
   // 1. Identify visible project IDs and hidden image URLs
   const visibleProjectIds = new Set();
   const hiddenImageUrls = new Set();
@@ -92,13 +92,13 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
   const portfolio = rawPortfolio
     .filter((p: any) => {
       if (p.is_hidden) return false;
-      
+
       // If it belongs to a project via ID, that project must be visible
       if (p.project_id && !visibleProjectIds.has(p.project_id)) return false;
-      
+
       // FALLBACK: If URL matches an image in a hidden project, hide it
       if (hiddenImageUrls.has(p.image_url)) return false;
-      
+
       return true;
     })
     .sort((a: any, b: any) => a.sort_order - b.sort_order);
@@ -107,10 +107,10 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
     .filter((p: any) => p.is_public !== false)
     .sort((a: any, b: any) => a.sort_order - b.sort_order)
     .map((p: any) => ({
-    ...p,
-    artist_id: data.id,
-    items: (p.items || []).sort((a: any, b: any) => a.sort_order - b.sort_order),
-  }));
+      ...p,
+      artist_id: data.id,
+      items: (p.items || []).sort((a: any, b: any) => a.sort_order - b.sort_order),
+    }));
   const reviews = (data.reviews || [])
     .filter((r: any) => !r.event_id)
     .map((r: any) => ({
@@ -264,7 +264,7 @@ export async function submitCustomDisciplines(disciplines: string[]): Promise<vo
 }
 
 // ════════════════════════════════════════════════════════════
-// SEARCH — ARTISTS
+// SEARCH — CREATIVES
 // ════════════════════════════════════════════════════════════
 
 export async function searchArtists(params?: {

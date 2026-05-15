@@ -10,16 +10,16 @@ export default function MagicLandingPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.replace('/explore?tab=artists');
+        router.replace('/explore?tab=creatives');
       } else {
         // Listen for the auth state change triggered by detectSessionInUrl
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_IN' && session) {
             subscription.unsubscribe();
-            router.replace('/explore?tab=artists');
+            router.replace('/explore?tab=creatives');
           } else if (event === 'TOKEN_REFRESHED' && session) {
             subscription.unsubscribe();
-            router.replace('/explore?tab=artists');
+            router.replace('/explore?tab=creatives');
           }
         });
 

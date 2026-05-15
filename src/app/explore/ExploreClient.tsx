@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, MapPin, Briefcase, Filter, Search } from 'lucide-react';
-import { searchArtists, searchEvents } from '@/lib/api';
+import { searchcreatives, searchEvents } from '@/lib/api';
 import { formatPKR, formatDate } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -30,7 +30,7 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
     discipline: 'All',
     type: 'All',
     date: 'Any',
-    sort: initialTab === 'artists' ? 'Relevance' : 'Soonest',
+    sort: initialTab === 'creatives' ? 'Relevance' : 'Soonest',
     query: '',
   });
 
@@ -41,8 +41,8 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        if (activeTab === 'artists') {
-          const data = await searchArtists({
+        if (activeTab === 'creatives') {
+          const data = await searchcreatives({
             city: filters.city !== 'All' ? filters.city : undefined,
             discipline: filters.discipline !== 'All' ? filters.discipline : undefined,
             sort: filters.sort,
@@ -77,7 +77,7 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
       discipline: 'All',
       type: 'All',
       date: 'Any',
-      sort: tab === 'artists' ? 'Relevance' : 'Soonest',
+      sort: tab === 'creatives' ? 'Relevance' : 'Soonest',
       query: '',
     });
   };
@@ -95,10 +95,10 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
     if (results.data.length > 0) {
       const randomIndex = Math.floor(Math.random() * results.data.length);
       const randomItem = results.data[randomIndex];
-      const targetUrl = activeTab === 'events' 
-        ? `/events/${randomItem.event?.id}` 
+      const targetUrl = activeTab === 'events'
+        ? `/events/${randomItem.event?.id}`
         : `/${randomItem.user?.username}`;
-      
+
       if (targetUrl !== '/' && targetUrl !== '/events/undefined') {
         router.push(targetUrl);
       }
@@ -130,12 +130,12 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
           {/* Segmented Tab Switcher */}
           <div className={styles.segmentedControl}>
             <button
-              className={`${styles.segment} ${activeTab === 'artists' ? styles.activeSegment : ''}`}
-              onClick={() => handleTabChange('artists')}
+              className={`${styles.segment} ${activeTab === 'creatives' ? styles.activeSegment : ''}`}
+              onClick={() => handleTabChange('creatives')}
             >
               Creatives
             </button>
-            <button 
+            <button
               className={`${styles.segment} ${activeTab === 'events' ? styles.activeSegment : ''}`}
               onClick={() => handleTabChange('events')}
             >
@@ -144,11 +144,11 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
           </div>
 
           <div className={styles.navLabel}>// PARAMETERS</div>
-          
+
           <div className={styles.filterVertical}>
             {/* Shared City Filter */}
             <div className={styles.dropdownWrapper}>
-              <button 
+              <button
                 className={`${styles.filterBtn} ${filters.city !== 'All' ? styles.activeBtn : ''}`}
                 onClick={() => toggleDropdown('city')}
               >
@@ -168,9 +168,9 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
             </div>
 
             {/* Artist: Discipline */}
-            {activeTab === 'artists' && (
+            {activeTab === 'creatives' && (
               <div className={styles.dropdownWrapper}>
-                <button 
+                <button
                   className={`${styles.filterBtn} ${filters.discipline !== 'All' ? styles.activeBtn : ''}`}
                   onClick={() => toggleDropdown('discipline')}
                 >
@@ -194,7 +194,7 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
             {activeTab === 'events' && (
               <>
                 <div className={styles.dropdownWrapper}>
-                  <button 
+                  <button
                     className={`${styles.filterBtn} ${filters.type !== 'All' ? styles.activeBtn : ''}`}
                     onClick={() => toggleDropdown('type')}
                   >
@@ -213,7 +213,7 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
                   )}
                 </div>
                 <div className={styles.dropdownWrapper}>
-                  <button 
+                  <button
                     className={`${styles.filterBtn} ${filters.date !== 'Any' ? styles.activeBtn : ''}`}
                     onClick={() => toggleDropdown('date')}
                   >
@@ -236,12 +236,12 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
 
             <div className={styles.dropdownWrapper}>
               <button className={styles.filterBtn} onClick={() => toggleDropdown('sort')}>
-                <span className={styles.monoLabel}>SORT:</span> {filters.sort.toUpperCase()} 
+                <span className={styles.monoLabel}>SORT:</span> {filters.sort.toUpperCase()}
                 <ChevronDown size={14} className={styles.chevron} />
               </button>
               {openDropdown === 'sort' && (
                 <div className={styles.dropdown}>
-                  {(activeTab === 'artists' ? ARTIST_SORT : EVENT_SORT).map(s => (
+                  {(activeTab === 'creatives' ? ARTIST_SORT : EVENT_SORT).map(s => (
                     <button key={s} className={styles.dropdownItem} onClick={() => handleFilterSelect('sort', s)}>
                       {s}
                     </button>
@@ -254,9 +254,9 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
           <div className={styles.sidebarFooter}>
             <div className={styles.statusLine}>
               <span className={styles.statusDot} />
-              {loading ? 'SYNCING ARCHIVE...' : `${results.total} ${activeTab === 'artists' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
+              {loading ? 'SYNCING ARCHIVE...' : `${results.total} ${activeTab === 'creatives' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
             </div>
-            
+
             {activeTab === 'events' && (
               <button className={styles.surpriseBtn} onClick={handleSurpriseMe}>
                 Surprise me
@@ -270,16 +270,16 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
       <section className={styles.resultsPane}>
         <div className={styles.resultsHeader}>
           <div className={styles.resultsMeta}>
-            // {activeTab === 'artists' ? 'CREATIVES' : activeTab.toUpperCase()} / {filters.city.toUpperCase()} / {filters.sort.toUpperCase()}
+            // {activeTab === 'creatives' ? 'CREATIVES' : activeTab.toUpperCase()} / {filters.city.toUpperCase()} / {filters.sort.toUpperCase()}
           </div>
         </div>
 
         <div className={styles.resultsScrollArea}>
           {!loading && results.data.length > 0 ? (
-            <div className={activeTab === 'artists' ? styles.uniformGrid : styles.eventEditorialGrid}>
+            <div className={activeTab === 'creatives' ? styles.uniformGrid : styles.eventEditorialGrid}>
               {results.data.map((item: any, i: number) => (
                 <div key={i} className={styles.cardReveal} style={{ '--delay': `${i * 40}ms` } as any}>
-                  {activeTab === 'artists' ? (
+                  {activeTab === 'creatives' ? (
                     <ArtistCard artist={item} />
                   ) : (
                     <EventCard item={item} />
@@ -361,7 +361,7 @@ function EventCard({ item }: { item: any }) {
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         )}
-        
+
         {/* Top Badges */}
         <div className={styles.editorialTopLeft}>
           <span className={styles.editorialTag}>{event.event_type.toUpperCase()}</span>

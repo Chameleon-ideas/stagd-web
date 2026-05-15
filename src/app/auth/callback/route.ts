@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const token_hash = searchParams.get('token_hash');
   const type = searchParams.get('type');
-  const next = searchParams.get('next') ?? '/explore?tab=artists';
+  const next = searchParams.get('next') ?? '/explore?tab=creatives';
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,14 +32,14 @@ export async function GET(request: NextRequest) {
             <p>Welcome to <strong>Stag'd</strong> — Pakistan's creative economy platform.</p>
             <p>Your account is confirmed. Here's what you can do:</p>
             <ul>
-              <li>Discover artists by discipline and city</li>
+              <li>Discover creatives by discipline and city</li>
               <li>Send a commission brief directly to any creative</li>
               <li>Browse and buy tickets to creative events</li>
             </ul>
             <p><a href="https://stagd.app/explore">Start exploring →</a></p>
             <p style="color:#888;font-size:12px;">Stag'd · stagd.app · Pakistan's creative economy platform</p>
           `,
-        }).catch(() => {});
+        }).catch(() => { });
       }
       return NextResponse.redirect(`${origin}${next}`);
     }

@@ -120,7 +120,7 @@ The spec described this as net-new work not yet built. It is now fully implement
 - **Drag-and-drop reordering** — projects and project items via `@dnd-kit`
 - **Lightbox** — full-screen image viewer with left/right navigation, owner-only edit mode
 - **Two portfolio templates** — `ControlTemplate` (primary) and `ZineTemplate` (alt layout)
-- **Project system** — artists group portfolio items into named projects with cover image, discipline, location, year
+- **Project system** — creatives group portfolio items into named projects with cover image, discipline, location, year
 - **Batch linking** — `linkPortfolioItemToProject` links existing items to a project
 
 ### Auth & Profiles

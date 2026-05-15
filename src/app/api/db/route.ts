@@ -406,6 +406,10 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Invalid review data' });
         if (revieweeId === userId)
           return NextResponse.json({ error: 'You cannot review yourself' });
+        const { data: reviewerProfile } = await supabaseAdmin
+          .from('profiles').select('role').eq('id', userId).single();
+        if (reviewerProfile?.role === 'creative' || reviewerProfile?.role === 'both')
+          return NextResponse.json({ error: 'Creatives cannot leave profile reviews' });
         const { error } = await supabaseAdmin.from('reviews').insert({
           reviewer_id: userId,
           reviewee_id: revieweeId,
@@ -436,6 +440,10 @@ export async function POST(req: NextRequest) {
         if (!event) return NextResponse.json({ error: 'Event not found' });
         if (event.organiser_id === userId)
           return NextResponse.json({ error: 'Organisers cannot review their own event' });
+        const { data: reviewerProfile } = await supabaseAdmin
+          .from('profiles').select('role').eq('id', userId).single();
+        if (reviewerProfile?.role === 'creative' || reviewerProfile?.role === 'both')
+          return NextResponse.json({ error: 'Creatives cannot leave event reviews' });
         const { count: ticketCount } = await supabaseAdmin
           .from('tickets').select('*', { count: 'exact', head: true })
           .eq('event_id', eventId).eq('buyer_id', userId);

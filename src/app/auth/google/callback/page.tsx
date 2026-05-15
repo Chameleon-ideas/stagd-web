@@ -56,7 +56,7 @@ function GoogleCallback() {
         if (needsOnboarding) {
           setShowPicker(true);
         } else {
-          router.replace('/explore?tab=artists');
+          router.replace('/explore?tab=creatives');
         }
       })
       .catch(() => {
@@ -71,7 +71,7 @@ function GoogleCallback() {
           if (role === 'creative') {
             router.replace('/profile/edit?onboarding=true');
           } else {
-            router.replace('/explore?tab=artists');
+            router.replace('/explore?tab=creatives');
           }
         }}
       />
