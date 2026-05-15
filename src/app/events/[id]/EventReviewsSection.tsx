@@ -53,7 +53,7 @@ export function EventReviewsSection({ eventId, organiserId, initialReviews, star
   const eventHappened = new Date(startsAt).getTime() < Date.now();
 
   useEffect(() => {
-    if (isLoading || !user || user.id === organiserId || user.role === 'creative' || user.role === 'both') return;
+    if (isLoading || !user || user.id === organiserId) return;
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
       const res = await fetch('/api/db', {
@@ -116,8 +116,6 @@ export function EventReviewsSection({ eventId, organiserId, initialReviews, star
   const showForm =
     user &&
     user.id !== organiserId &&
-    user.role !== 'creative' &&
-    user.role !== 'both' &&
     eventHappened &&
     eligibility?.hasTicket &&
     !eligibility.hasReviewed &&
