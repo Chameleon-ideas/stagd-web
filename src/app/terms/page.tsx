@@ -22,6 +22,22 @@ export default function TermsPage() {
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-faint)', marginBottom: '60px' }}>
           Last updated: {LAST_UPDATED}
         </p>
+        <style>{`
+          .legal-list {
+            list-style-type: disc;
+            padding-left: 24px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+          }
+          .legal-list li {
+            display: list-item;
+            list-style-type: disc;
+            margin-bottom: 8px;
+          }
+          .legal-list li:last-child {
+            margin-bottom: 0;
+          }
+        `}</style>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', fontFamily: 'var(--font-body)', fontSize: '15px', lineHeight: 1.7, color: 'var(--text-muted)' }}>
 
@@ -59,7 +75,7 @@ export default function TermsPage() {
               By posting content on Stag'd, you grant us a non-exclusive, worldwide, royalty-free licence to display, distribute, and promote that content within the platform and in Stag'd's own marketing materials (social media, press, and promotional use). We will not alter your work or attribute it to anyone other than you.
             </p>
             <p style={{ marginTop: '12px' }}>You are solely responsible for ensuring your content:</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li>Does not infringe the intellectual property rights of any third party</li>
               <li>Does not contain unlawful, defamatory, or obscene material</li>
               <li>Does not misrepresent your identity, credentials, or the nature of your work</li>
@@ -83,7 +99,7 @@ export default function TermsPage() {
           <section>
             <h2 style={h2}>6. Event Ticketing</h2>
             <p>Stag'd processes ticket payments on behalf of event organisers through our integrated payment gateway. When you purchase a ticket:</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li>Your payment is collected by Stag'd and held until the payout schedule defined in the Event Organiser Agreement is triggered</li>
               <li>A QR-coded ticket is issued to you immediately upon payment confirmation</li>
               <li>Your ticket is for single-entry use only — the QR code is invalidated upon first scan</li>
@@ -102,7 +118,7 @@ export default function TermsPage() {
           <section>
             <h2 style={h2}>7. Prohibited Conduct</h2>
             <p>You agree not to:</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li>Impersonate any person or entity, or misrepresent your identity, credentials, or affiliation</li>
               <li>Upload content that is defamatory, obscene, or infringes third-party intellectual property rights</li>
               <li>Use the platform to spam, harass, threaten, or abuse other users</li>
@@ -138,7 +154,7 @@ export default function TermsPage() {
           <section>
             <h2 style={h2}>10. Disclaimers</h2>
             <p>Stag'd is provided "as is" without warranties of any kind, express or implied. We do not guarantee:</p>
-            <ul style={list}>
+            <ul className="legal-list">
               <li>Uninterrupted or error-free access to the platform</li>
               <li>The accuracy, completeness, or quality of user-generated content</li>
               <li>The outcome of any transaction, commission, or event between users</li>
