@@ -15,6 +15,7 @@ import { EditorialLayout } from '@/components/layout/EditorialLayout';
 import { formatDate } from '@/lib/utils';
 import { HeroMarquee } from '@/components/home/HeroMarquee';
 import { GSAPEntrance, GSAPHeroReveal } from '@/components/animations/GSAPEntrance';
+import { ClaimProfileButton } from '@/components/home/ClaimProfileButton';
 
 export default async function HomePage() {
   const eventsData = await searchEvents({ per_page: 5 });
@@ -84,9 +85,7 @@ export default async function HomePage() {
                   <p className={styles.claimBody}>
                     One link. Your full portfolio, upcoming gigs, rates, and a direct line for commissions. No platform branding. No subscription fees in v1.
                   </p>
-                  <a href={APP_STORE_URL} className="btn btn-accent btn-md" target="_blank" rel="noopener noreferrer" id="claim-cta">
-                    Claim your profile
-                  </a>
+                  <ClaimProfileButton />
                 </div>
               </div>
             </div>

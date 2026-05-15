@@ -40,23 +40,23 @@ export default function PrivacyPage() {
 
           <section>
             <h2 style={h2}>2. Information We Collect</h2>
-            <p><strong style={strong}>Account information</strong><br/>
-            When you create an account, we collect your name, phone number, and account type (Creative or General). If you sign in with Google, we receive your name, email address, and profile photo from Google.</p>
-            
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Profile information</strong><br/>
-            Information you choose to add to your profile: bio, city, disciplines, portfolio images, starting rate, social media handles, and availability status. For Creatives who send invoices, we also store bank account details (account title, bank name, account number, and IBAN). This financial information is stored securely and is never displayed publicly.</p>
-            
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Commission and booking data</strong><br/>
-            When you use the commissions feature — whether as a client or a creative — we store the content of your brief, proposals, messages, payment confirmation records, and project status updates. This data exists to document your agreement and protect both parties.</p>
-            
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Ticketing data</strong><br/>
-            When you purchase a ticket, we collect your name, email address, payment information (processed by Safepay), and a record of your purchase including the ticket ID and tier. When your ticket is scanned at a venue, the scan time and entry status are logged against your ticket record.</p>
+            <p><strong style={strong}>Account information</strong><br />
+              When you create an account, we collect your name, phone number, and account type (Creative or General). If you sign in with Google, we receive your name, email address, and profile photo from Google.</p>
 
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Event organiser data</strong><br/>
-            If you list events on Stag'd, we collect your event details, ticket tier configuration, door staff assignments, and payout bank or wallet details.</p>
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Profile information</strong><br />
+              Information you choose to add to your profile: bio, city, disciplines, portfolio images, starting rate, social media handles, and availability status. For Creatives who send invoices, we also store bank account details (account title, bank name, account number, and IBAN). This financial information is stored securely and is never displayed publicly.</p>
 
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Usage data</strong><br/>
-            Standard server logs: IP addresses, browser type, pages visited, and timestamps. This data is used for platform security and performance — not for advertising profiles.</p>
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Commission and booking data</strong><br />
+              When you use the commissions feature — whether as a client or a creative — we store the content of your brief, proposals, messages, payment confirmation records, and project status updates. This data exists to document your agreement and protect both parties.</p>
+
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Ticketing data</strong><br />
+              When you purchase a ticket, we collect your name, email address, payment information (processed by Safepay), and a record of your purchase including the ticket ID and tier. When your ticket is scanned at a venue, the scan time and entry status are logged against your ticket record.</p>
+
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Event organiser data</strong><br />
+              If you list events on Stag'd, we collect your event details, ticket tier configuration, door staff assignments, and payout bank or wallet details.</p>
+
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Usage data</strong><br />
+              Standard server logs: IP addresses, browser type, pages visited, and timestamps. This data is used for platform security and performance — not for advertising profiles.</p>
           </section>
 
           <section>
@@ -79,15 +79,15 @@ export default function PrivacyPage() {
 
           <section>
             <h2 style={h2}>4. What Is Public vs. Private</h2>
-            <p><strong style={strong}>Publicly visible on your Creative profile:</strong><br/>
-            Name, bio, disciplines, city, portfolio images, availability status, social media handles, and follower count. Your public profile is accessible at stagd.app/[username] and is indexed by search engines.</p>
-            
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Visible only to relevant parties:</strong><br/>
-            Commission messages and proposal details are only visible to the client and creative involved in that thread. Ticket purchase records are visible to the buyer and the event organiser (name and tier only — not payment method). Invoice details are shared between the creative and the client for that project.</p>
-            
-            <p style={{ marginTop: '12px' }}><strong style={strong}>Never publicly visible:</strong><br/>
-            Bank account details, IBAN, phone number, email address, and payment method information.<br/>
-            General (non-creative) user accounts do not have public profile pages.</p>
+            <p><strong style={strong}>Publicly visible on your Creative profile:</strong><br />
+              Name, bio, disciplines, city, portfolio images, availability status, social media handles, and follower count. Your public profile is accessible at stagd.app/[username] and is indexed by search engines.</p>
+
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Visible only to relevant parties:</strong><br />
+              Commission messages and proposal details are only visible to the client and creative involved in that thread. Ticket purchase records are visible to the buyer and the event organiser (name and tier only — not payment method). Invoice details are shared between the creative and the client for that project.</p>
+
+            <p style={{ marginTop: '12px' }}><strong style={strong}>Never publicly visible:</strong><br />
+              Bank account details, IBAN, phone number, email address, and payment method information.<br />
+              General (non-creative) user accounts do not have public profile pages.</p>
           </section>
 
           <section>
@@ -131,7 +131,7 @@ export default function PrivacyPage() {
               We use session cookies and local storage to keep you signed in and to remember your preferences (such as theme). We do not use tracking cookies, advertising cookies, or third-party analytics cookies.
             </p>
           </section>
-          
+
           <section>
             <h2 style={h2}>9. Children</h2>
             <p>
