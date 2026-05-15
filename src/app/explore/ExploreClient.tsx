@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, MapPin, Briefcase, Filter, Search } from 'lucide-react';
-import { searchcreatives, searchEvents } from '@/lib/api';
+import { searchArtists, searchEvents } from '@/lib/api';
 import { formatPKR, formatDate } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -42,7 +42,7 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
       setLoading(true);
       try {
         if (activeTab === 'creatives') {
-          const data = await searchcreatives({
+          const data = await searchArtists({
             city: filters.city !== 'All' ? filters.city : undefined,
             discipline: filters.discipline !== 'All' ? filters.discipline : undefined,
             sort: filters.sort,
