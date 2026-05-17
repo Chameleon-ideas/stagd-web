@@ -65,8 +65,8 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
     <main 
       className="flex-1 flex flex-col" 
       style={{ 
-        height: shouldLock ? (isHome || zeroPadding ? '100vh' : `calc(100vh - ${headerHeight}px)`) : 'auto',
-        maxHeight: shouldLock ? (isHome || zeroPadding ? '100vh' : `calc(100vh - ${headerHeight}px)`) : 'none',
+        height: shouldLock ? '100vh' : 'auto',
+        maxHeight: shouldLock ? '100vh' : 'none',
         paddingTop: isHome ? '0' : (zeroPadding && !isMobile ? '0' : `${headerHeight}px`),
         overflow: shouldLock ? 'hidden' : 'visible'
       }}

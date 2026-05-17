@@ -524,11 +524,11 @@ function EditProfilePage() {
   const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ '--edit-header-height': user ? '88px' : '60px' } as React.CSSProperties}>
       <div className={styles.inner}>
 
         {/* ── SIDEBAR ── */}
-        <aside className={styles.sidebar}>
+        <aside className={styles.sidebar} data-lenis-prevent>
           <Link
             href={role === 'creative' ? `/profile/${user?.username}` : '/explore?tab=creatives'}
             className={styles.backLink}
@@ -584,7 +584,7 @@ function EditProfilePage() {
         </aside>
 
         {/* ── MAIN CONTENT ── */}
-        <main className={styles.main}>
+        <main className={styles.main} data-lenis-prevent>
 
           {/* ── ONBOARDING CHECKLIST ── */}
           {isOnboarding && role === 'creative' && (
@@ -1159,7 +1159,7 @@ function EditProfilePage() {
         </main>
 
         {/* ── RIGHT SIDEBAR (DP UPDATE) ── */}
-        <aside className={styles.rightSidebar}>
+        <aside className={styles.rightSidebar} data-lenis-prevent>
           <div className={styles.avatarSection}>
             <p className={styles.accountTypeLabel}>Profile Image</p>
             <div className={styles.avatarPreview}>
