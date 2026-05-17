@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
 import { EditorialLayout } from '@/components/layout/EditorialLayout';
-import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/utils';
-import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { GSAPEntrance, GSAPHeroReveal } from '@/components/animations/GSAPEntrance';
-import { ManifestoBtn } from './ManifestoBtn';
 
 export const metadata: Metadata = {
   title: "About",
@@ -30,9 +27,6 @@ export default function AboutPage() {
               <div className={styles.heroLead} data-animate="hero">
                 Found. Hired. Celebrated.
               </div>
-              <div data-animate="hero">
-                <ManifestoBtn />
-              </div>
               <p className={styles.heroBody} data-animate="hero">
                 Stag'd is Pakistan's premier professional registry and discovery engine,
                 architected specifically for the independent creative class. We provide the
@@ -43,7 +37,8 @@ export default function AboutPage() {
           </section>
         </GSAPHeroReveal>
 
-        {/* Manifesto Section */}
+
+        {/* Features / Cards Section */}
         <section className={styles.manifesto}>
           <div className="container">
             <GSAPEntrance selector={`.${styles.manifestoCard}`} stagger={0.1}>
