@@ -186,8 +186,8 @@ export default async function HomePage() {
           <section id="events" className={styles.showcaseSection}>
             <div className={styles.showcaseHeader}>
               <div className={styles.showcaseLabelBlock}>
-                <span className={styles.monoLabelYellow}>// LIVE BOX OFFICE</span>
-                <h2 className={styles.showcaseTitle}>CULTURE IN REAL LIFE</h2>
+                <span className={styles.monoLabelYellow}>// HAPPENING NOW</span>
+                <h2 className={styles.showcaseTitle}>LIVE EVENTS</h2>
               </div>
               <Link href="/explore?tab=events" className={styles.showcaseLink}>VIEW ALL EVENTS &rarr;</Link>
             </div>
@@ -247,7 +247,7 @@ export default async function HomePage() {
               </div>
 
               <div className={styles.showcaseColSecondary}>
-                <div className={styles.ledgerHeader}>// ACTIVE REGISTRY ENTRIES</div>
+                <div className={styles.ledgerHeader}>// OPEN ENTRIES</div>
                 <div className={styles.ledgerList}>
                   {liveEvents.slice(1, 5).map(({ event: ev }) => (
                     <Link key={ev.id} href={`/events/${ev.slug ?? ev.id}`} className={styles.ledgerRow}>
