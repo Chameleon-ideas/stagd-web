@@ -415,6 +415,9 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
         <div className={styles.controlContent}>
           <div className={styles.identity}>
             <h1 className={styles.name}>{profile.user.full_name}</h1>
+            {profile.profile.verified && (
+              <p className={styles.verifiedBadge}>// Verified Creative</p>
+            )}
             <div className={styles.status}>
               <span className={styles.dot} />
               {profile.profile.availability}

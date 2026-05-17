@@ -55,6 +55,15 @@
   margin-bottom: var(--space-2);
 }
 
+.verifiedBadge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-cyan);
+  letter-spacing: var(--tracking-tag);
+  margin-bottom: var(--space-2);
+}
+
 .status {
   font-family: var(--font-mono);
   font-size: 10px;
