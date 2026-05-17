@@ -12,6 +12,8 @@ interface ExplorePageProps {
   searchParams: Promise<{ tab?: string; query?: string; discipline?: string }>;
 }
 
+export const revalidate = 120;
+
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   const params = await searchParams;
   const activeTab = params.tab || 'creatives';

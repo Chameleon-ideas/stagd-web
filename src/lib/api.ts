@@ -3,6 +3,7 @@
 // Typed Supabase wrappers for all data access.
 // ============================================================
 
+import { cache } from 'react';
 import type {
   ArtistPublicProfile,
   ArtistSearchResult,
@@ -34,7 +35,7 @@ async function dbWrite(op: string, params: Record<string, unknown>): Promise<any
 // USERS & PROFILES
 // ════════════════════════════════════════════════════════════
 
-export async function getArtistProfile(username: string): Promise<ArtistPublicProfile> {
+export const getArtistProfile = cache(async function getArtistProfile(username: string): Promise<ArtistPublicProfile> {
   const { data, error } = await supabase
     .from('profiles')
     .select(`
@@ -171,7 +172,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
     follower_count: followerCount ?? 0,
     project_count: projects.length,
   };
-}
+});
 
 export async function getArtistProfileBasic(username: string): Promise<any> {
   const { data, error } = await supabase
@@ -425,7 +426,7 @@ export async function getEvent(idOrSlug: string): Promise<Event> {
   };
 }
 
-export async function getArtistEvents(organiserId: string): Promise<PaginatedResponse<EventSearchResult>> {
+export const getArtistEvents = cache(async function getArtistEvents(organiserId: string): Promise<PaginatedResponse<EventSearchResult>> {
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -443,7 +444,7 @@ export async function getArtistEvents(organiserId: string): Promise<PaginatedRes
     data: events.map(e => ({ event: e, organiser: e.organiser })),
     total: events.length, page: 1, per_page: 20, has_more: false,
   };
-}
+});
 
 export async function getEventReviews(eventId: string): Promise<EventReview[]> {
   const { data, error } = await supabase
