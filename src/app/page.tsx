@@ -1,325 +1,481 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/utils';
+import { Search } from 'lucide-react';
+import { searchEvents, searchArtists, getCreativeCount } from '@/lib/api';
+import { formatDateTime } from '@/lib/utils';
+import {
+  GSAPEntrance,
+  GSAPHeroReveal,
+  GSAPLineReveal,
+} from '@/components/animations/GSAPEntrance';
+import { MarqueeTicker } from '@/components/home/MarqueeTicker';
+import { InteractiveCardDeck } from '@/components/home/InteractiveCardDeck';
+import { StagdLogo } from '@/components/layout/StagdLogo';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: "Stag'd — Pakistan's Creative Economy",
   description:
-    "Find creatives, book tickets, commission work. Stag'd is where Karachi's independent creative scene shows up.",
+    "Pakistan's creative class. Discovered, hired, experienced.",
 };
 
-import { searchEvents } from '@/lib/api';
-import { EditorialLayout } from '@/components/layout/EditorialLayout';
-import { formatDate } from '@/lib/utils';
-import { HeroMarquee } from '@/components/home/HeroMarquee';
-import { GSAPEntrance, GSAPHeroReveal } from '@/components/animations/GSAPEntrance';
-import { ClaimProfileButton } from '@/components/home/ClaimProfileButton';
-
 export default async function HomePage() {
-  const eventsData = await searchEvents({ per_page: 5 });
-  const realEvents = eventsData.data;
+  const [eventsData, artistsData, creativeCount] = await Promise.all([
+    searchEvents({ per_page: 8 }),
+    searchArtists({}),
+    getCreativeCount(),
+  ]);
+
+  const liveEvents = eventsData.data;
+  const allArtists = artistsData.data;
+  const featuredArtists = allArtists.slice(0, 8);
+  const showFeatured = featuredArtists.length > 0;
 
   return (
-    <EditorialLayout>
-      <div className={styles.gridBackground}>
+    <div className={styles.page}>
+      <InteractiveCardDeck>
 
-        <GSAPHeroReveal selector={`[data-animate="hero"]`}>
-          <section className={styles.hero} aria-labelledby="hero-heading">
-            <div className={`container ${styles.heroLayout}`}>
-              <div className={styles.heroContent}>
-                <div className={styles.heroHeader}>
-                  <div className={styles.heroTopMeta} data-animate="hero">
-                    <span className={styles.liveBadge}>KHI · NOW LIVE</span>
-                    <span className={styles.volText}>VOL 01</span>
-                  </div>
-                  <h1 id="hero-heading" className={styles.heroHeading} data-animate="hero">
-                    FIND.<br />
-                    <span className={styles.heroAccent}>HIRE</span>.<br />
-                    SHOW UP.
-                  </h1>
-                </div>
+        {/* ════════════════════════════════════════════════════
+            CARD 01 · STYLISH HERO + TICKER
+            ════════════════════════════════════════════════════ */}
+        <div style={{ width: '100%' }}>
+          <GSAPHeroReveal selector="[data-reveal]" stagger={0.12} delay={0.1} y={24} duration={0.7}>
+            <section className={styles.hero} aria-labelledby="hero-heading">
+              <div className={styles.heroGrain} aria-hidden="true" />
 
-                <p className={styles.heroBody} data-animate="hero">
-                  Pakistan's first platform for the creative class and everyone who believes in it.
+              <div className={styles.heroBgImageWrap} aria-hidden="true">
+                <Image
+                  src="/images/hero-image.webp"
+                  alt="Pakistan's Creative Class"
+                  fill
+                  priority
+                  className={styles.heroBgImage}
+                />
+                <div className={styles.heroBgOverlay} />
+              </div>
+
+              <div className={styles.heroInnerCentered}>
+                <h1 id="hero-heading" className={styles.heroHeadline} data-reveal>
+                  FIND. <span className={styles.yellowText}>HIRE.</span> SHOW UP.
+                </h1>
+
+                <p className={styles.heroEditorialSub} data-reveal>
+                  // PAKISTAN&rsquo;S CREATIVE CLASS
                 </p>
 
-                <div className={styles.heroActions} data-animate="hero">
-                  <Link href="/explore" className="btn btn-accent btn-lg" id="hero-browse">
-                    Explore Registry →
-                  </Link>
-                  <div className={styles.heroStoreLinks}>
-                    <a href={APP_STORE_URL} className={styles.miniStoreLink} target="_blank" rel="noopener noreferrer">
-                      <Image src="/stores/appstore-light.svg" alt="App Store" width={100} height={30} className={styles.lightLogo} />
-                      <Image src="/stores/appstore-dark.svg" alt="App Store" width={100} height={30} className={styles.darkLogo} />
-                    </a>
-                    <a href={PLAY_STORE_URL} className={styles.miniStoreLink} target="_blank" rel="noopener noreferrer">
-                      <Image src="/stores/playstore-light.svg" alt="Play Store" width={100} height={30} className={styles.lightLogo} />
-                      <Image src="/stores/playstore-dark.svg" alt="Play Store" width={100} height={30} className={styles.darkLogo} />
-                    </a>
+                <div className={styles.heroSearchContainer} data-reveal>
+                  <form action="/explore" className={styles.heroSearchForm}>
+                    <div className={styles.heroSearchInputWrap}>
+                      <Search size={20} className={styles.heroSearchIcon} />
+                      <input
+                        type="text"
+                        name="query"
+                        placeholder="SEARCH ARTISTS, EVENTS, OR DISCIPLINE..."
+                        className={styles.heroSearchInput}
+                        aria-label="Search creatives and events"
+                      />
+                      <button type="submit" className={styles.heroSearchBtn}>
+                        SEARCH
+                      </button>
+                    </div>
+                  </form>
+
+                  <div className={styles.quickFilters}>
+                    <span className={styles.quickFilterLabel}>HOT CATEGORIES:</span>
+                    <div className={styles.quickFilterItems}>
+                      <Link href="/explore?discipline=Music" className={styles.quickFilterLink}>Music</Link>
+                      <Link href="/explore?discipline=Photography" className={styles.quickFilterLink}>Photography</Link>
+                      <Link href="/explore?discipline=Visual Arts" className={styles.quickFilterLink}>Visual Arts</Link>
+                      <Link href="/explore?tab=events" className={styles.quickFilterLink}>Live Events</Link>
+                    </div>
                   </div>
                 </div>
+
+                <div className={styles.liveStat} data-reveal>
+                  <span className={styles.liveStatDot} />
+                  <span>{creativeCount} CREATIVES · VOL. 01</span>
+                </div>
+              </div>
+            </section>
+          </GSAPHeroReveal>
+
+          <MarqueeTicker
+            size="lg"
+            theme="yellow"
+            speed="fast"
+            items={['DISCOVER', 'HIRE', 'EXPERIENCE', 'PAKISTAN', 'KHI', 'LHR', 'ISB', 'CREATIVE CLASS']}
+          />
+        </div>
+
+        {/* ════════════════════════════════════════════════════
+            CARD 02 · PLATFORM DIRECTIVES INDEX + TICKER
+            ════════════════════════════════════════════════════ */}
+        <div style={{ width: '100%' }}>
+          <section id="pillars" className={styles.directivesSection}>
+            <div className={styles.sectionHeaderWrap}>
+              <span className={styles.navLabelDark}>// PLATFORM DIRECTIVES</span>
+              <h2 className={styles.directivesSectionTitle}>HOW WE RUN THE CULTURE</h2>
+            </div>
+
+            <div className={styles.directivesTable}>
+              <div className={styles.directiveRow} data-pillar="yellow">
+                <GSAPLineReveal selector="[data-line]" y={28} stagger={0.07} duration={0.42} start="top 85%">
+                  <div className={styles.directiveRowInner}>
+                    <div className={styles.dirNumCol} data-line>
+                      <span className={styles.dirMono}>01 // INDEX</span>
+                      <h3 className={styles.dirHeadline}>DISCOVER</h3>
+                    </div>
+                    <div className={styles.dirContentCol} data-line>
+                      <p className={styles.dirDescription}>
+                        Every creative in Pakistan—photographers, printmakers, DJs, directors, makeup artists—in one searchable place. Find by discipline, city, or vibe.
+                      </p>
+                      <Link href="/explore" className={styles.dirLink}>
+                        BROWSE ARCHIVES &rarr;
+                      </Link>
+                    </div>
+                    <div className={styles.dirVisualCol} data-line>
+                      <div className={styles.dirGraphicStripe} />
+                    </div>
+                  </div>
+                </GSAPLineReveal>
               </div>
 
-              <div className={styles.heroVisual} aria-hidden="true">
-                <HeroMarquee />
+              <div className={styles.directiveRow} data-pillar="green">
+                <GSAPLineReveal selector="[data-line]" y={28} stagger={0.07} duration={0.42} start="top 85%">
+                  <div className={styles.directiveRowInner}>
+                    <div className={styles.dirNumCol} data-line>
+                      <span className={styles.dirMono}>02 // SERVICE</span>
+                      <h3 className={styles.dirHeadline}>HIRE</h3>
+                    </div>
+                    <div className={styles.dirContentCol} data-line>
+                      <p className={styles.dirDescription}>
+                        Brief a creative, agree on terms, get the work made. No cold DMs, no dead WhatsApp threads. A crystal-clear process from brief to delivery.
+                      </p>
+                      <Link href="/auth/signup?role=client" className={styles.dirLink}>
+                        POST A BRIEF &rarr;
+                      </Link>
+                    </div>
+                    <div className={styles.dirVisualCol} data-line>
+                      <div className={styles.dirGraphicStripe} />
+                    </div>
+                  </div>
+                </GSAPLineReveal>
+              </div>
+
+              <div className={styles.directiveRow} data-pillar="dark">
+                <GSAPLineReveal selector="[data-line]" y={28} stagger={0.07} duration={0.42} start="top 85%">
+                  <div className={styles.directiveRowInner}>
+                    <div className={styles.dirNumCol} data-line>
+                      <span className={styles.dirMono}>03 // BOX OFFICE</span>
+                      <h3 className={styles.dirHeadline}>EXPERIENCE</h3>
+                    </div>
+                    <div className={styles.dirContentCol} data-line>
+                      <p className={styles.dirDescription}>
+                        Concerts, gallery nights, masterclasses, street art showcases. Discover what&rsquo;s happening in your city. Secure your spot. Show up.
+                      </p>
+                      <Link href="#events" className={styles.dirLink}>
+                        EXPLORE EVENTS &rarr;
+                      </Link>
+                    </div>
+                    <div className={styles.dirVisualCol} data-line>
+                      <div className={styles.dirGraphicStripe} />
+                    </div>
+                  </div>
+                </GSAPLineReveal>
               </div>
             </div>
           </section>
-        </GSAPHeroReveal>
 
-        {/* ─── CLAIM YOUR PROFILE ───────────────────────────── */}
-        <GSAPEntrance selector={`[data-animate="claim"]`}>
-          <section className={styles.claim}>
-            <div className="container">
-              <div className={styles.claimInner}>
-                <div className={styles.claimLeft} data-animate="claim">
-                  <span className={styles.sectionMeta}>// CREATOR INITIATIVE</span>
-                  <h2 className={styles.claimHeading}>
-                    Your work.<br />Your URL.<br />
-                    <span className={styles.claimUrl}>stagd.app/yourname</span>
-                  </h2>
-                </div>
-                <div className={styles.claimRight} data-animate="claim">
-                  <p className={styles.claimBody}>
-                    One link. Your full portfolio, upcoming gigs, rates, and a direct line for commissions. No platform branding. No subscription fees in v1.
-                  </p>
-                  <ClaimProfileButton />
-                </div>
+          <MarqueeTicker
+            size="lg"
+            theme="ink"
+            speed="normal"
+            reverse
+            items={['HAPPENING SOON', 'CONCERTS', 'WORKSHOPS', 'GALLERY NIGHTS', 'OPEN MICS', 'BUY A TICKET']}
+          />
+        </div>
+
+        {/* ════════════════════════════════════════════════════
+            CARD 03 · THE STAGGERED SHOWCASE + TICKER
+            ════════════════════════════════════════════════════ */}
+        <div style={{ width: '100%' }}>
+          <section id="events" className={styles.showcaseSection}>
+            <div className={styles.showcaseHeader}>
+              <div className={styles.showcaseLabelBlock}>
+                <span className={styles.monoLabelYellow}>// THE SPOTLIGHT REGISTER</span>
+                <h2 className={styles.showcaseTitle}>ACTIVE PLATFORM LEDGER</h2>
               </div>
+              <Link href="/explore?tab=events" className={styles.showcaseLink}>VIEW THE FULL ARCHIVE &rarr;</Link>
             </div>
-          </section>
-        </GSAPEntrance>
 
-        {/* ─── THREE PILLARS — alternating rows ─────────────── */}
-        <section className={styles.pillars} aria-labelledby="pillars-heading">
-          <div className="container">
-            <GSAPEntrance selector={`[data-animate="pillars-header"]`}>
-              <div className={styles.pillarsHeader} data-animate="pillars-header">
-                <span className={styles.sectionMeta}>// THE INFRASTRUCTURE</span>
-                <h2 id="pillars-heading" className={styles.pillarsHeading}>Three things.<br />Done properly.</h2>
-              </div>
-            </GSAPEntrance>
-
-            <hr className="rule" />
-
-            {/* 01 — Discovery */}
-            <GSAPEntrance selector={`[data-animate="pillar-1"]`}>
-              <div className={styles.pillar}>
-                <div className={styles.pillarLeft} data-animate="pillar-1">
-                  <span className={styles.pillarNum}>01</span>
-                  <h3 className={styles.pillarTitle}>Discovery</h3>
-                  <p className={styles.pillarBody}>
-                    Every creative on Stag'd gets a proper portfolio page at their own URL. A masonry grid of their work, their rates, availability, and a direct way to hire them. Burns Road after dark is a different city — Stag'd makes sure you know who's in it.
-                  </p>
-                  <Link href="/explore" className="btn btn-secondary btn-md" id="pillar-discover">
-                    Explore
-                  </Link>
-                </div>
-                <div className={styles.pillarRight} data-animate="pillar-1">
-                  <div className={styles.pillarStats}>
-                    {STATS.map(s => (
-                      <div key={s.label} className={styles.statRow}>
-                        <span className={styles.statValue}>{s.value}</span>
-                        <span className={styles.statLabel}>{s.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </GSAPEntrance>
-
-            <hr className="rule" />
-
-            {/* 02 — Commissions */}
-            <GSAPEntrance selector={`[data-animate="pillar-2"]`}>
-              <div className={`${styles.pillar} ${styles.pillarFlip}`}>
-                <div className={styles.pillarRight} data-animate="pillar-2">
-                  <div className={styles.flowList}>
-                    {FLOW_STEPS.map((step, i) => (
-                      <div key={step} className={styles.flowRow}>
-                        <span className={styles.flowNum}>{String(i + 1).padStart(2, '0')}</span>
-                        <span className={styles.flowStep}>{step}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className={styles.pillarLeft} data-animate="pillar-2">
-                  <span className={styles.pillarNum}>02</span>
-                  <h3 className={styles.pillarTitle}>Commissions</h3>
-                  <p className={styles.pillarBody}>
-                    Brief, proposal, deposit, delivery — all tracked inside the app. No chasing DMs. No losing context in WhatsApp threads. Risograph printing, explained properly. Small class. You'll leave with a print.
-                  </p>
-                  <a href={APP_STORE_URL} className="btn btn-secondary btn-md" target="_blank" rel="noopener noreferrer" id="pillar-commission">
-                    Start a commission
-                  </a>
-                </div>
-              </div>
-            </GSAPEntrance>
-
-            <hr className="rule" />
-
-            {/* 03 — Events */}
-            <GSAPEntrance selector={`[data-animate="pillar-3"]`}>
-              <div className={styles.pillar}>
-                <div className={styles.pillarLeft} data-animate="pillar-3">
-                  <span className={styles.pillarNum}>03</span>
-                  <h3 className={styles.pillarTitle}>Events &amp; Tickets</h3>
-                  <p className={styles.pillarBody}>
-                    Creatives run nights. Stag'd handles the ticketing — tiers, QR codes, door scanning, payouts. No third-party forms. No cash at the door. T2F Garden has housed the underground since before underground was a word people used.
-                  </p>
-                  <Link href="/explore?tab=events" className="btn btn-secondary btn-md" id="pillar-events">
-                    See what's on
-                  </Link>
-                </div>
-                <div className={styles.pillarRight} data-animate="pillar-3">
-                  <div className={styles.eventShowcase}>
-                    {realEvents.map((item) => {
-                      const ev = item.event;
-                      const getChipClass = (type: string) => {
-                        const t = type.toLowerCase();
-                        if (t.includes('concert') || t.includes('gig')) return 'chip-concert';
-                        if (t.includes('workshop') || t.includes('class')) return 'chip-workshop';
-                        if (t.includes('gallery') || t.includes('exhibition')) return 'chip-exhibition';
-                        if (t.includes('market')) return 'chip-market';
-                        if (t.includes('talk') || t.includes('poetry')) return 'chip-talk';
-                        if (t.includes('film')) return 'chip-film';
-                        if (t.includes('dance')) return 'chip-dance';
-                        return 'chip-ink';
-                      };
-
-                      return (
-                        <Link key={ev.id} href={`/events/${ev.slug ?? ev.id}`} className={styles.eventShowcaseCard}>
-                          <div className={styles.eventShowcaseCover}>
+            <div className={styles.showcaseGrid}>
+              <div className={styles.showcaseColPrimary}>
+                {liveEvents.length > 0 ? (
+                  (() => {
+                    const spotlight = liveEvents[0].event;
+                    return (
+                      <Link href={`/events/${spotlight.slug ?? spotlight.id}`} className={styles.spotlightCard}>
+                        <div className={styles.spotlightImageWrap}>
+                          {spotlight.cover_image_url ? (
                             <Image
-                              src={ev.cover_image_url || '/images/default-event.png'}
-                              alt={ev.title}
+                              src={spotlight.cover_image_url}
+                              alt={spotlight.title}
                               fill
-                              style={{ objectFit: 'cover' }}
-                              className={styles.eventShowcaseImage}
+                              sizes="(max-width: 1024px) 100vw, 60vw"
+                              className={styles.spotlightImage}
+                              priority
                             />
-                            <div className={styles.eventShowcaseTop}>
-                              <span className={`chip ${getChipClass(ev.event_type)}`}>{ev.event_type}</span>
+                          ) : (
+                            <div className={styles.spotlightFallbackImage}>
+                              <span className={styles.spotlightFallbackText}>STAGD SPOTLIGHT</span>
                             </div>
-                            <div className={styles.eventShowcaseBottom}>
-                              <span className={styles.eventShowcaseMeta}>{formatDate(ev.starts_at)}</span>
-                              <h4 className={styles.eventShowcaseTitle}>{ev.title}</h4>
-                            </div>
+                          )}
+                          <span className={styles.spotlightBadge}>FEATURED EVENT</span>
+                        </div>
+                        <div className={styles.spotlightContent}>
+                          <div className={styles.spotlightMeta}>
+                            <span>{spotlight.event_type.toUpperCase()}</span>
+                            <span>·</span>
+                            <span>{formatDateTime(spotlight.starts_at)}</span>
                           </div>
-                        </Link>
-                      );
-                    })}
+                          <h3 className={styles.spotlightTitle}>{spotlight.title}</h3>
+                          <p className={styles.spotlightDesc}>
+                            {spotlight.venue_name ? `${spotlight.venue_name} · ` : ''}
+                            {spotlight.is_free ? 'FREE ENTRANCE' : `PKR ${spotlight.min_price.toLocaleString()}`}
+                          </p>
+                          <span className={styles.spotlightCta}>BOOK ARCHIVE TICKETS &rarr;</span>
+                        </div>
+                      </Link>
+                    );
+                  })()
+                ) : (
+                  <div className={styles.spotlightCard}>
+                    <div className={styles.spotlightImageWrap}>
+                      <div className={styles.spotlightFallbackImage} />
+                      <span className={styles.spotlightBadge}>SPOTLIGHT SYSTEM</span>
+                    </div>
+                    <div className={styles.spotlightContent}>
+                      <h3 className={styles.spotlightTitle}>No active spotlight events registered.</h3>
+                      <Link href="/events/create" className={styles.spotlightCta}>REGISTER YOUR INITIATIVE &rarr;</Link>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-            </GSAPEntrance>
-          </div>
-        </section>
 
-        {/* ─── FOR ORGANISERS — full-width stripe ───────────── */}
-        <GSAPEntrance selector={`[data-animate="org"]`}>
-          <section className={`${styles.organisers} stripe-dark`} data-theme="dark" aria-labelledby="org-heading">
-            <div className="container">
-              <div className={styles.organisersInner}>
-                <div className={styles.organisersLeft} data-animate="org">
-                  <span className={styles.sectionMeta}>// ORGANISER TOOLS</span>
-                  <h2 id="org-heading" className={styles.orgHeading}>
-                    Sell tickets<br />before the night.
-                  </h2>
-                  <p className={styles.orgBody}>
-                    Create your event. Set ticket tiers. Share the poster. Stag'd generates QR codes, runs Safepay checkout, and gives your door staff a phone scanner — no app download required.
-                  </p>
-                  <a href={APP_STORE_URL} className="btn btn-secondary btn-md" target="_blank" rel="noopener noreferrer" id="org-cta">
-                    Set up your first event
-                  </a>
-                </div>
-                <div className={styles.organisersRight} data-animate="org">
-                  {ORG_FEATURES.map(f => (
-                    <div key={f} className={styles.orgFeature}>
-                      <span className={styles.orgCheck}>✓</span>
-                      <span>{f}</span>
+              <div className={styles.showcaseColSecondary}>
+                <div className={styles.ledgerHeader}>// ACTIVE REGISTRY ENTRIES</div>
+                <div className={styles.ledgerList}>
+                  {liveEvents.slice(1, 5).map(({ event: ev }) => (
+                    <Link key={ev.id} href={`/events/${ev.slug ?? ev.id}`} className={styles.ledgerRow}>
+                      <div className={styles.ledgerRowTop}>
+                        <span className={styles.ledgerTag}>{ev.event_type}</span>
+                        <span className={styles.ledgerPrice}>
+                          {ev.is_free ? 'FREE' : `PKR ${ev.min_price.toLocaleString()}`}
+                        </span>
+                      </div>
+                      <h4 className={styles.ledgerRowTitle}>{ev.title}</h4>
+                      <div className={styles.ledgerRowMeta}>
+                        <span>{ev.venue_name ?? 'VENUE N/A'}</span>
+                        <span>·</span>
+                        <span>{formatDateTime(ev.starts_at)}</span>
+                      </div>
+                    </Link>
+                  ))}
+
+                  {liveEvents.length < 3 && PLACEHOLDER_EVENTS.map((p, i) => (
+                    <div key={i} className={styles.ledgerRowPlaceholder}>
+                      <div className={styles.ledgerRowTop}>
+                        <span className={styles.ledgerTag}>SYSTEM REGISTER</span>
+                      </div>
+                      <h4 className={styles.ledgerRowTitle}>{p.name}</h4>
+                      <div className={styles.ledgerRowMeta}>
+                        <span>{p.venue}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           </section>
-        </GSAPEntrance>
 
-        {/* ─── FINAL CTA ────────────────────────────────────── */}
-        <GSAPEntrance selector={`[data-animate="final"]`}>
-          <section className={styles.finalCta} aria-labelledby="final-heading">
-            <div className="container">
-              <div className={styles.finalCtaInner} data-animate="final">
-                <h2 id="final-heading" className={styles.finalHeading}>
-                  READY TO LEVEL UP?
-                </h2>
-                <a href={APP_STORE_URL} className="btn btn-contrast-green btn-lg" target="_blank" rel="noopener noreferrer">
-                  Join the community
-                </a>
+          <MarqueeTicker
+            size="lg"
+            theme="yellow"
+            speed="slow"
+            items={['PHOTOGRAPHERS', 'MUSICIANS', 'DJS', 'DIRECTORS', 'MAKEUP ARTISTS', 'CREATIVES']}
+          />
+        </div>
+
+        {/* ════════════════════════════════════════════════════
+            CARD 04 · THE TYPOGRAPHIC MANIFESTO + TICKER
+            ════════════════════════════════════════════════════ */}
+        <div style={{ width: '100%' }}>
+          <section className={styles.manifestoSection}>
+            <div className={styles.manifestoInner}>
+              <div className={styles.manifestoLeft}>
+                <span className={styles.monoLabelYellow}>// ARCHIVE STATEMENT</span>
+                <blockquote className={styles.manifestoQuote}>
+                  &ldquo;We believe Pakistan&rsquo;s creative class deserves a prestigious stage of record. Zero cold DMs, zero lost briefs, and zero administrative chaos.&rdquo;
+                </blockquote>
+              </div>
+
+              <div className={styles.manifestoRight}>
+                <div className={styles.manifestoStepsLabel}>// SYSTEM MECHANICS</div>
+                <div className={styles.manifestoStepRow}>
+                  <span className={styles.stepNum}>01</span>
+                  <div className={styles.stepBody}>
+                    <h4 className={styles.stepTitle}>ARCHIVE PROFILE</h4>
+                    <p className={styles.stepDesc}>Register your credentials, portfolio, rates, and verification metrics in one standard index.</p>
+                  </div>
+                </div>
+                <div className={styles.manifestoStepRow}>
+                  <span className={styles.stepNum}>02</span>
+                  <div className={styles.stepBody}>
+                    <h4 className={styles.stepTitle}>CLEAR DISPATCH</h4>
+                    <p className={styles.stepDesc}>Dispatch briefs, confirm rates, and securely escrow creative agreements on standard terms.</p>
+                  </div>
+                </div>
+                <div className={styles.manifestoStepRow}>
+                  <span className={styles.stepNum}>03</span>
+                  <div className={styles.stepBody}>
+                    <h4 className={styles.stepTitle}>EXPERIENCE BOX OFFICE</h4>
+                    <p className={styles.stepDesc}>Discover live physical gatherings, purchase verified tickets, and gain entry via dynamic QR verification.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
-        </GSAPEntrance>
 
-      </div>
-    </EditorialLayout>
+          <MarqueeTicker
+            size="lg"
+            theme="ink"
+            speed="normal"
+            items={['ONE LINK', 'ZERO DMS', 'CLEAR PROCESS', 'BRIEF TO DELIVERY', 'NO CHAOS', 'STAGD']}
+          />
+        </div>
+
+        {/* ════════════════════════════════════════════════════
+            CARD 05 · THE ACTIVE ROSTER GRID
+            ════════════════════════════════════════════════════ */}
+        {showFeatured && (
+          <section className={styles.creativesSection} aria-labelledby="creatives-heading">
+            <div className={styles.creativesHeader}>
+              <div className={styles.creativesLabelBlock}>
+                <span className={styles.navLabelDark}>// ACTIVE ROSTER REGISTER</span>
+                <h2 id="creatives-heading" className={styles.creativesTitle}>
+                  THE PEOPLE YOU SHOULD KNOW ABOUT
+                </h2>
+              </div>
+              <Link href="/explore" className={styles.creativesLink}>BROWSE ALL REGISTERED &rarr;</Link>
+            </div>
+            <GSAPEntrance selector="[data-card]" y={28} stagger={0.05} duration={0.38} start="top 92%">
+              <div className={styles.creativesGrid}>
+                {featuredArtists.map(({ user: artist, profile }) => (
+                  <Link
+                    key={artist.id}
+                    href={`/profile/${artist.username}`}
+                    className={styles.creativeCard}
+                    data-card
+                  >
+                    <div className={styles.creativeImageWrap}>
+                      {artist.avatar_url ? (
+                        <Image
+                          src={artist.avatar_url}
+                          alt={artist.full_name}
+                          fill
+                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className={styles.creativeImage}
+                        />
+                      ) : (
+                        <div className={styles.creativeImageFallback} />
+                      )}
+                      <div className={styles.creativeHoverOverlay}>
+                        <span className={styles.creativeHoverLabel}>ENTER PORTFOLIO →</span>
+                      </div>
+                    </div>
+                    <div className={styles.creativeCardBody}>
+                      <div className={styles.creativeCardHeader}>
+                        <p className={styles.creativeName}>{artist.full_name}</p>
+                        {artist.city && (
+                          <p className={styles.creativeCity}>{artist.city.toUpperCase()}</p>
+                        )}
+                      </div>
+                      <div className={styles.creativeTags}>
+                        {(profile?.disciplines ?? []).slice(0, 2).map((d: string) => (
+                          <span key={d} className={styles.creativeTag}>{d.toUpperCase()}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </GSAPEntrance>
+          </section>
+        )}
+
+        {/* ════════════════════════════════════════════════════
+            CARD 06 · HIGH-IMPACT ACTION (CTA Canvas)
+            ════════════════════════════════════════════════════ */}
+        <section className={styles.ctaCanvasSection} aria-labelledby="cta-canvas-heading">
+          <div className={styles.heroGrain} aria-hidden="true" />
+          <div className={styles.ctaCanvasInner}>
+            <div className={styles.ctaCanvasLeft}>
+              <span className={styles.ctaCanvasVolume}>// VOL. 01 // PLATFORM FINALE</span>
+              <h2 id="cta-canvas-heading" className={styles.ctaCanvasHeading}>
+                GET ON <StagdLogo width={220} height={88} className={styles.ctaHeadingLogo} />
+              </h2>
+              <p className={styles.ctaCanvasLeftDesc}>
+                Your work deserves better than a Google Drive link and a WhatsApp thread. Build your profile, lock in clients, and ticket your own events — one place, one link.
+              </p>
+            </div>
+
+            <div className={styles.ctaCanvasRight}>
+              <div className={styles.ctaCard}>
+                <div className={styles.ctaCardHeader}>
+                  <span className={styles.ctaCardTag}>// PLATFORM REGISTER VOUCHER</span>
+                  <span className={styles.ctaCardAccess}>ACCESS: OPEN</span>
+                </div>
+
+                <div className={styles.ctaCardBody}>
+                  <p className={styles.ctaCardText}>
+                    Pitch clients directly, get discovered on your terms, and sell tickets to your own events — all from one place.</p>
+
+                  <div className={styles.ctaBenefitsList}>
+                    <div className={styles.ctaBenefitItem}>
+                      <span className={styles.ctaBenefitDot} />
+                      <span className={styles.ctaBenefitText}>PROPOSALS. INVOICES. NO WHATSAPP CHAOS</span>
+                    </div>
+                    <div className={styles.ctaBenefitItem}>
+                      <span className={styles.ctaBenefitDot} />
+                      <span className={styles.ctaBenefitText}>ZERO CUT ON COMMISSIONS</span>
+                    </div>
+                    <div className={styles.ctaBenefitItem}>
+                      <span className={styles.ctaBenefitDot} />
+                      <span className={styles.ctaBenefitText}>YOUR PORTFOLIO. YOUR LINK. YOUR CLIENTS</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.ctaCardFooter}>
+                  <Link href="/auth/signup?role=creative" className={styles.ctaBtnPrimary}>
+                    REGISTER NOW
+                  </Link>
+                  <Link href="/explore" className={styles.ctaBtnSecondary}>
+                    EXPLORE &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </InteractiveCardDeck>
+    </div>
   );
 }
 
-/* ── Static demo data ─────────────────────────────────────── */
-
-/* ── Static demo data ─────────────────────────────────────── */
-
-const DEMO_EVENTS = [
-  {
-    title: 'SOUNDS\nOF LYARI',
-    type: 'CONCERT',
-    meta: 'NO. 01 · MUSIC',
-    date: 'SAT 2 MAY · 8 PM · T2F',
-    num: '01 / 05',
-    color: '#E63946',
-  },
-  {
-    title: 'OPEN\nSTUDIO',
-    type: 'WORKSHOP',
-    meta: 'NO. 02 · CLASS',
-    date: 'TUE 5 MAY · OKA',
-    num: '02 / 05',
-    color: '#1CAEE5',
-  },
-  {
-    title: 'FOLD\nFOLIO',
-    type: 'MARKET',
-    meta: 'NO. 05 · MARKET',
-    date: 'SAT 9 MAY · HINDU GYM',
-    num: '05 / 05',
-    color: '#FFDE0D',
-  },
-];
-
-const STATS = [
-  { value: '350+', label: "Creatives on Stag'd" },
-  { value: '12+', label: 'Disciplines' },
-  { value: '3', label: 'Cities' },
-];
-
-const FLOW_STEPS = ['Brief', 'Proposal', 'Deposit', 'Delivery'];
-
-const EVENT_TYPE_LIST = [
-  { label: 'CONCERT', chipClass: 'chip-concert' },
-  { label: 'WORKSHOP', chipClass: 'chip-workshop' },
-  { label: 'GALLERY', chipClass: 'chip-gallery' },
-  { label: 'MARKET', chipClass: 'chip-market' },
-  { label: 'POETRY', chipClass: 'chip-poetry' },
-  { label: 'DANCE', chipClass: 'chip-dance' },
-];
-
-const ORG_FEATURES = [
-  'Multiple ticket tiers, custom pricing',
-  'Dynamic QR codes — single use, server-invalidated',
-  'Safepay checkout with organiser payouts',
-  'Door scanner works in any phone browser',
-  'Real-time attendance tracking',
+const PLACEHOLDER_EVENTS = [
+  { name: 'Be the first to create an event in Karachi', venue: 'Your venue here' },
+  { name: 'Gallery night. Concert. Workshop.', venue: 'Any city in Pakistan' },
 ];

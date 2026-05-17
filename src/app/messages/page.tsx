@@ -621,7 +621,7 @@ function MessagesContent() {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className={styles.listContent}>
+          <div className={styles.listContent} data-lenis-prevent>
             {loading && (
               <div className={styles.emptyState}>
                 <p className={styles.emptyStateText}>Loading Index...</p>
@@ -808,7 +808,7 @@ function MessagesContent() {
               </div>
 
               {/* ── MESSAGES ── */}
-              <div className={styles.messagesContainer} ref={scrollRef}>
+              <div className={styles.messagesContainer} ref={scrollRef} data-lenis-prevent>
                 {messages.length === 0 && (
                   <div className={styles.emptyThread}>No messages yet. Say something.</div>
                 )}

@@ -577,7 +577,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
       {/* ── RIGHT SECTION: THE STAGE ── */}
       {/* ── RIGHT SECTION: THE STAGE ── */}
-      <main className={styles.stage} ref={stageRef}>
+      <main className={styles.stage} ref={stageRef} data-lenis-prevent>
         {/* ── REVIEWS DROPDOWN (NEW TOP POSITION) ── */}
         <section className={styles.reviewsDropdown}>
           <button 

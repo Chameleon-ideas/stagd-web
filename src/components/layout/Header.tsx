@@ -7,7 +7,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Menu, X, ChevronLeft, LogOut, User, Plus, Inbox } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getViewingConv } from '@/lib/viewState';
-import { ThemeToggle } from './ThemeToggle';
 import { StagdLogo } from './StagdLogo';
 import { CreateModal } from './CreateModal';
 import { BugReportModal } from './BugReportModal';
@@ -29,10 +28,15 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, logout, isLoading } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const isHome = pathname === '/';
-  const transparent = propTransparent ?? isHome;
+  const transparent = propTransparent ?? false;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isMessages = pathname === '/messages';
   const hasRecipient = searchParams.get('recipient');
@@ -51,7 +55,6 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
     const ch = supabase
       .channel(`notify-user-${user.id}`)
       .on('broadcast', { event: 'new_message' }, ({ payload }) => {
-        // Don't badge if the user is actively viewing that conversation
         const commId = (payload as { commission_id?: string } | null)?.commission_id;
         if (commId && getViewingConv() === commId) return;
         setUnreadCount(prev => prev + 1);
@@ -73,7 +76,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   return (
     <header
       id="site-header"
-      className={`${styles.header} ${transparent ? styles.transparent : ''} ${isMenuOpen ? styles.menuOpen : ''}`}
+      className={`${styles.header} ${transparent ? styles.transparent : ''} ${isHome ? styles.homeHeader : ''} ${isMenuOpen ? styles.menuOpen : ''}`}
     >
       <div className={`container ${styles.inner}`}>
         {/* Back Button or Logo */}
@@ -92,7 +95,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
           </Link>
         )}
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav — identical on every page */}
         <nav aria-label="Main navigation" className={styles.nav}>
           <div className={styles.liveStatus}>
             <span className={styles.pulseDot} />
@@ -105,11 +108,10 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
         {/* Actions */}
         <div className={styles.actions}>
           <div className={styles.headerMeta}>VOL. 01 // KHI</div>
-          <ThemeToggle />
 
           <AnimatePresence mode="wait">
-            {!isLoading && (
-              <motion.div 
+            {isMounted && !isLoading && (
+              <motion.div
                 key="auth-section"
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -193,7 +195,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
           </button>
         </div>
       </div>
-      
+
       {user && (
         <div className={styles.ticker}>
           <div className={styles.tickerContent}>
@@ -205,13 +207,13 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
         </div>
       )}
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay — same on every page */}
       {isMenuOpen && (
-        <div className={styles.mobileOverlay}>
+        <div className={`${styles.mobileOverlay} ${isHome ? styles.mobileOverlayDark : ''}`}>
           <nav className={styles.mobileNav}>
-            <Link href="/explore" className={styles.mobileLink}>Explore</Link>
-            <Link href="/messages" className={styles.mobileLink}>Inbox</Link>
-            <Link href="/about" className={styles.mobileLink}>About Stagd</Link>
+            <Link href="/explore" className={styles.mobileLink} onClick={() => setIsMenuOpen(false)}>Explore</Link>
+            <Link href="/messages" className={styles.mobileLink} onClick={() => setIsMenuOpen(false)}>Inbox</Link>
+            <Link href="/about" className={styles.mobileLink} onClick={() => setIsMenuOpen(false)}>About</Link>
             <hr className={styles.mobileDivider} />
             {user ? (
               <button className={styles.mobileLink} onClick={() => { setIsMenuOpen(false); logout(); }}>
@@ -219,8 +221,8 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
               </button>
             ) : (
               <>
-                <Link href="/auth/login" className={styles.mobileLink}>Log in</Link>
-                <Link href="/auth/signup" className={styles.mobileLink}>Sign up</Link>
+                <Link href="/auth/login" className={styles.mobileLink} onClick={() => setIsMenuOpen(false)}>Log in</Link>
+                <Link href="/auth/signup" className={styles.mobileLink} onClick={() => setIsMenuOpen(false)}>Sign up</Link>
               </>
             )}
             <div className={styles.mobileFooter}>
@@ -244,6 +246,8 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
         />,
         document.body
       )}
+
     </header>
+
   );
 }

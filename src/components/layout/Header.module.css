@@ -1,7 +1,9 @@
 .header {
-  position: sticky;
+  position: fixed;
+  width: 100%;
   top: 0;
-  z-index: var(--z-dropdown);
+  left: 0;
+  z-index: 9999;
   background: rgba(var(--bg-rgb), 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
@@ -13,8 +15,6 @@
 .header.transparent {
   background: transparent;
   border-bottom-color: transparent;
-  position: fixed;
-  width: 100%;
 }
 
 .inner {
@@ -78,6 +78,12 @@
 
 /* Theme handled inside StagdLogo component */
 
+/* Homepage: always dark, not transparent */
+.header.homeHeader {
+  background: #111111 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
 .backBtn {
   display: flex;
   align-items: center;
@@ -113,7 +119,7 @@
   width: 6px;
   height: 6px;
   background-color: var(--color-yellow);
-  border-radius: 50%;
+  border-radius: 0;
   animation: pulse 2s infinite;
 }
 
@@ -140,6 +146,9 @@
   padding: var(--space-2) var(--space-3);
   transition: all var(--duration-ui);
   position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .navLink:hover { 
@@ -249,14 +258,14 @@
 .userAvatar {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 0;
   object-fit: cover;
 }
 
 .userInitial {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--color-yellow);
   color: var(--color-ink);
   display: flex;
@@ -317,7 +326,7 @@
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -334,7 +343,7 @@
   font-size: 9px;
   font-weight: 700;
   padding: 1px 5px;
-  border-radius: 10px;
+  border-radius: 0;
   line-height: 1.4;
   flex-shrink: 0;
 }
@@ -372,6 +381,12 @@
   text-transform: uppercase;
   color: var(--text);
   line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  width: 100%;
 }
 
 .mobileDivider {
@@ -388,6 +403,23 @@
   font-size: 10px;
   color: var(--text-faint);
   letter-spacing: 0.1em;
+}
+
+/* Dark mobile overlay on homepage (dark hero bg) */
+.mobileOverlayDark {
+  background-color: #111111 !important;
+}
+
+.mobileOverlayDark .mobileLink {
+  color: #ffffff;
+}
+
+.mobileOverlayDark .mobileDivider {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.mobileOverlayDark .mobileFooter {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 900px) {

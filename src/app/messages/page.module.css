@@ -1,7 +1,7 @@
 
 .main {
   display: flex;
-  height: calc(100vh - 60px); /* 60px = header height */
+  height: 100%; /* Fill remaining viewport height perfectly */
   overflow: hidden; /* Only panes scroll, never the page */
 }
 

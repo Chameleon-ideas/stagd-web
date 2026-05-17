@@ -74,17 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setIsLoading(false);
-      throw error;
-    }
-    if (data.user) {
-      const profile = await loadProfile(data.user.id);
-      setUser(profile);
-    }
-    setIsLoading(false);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    // onAuthStateChange fires and loads the profile in the background;
+    // navigate immediately so the user isn't staring at "Signing in..."
     router.push('/explore?tab=creatives');
   };
 

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { GSAPEntrance, GSAPHeroReveal } from '@/components/animations/GSAPEntrance';
+import { ManifestoBtn } from './ManifestoBtn';
 
 export const metadata: Metadata = {
   title: "About",
@@ -28,6 +29,9 @@ export default function AboutPage() {
               </h1>
               <div className={styles.heroLead} data-animate="hero">
                 Found. Hired. Celebrated.
+              </div>
+              <div data-animate="hero">
+                <ManifestoBtn />
               </div>
               <p className={styles.heroBody} data-animate="hero">
                 Stag'd is Pakistan's premier professional registry and discovery engine,

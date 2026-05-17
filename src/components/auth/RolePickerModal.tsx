@@ -29,14 +29,27 @@ export default function RolePickerModal({ onComplete }: Props) {
       return;
     }
 
-    const res = await fetch('/api/db', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({ op: 'completeOnboarding', role: selected }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    let res: Response;
+    try {
+      res = await fetch('/api/db', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ op: 'completeOnboarding', role: selected }),
+        signal: controller.signal,
+      });
+    } catch {
+      clearTimeout(timeout);
+      setError('Request timed out. Please try again.');
+      setSaving(false);
+      return;
+    }
+    clearTimeout(timeout);
 
     const { error: err } = await res.json();
     if (err) {

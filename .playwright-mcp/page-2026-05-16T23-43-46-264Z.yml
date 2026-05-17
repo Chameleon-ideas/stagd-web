@@ -1,0 +1,394 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Stagd — Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Stagd" [ref=e8]
+        - navigation "Main navigation" [ref=e9]:
+          - generic [ref=e12]: LIVE
+          - link "Explore" [ref=e13] [cursor=pointer]:
+            - /url: /explore
+          - link "About" [ref=e14] [cursor=pointer]:
+            - /url: /about
+        - generic [ref=e16]: VOL. 01 // KHI
+    - main [ref=e18]:
+      - generic [ref=e19]:
+        - region "PAKISTAN’S CREATIVE CLASS" [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: KARACHI
+              - generic [ref=e25]: ·
+              - generic [ref=e26]: LAHORE
+              - generic [ref=e27]: ·
+              - generic [ref=e28]: ISLAMABAD
+              - generic [ref=e29]: ·
+              - generic [ref=e30]: PAKISTAN
+            - generic [ref=e31]:
+              - heading "PAKISTAN’S CREATIVE CLASS" [level=1] [ref=e32]:
+                - text: PAKISTAN’S
+                - text: CREATIVE CLASS
+              - generic [ref=e34]:
+                - img
+                - textbox "SEARCH FOR ARTISTS, EVENTS, OR VENUES..." [ref=e35]
+                - button "SEARCH" [ref=e36] [cursor=pointer]
+              - generic [ref=e37]:
+                - link "PHOTOGRAPHY" [ref=e38] [cursor=pointer]:
+                  - /url: /explore?discipline=Photography
+                - link "MUSIC" [ref=e39] [cursor=pointer]:
+                  - /url: /explore?discipline=Music
+                - link "DJS" [ref=e40] [cursor=pointer]:
+                  - /url: /explore?discipline=DJs
+                - link "FILM" [ref=e41] [cursor=pointer]:
+                  - /url: /explore?discipline=Film
+                - link "MAKEUP" [ref=e42] [cursor=pointer]:
+                  - /url: /explore?discipline=Makeup
+              - generic [ref=e43]:
+                - link "What’s On" [ref=e44] [cursor=pointer]:
+                  - /url: /explore?tab=events
+                - generic [ref=e45]: /
+                - link "Join as Creative" [ref=e46] [cursor=pointer]:
+                  - /url: /auth/signup?role=creative
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - text: DISCOVER
+              - generic [ref=e50]: ·
+            - generic [ref=e51]:
+              - text: HIRE
+              - generic [ref=e52]: ·
+            - generic [ref=e53]:
+              - text: EXPERIENCE
+              - generic [ref=e54]: ·
+            - generic [ref=e55]:
+              - text: PAKISTAN
+              - generic [ref=e56]: ·
+            - generic [ref=e57]:
+              - text: KHI
+              - generic [ref=e58]: ·
+            - generic [ref=e59]:
+              - text: LHR
+              - generic [ref=e60]: ·
+            - generic [ref=e61]:
+              - text: ISB
+              - generic [ref=e62]: ·
+            - generic [ref=e63]:
+              - text: CREATIVE CLASS
+              - generic [ref=e64]: ·
+            - generic [ref=e65]:
+              - text: DISCOVER
+              - generic [ref=e66]: ·
+            - generic [ref=e67]:
+              - text: HIRE
+              - generic [ref=e68]: ·
+            - generic [ref=e69]:
+              - text: EXPERIENCE
+              - generic [ref=e70]: ·
+            - generic [ref=e71]:
+              - text: PAKISTAN
+              - generic [ref=e72]: ·
+            - generic [ref=e73]:
+              - text: KHI
+              - generic [ref=e74]: ·
+            - generic [ref=e75]:
+              - text: LHR
+              - generic [ref=e76]: ·
+            - generic [ref=e77]:
+              - text: ISB
+              - generic [ref=e78]: ·
+            - generic [ref=e79]:
+              - text: CREATIVE CLASS
+              - generic [ref=e80]: ·
+            - generic [ref=e81]:
+              - text: DISCOVER
+              - generic [ref=e82]: ·
+            - generic [ref=e83]:
+              - text: HIRE
+              - generic [ref=e84]: ·
+            - generic [ref=e85]:
+              - text: EXPERIENCE
+              - generic [ref=e86]: ·
+            - generic [ref=e87]:
+              - text: PAKISTAN
+              - generic [ref=e88]: ·
+            - generic [ref=e89]:
+              - text: KHI
+              - generic [ref=e90]: ·
+            - generic [ref=e91]:
+              - text: LHR
+              - generic [ref=e92]: ·
+            - generic [ref=e93]:
+              - text: ISB
+              - generic [ref=e94]: ·
+            - generic [ref=e95]:
+              - text: CREATIVE CLASS
+              - generic [ref=e96]: ·
+            - generic [ref=e97]:
+              - text: DISCOVER
+              - generic [ref=e98]: ·
+            - generic [ref=e99]:
+              - text: HIRE
+              - generic [ref=e100]: ·
+            - generic [ref=e101]:
+              - text: EXPERIENCE
+              - generic [ref=e102]: ·
+            - generic [ref=e103]:
+              - text: PAKISTAN
+              - generic [ref=e104]: ·
+            - generic [ref=e105]:
+              - text: KHI
+              - generic [ref=e106]: ·
+            - generic [ref=e107]:
+              - text: LHR
+              - generic [ref=e108]: ·
+            - generic [ref=e109]:
+              - text: ISB
+              - generic [ref=e110]: ·
+            - generic [ref=e111]:
+              - text: CREATIVE CLASS
+              - generic [ref=e112]: ·
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - text: DISCOVER
+              - generic [ref=e115]: ·
+            - generic [ref=e116]:
+              - text: HIRE
+              - generic [ref=e117]: ·
+            - generic [ref=e118]:
+              - text: EXPERIENCE
+              - generic [ref=e119]: ·
+            - generic [ref=e120]:
+              - text: PAKISTAN
+              - generic [ref=e121]: ·
+            - generic [ref=e122]:
+              - text: KHI
+              - generic [ref=e123]: ·
+            - generic [ref=e124]:
+              - text: LHR
+              - generic [ref=e125]: ·
+            - generic [ref=e126]:
+              - text: ISB
+              - generic [ref=e127]: ·
+            - generic [ref=e128]:
+              - text: CREATIVE CLASS
+              - generic [ref=e129]: ·
+            - generic [ref=e130]:
+              - text: DISCOVER
+              - generic [ref=e131]: ·
+            - generic [ref=e132]:
+              - text: HIRE
+              - generic [ref=e133]: ·
+            - generic [ref=e134]:
+              - text: EXPERIENCE
+              - generic [ref=e135]: ·
+            - generic [ref=e136]:
+              - text: PAKISTAN
+              - generic [ref=e137]: ·
+            - generic [ref=e138]:
+              - text: KHI
+              - generic [ref=e139]: ·
+            - generic [ref=e140]:
+              - text: LHR
+              - generic [ref=e141]: ·
+            - generic [ref=e142]:
+              - text: ISB
+              - generic [ref=e143]: ·
+            - generic [ref=e144]:
+              - text: CREATIVE CLASS
+              - generic [ref=e145]: ·
+            - generic [ref=e146]:
+              - text: DISCOVER
+              - generic [ref=e147]: ·
+            - generic [ref=e148]:
+              - text: HIRE
+              - generic [ref=e149]: ·
+            - generic [ref=e150]:
+              - text: EXPERIENCE
+              - generic [ref=e151]: ·
+            - generic [ref=e152]:
+              - text: PAKISTAN
+              - generic [ref=e153]: ·
+            - generic [ref=e154]:
+              - text: KHI
+              - generic [ref=e155]: ·
+            - generic [ref=e156]:
+              - text: LHR
+              - generic [ref=e157]: ·
+            - generic [ref=e158]:
+              - text: ISB
+              - generic [ref=e159]: ·
+            - generic [ref=e160]:
+              - text: CREATIVE CLASS
+              - generic [ref=e161]: ·
+            - generic [ref=e162]:
+              - text: DISCOVER
+              - generic [ref=e163]: ·
+            - generic [ref=e164]:
+              - text: HIRE
+              - generic [ref=e165]: ·
+            - generic [ref=e166]:
+              - text: EXPERIENCE
+              - generic [ref=e167]: ·
+            - generic [ref=e168]:
+              - text: PAKISTAN
+              - generic [ref=e169]: ·
+            - generic [ref=e170]:
+              - text: KHI
+              - generic [ref=e171]: ·
+            - generic [ref=e172]:
+              - text: LHR
+              - generic [ref=e173]: ·
+            - generic [ref=e174]:
+              - text: ISB
+              - generic [ref=e175]: ·
+            - generic [ref=e176]:
+              - text: CREATIVE CLASS
+              - generic [ref=e177]: ·
+        - region "THE PEOPLE YOU SHOULD KNOW ABOUT" [ref=e178]:
+          - generic [ref=e180]:
+            - generic [ref=e181]: THE PEOPLE YOU SHOULD KNOW ABOUT
+            - link "BROWSE ALL →" [ref=e182] [cursor=pointer]:
+              - /url: /explore
+          - generic [ref=e184]:
+            - link "Tuaha Mansoor VIEW PROFILE → Tuaha Mansoor Visual Arts Animator Cinematographer Karachi" [ref=e185] [cursor=pointer]:
+              - /url: /profile/tuaha
+              - generic [ref=e186]:
+                - img "Tuaha Mansoor" [ref=e187]
+                - generic [ref=e189]: VIEW PROFILE →
+              - generic [ref=e190]:
+                - paragraph [ref=e191]: Tuaha Mansoor
+                - generic [ref=e192]:
+                  - generic [ref=e193]: Visual Arts
+                  - generic [ref=e194]: Animator
+                  - generic [ref=e195]: Cinematographer
+                - paragraph [ref=e196]: Karachi
+            - link "VIEW PROFILE → User" [ref=e197] [cursor=pointer]:
+              - /url: /profile/user_b933bfdd
+              - generic [ref=e201]: VIEW PROFILE →
+              - paragraph [ref=e203]: User
+            - link "VIEW PROFILE → Muhammad Murtaza" [ref=e204] [cursor=pointer]:
+              - /url: /profile/muhammad_murtaza
+              - generic [ref=e208]: VIEW PROFILE →
+              - paragraph [ref=e210]: Muhammad Murtaza
+            - link "Mairaj Ulhaq VIEW PROFILE → Mairaj Ulhaq Food Photography Product Photography Marketing Content" [ref=e211] [cursor=pointer]:
+              - /url: /profile/mairaj_ulhaq
+              - generic [ref=e212]:
+                - img "Mairaj Ulhaq" [ref=e213]
+                - generic [ref=e215]: VIEW PROFILE →
+              - generic [ref=e216]:
+                - paragraph [ref=e217]: Mairaj Ulhaq
+                - generic [ref=e218]:
+                  - generic [ref=e219]: Food Photography
+                  - generic [ref=e220]: Product Photography
+                  - generic [ref=e221]: Marketing Content
+            - link "VIEW PROFILE → Zia Ahmed" [ref=e222] [cursor=pointer]:
+              - /url: /profile/zia_ahmed
+              - generic [ref=e226]: VIEW PROFILE →
+              - paragraph [ref=e228]: Zia Ahmed
+            - link "VIEW PROFILE → nashrah" [ref=e229] [cursor=pointer]:
+              - /url: /profile/nashrah
+              - generic [ref=e233]: VIEW PROFILE →
+              - paragraph [ref=e235]: nashrah
+            - link "VIEW PROFILE → Software Dev Zeeshan Food Photography Product Photography Marketing Content" [ref=e236] [cursor=pointer]:
+              - /url: /profile/software_dev_2
+              - generic [ref=e240]: VIEW PROFILE →
+              - generic [ref=e241]:
+                - paragraph [ref=e242]: Software Dev Zeeshan
+                - generic [ref=e243]:
+                  - generic [ref=e244]: Food Photography
+                  - generic [ref=e245]: Product Photography
+                  - generic [ref=e246]: Marketing Content
+          - link "BROWSE ALL CREATIVES" [ref=e248] [cursor=pointer]:
+            - /url: /explore
+        - region "HAPPENING SOON" [ref=e249]:
+          - generic [ref=e251]:
+            - generic [ref=e252]: HAPPENING SOON
+            - link "SEE ALL →" [ref=e253] [cursor=pointer]:
+              - /url: /explore?tab=events
+          - generic [ref=e255]:
+            - link "workshop Dovetails - Back to Basics Dovetails Woodshop Mon, 11 May 2026 · 9:50 am PKR 1,500 GET TICKETS" [ref=e256] [cursor=pointer]:
+              - /url: /events/e18e69a7-6ca0-4156-b1e1-3bb4c2a330db
+              - generic [ref=e257]: workshop
+              - heading "Dovetails - Back to Basics" [level=3] [ref=e258]
+              - paragraph [ref=e259]: Dovetails Woodshop
+              - paragraph [ref=e260]: Mon, 11 May 2026 · 9:50 am
+              - paragraph [ref=e261]: PKR 1,500
+              - generic [ref=e262]: GET TICKETS
+            - link "other Street Cricket UBL Stadium Wed, 13 May 2026 · 1:00 pm PKR 1,000 GET TICKETS" [ref=e263] [cursor=pointer]:
+              - /url: /events/5a11f24b-2914-48f1-b6a9-8dfc74ac3b46
+              - generic [ref=e264]: other
+              - heading "Street Cricket" [level=3] [ref=e265]
+              - paragraph [ref=e266]: UBL Stadium
+              - paragraph [ref=e267]: Wed, 13 May 2026 · 1:00 pm
+              - paragraph [ref=e268]: PKR 1,000
+              - generic [ref=e269]: GET TICKETS
+        - region "How it works" [ref=e271]:
+          - generic [ref=e272]:
+            - img [ref=e274]
+            - generic [ref=e277]:
+              - heading "Discover" [level=3] [ref=e278]
+              - paragraph [ref=e279]: Every creative in Pakistan. One searchable place.
+          - generic [ref=e280]:
+            - img [ref=e282]
+            - generic [ref=e285]:
+              - heading "Hire" [level=3] [ref=e286]
+              - paragraph [ref=e287]: Brief. Agree. Deliver. No WhatsApp threads.
+          - generic [ref=e288]:
+            - img [ref=e290]
+            - generic [ref=e292]:
+              - heading "Experience" [level=3] [ref=e293]
+              - paragraph [ref=e294]: Concerts. Gallery nights. Workshops. Show up.
+        - region "Your work deserves better than a DM thread." [ref=e295]:
+          - generic [ref=e297]:
+            - heading "Your work deserves better than a DM thread." [level=2] [ref=e298]
+            - generic [ref=e299]:
+              - link "JOIN AS A CREATIVE" [ref=e300] [cursor=pointer]:
+                - /url: /auth/signup?role=creative
+              - link "FIND AN ARTIST" [ref=e301] [cursor=pointer]:
+                - /url: /explore
+    - contentinfo [ref=e302]:
+      - generic [ref=e303]:
+        - generic [ref=e304]:
+          - generic [ref=e305]: (FOLLOW)
+          - link "Instagram" [ref=e306] [cursor=pointer]:
+            - /url: https://instagram.com
+          - link "Linkedin" [ref=e307] [cursor=pointer]:
+            - /url: https://linkedin.com
+          - link "Email" [ref=e308] [cursor=pointer]:
+            - /url: mailto:hello@stagd.app
+        - generic [ref=e309]:
+          - generic [ref=e310]: (NAVIGATION)
+          - generic [ref=e311]:
+            - link "Home" [ref=e312] [cursor=pointer]:
+              - /url: /
+            - button "Back to Top" [ref=e313] [cursor=pointer]
+          - link "Explore" [ref=e314] [cursor=pointer]:
+            - /url: /explore
+          - link "About" [ref=e315] [cursor=pointer]:
+            - /url: /about
+        - generic [ref=e316]:
+          - generic [ref=e317]: (DOWNLOAD)
+          - generic [ref=e318]:
+            - link "App Store" [ref=e319] [cursor=pointer]:
+              - /url: https://apps.apple.com/app/stagd
+              - img "App Store" [ref=e320]
+            - link "Play Store" [ref=e321] [cursor=pointer]:
+              - /url: https://play.google.com/store/apps/stagd
+              - img "Play Store" [ref=e322]
+      - generic [ref=e324]:
+        - generic [ref=e325]: FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP •
+        - generic [ref=e326]: FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP •
+      - generic [ref=e327]:
+        - generic [ref=e328]:
+          - generic [ref=e329]: Karachi, PK
+          - generic [ref=e331]: 24.8607° N, 67.0011° E
+        - generic [ref=e332]:
+          - link "PRIVACY POLICY" [ref=e333] [cursor=pointer]:
+            - /url: /privacy
+          - link "TERMS OF SERVICE" [ref=e334] [cursor=pointer]:
+            - /url: /terms
+          - generic [ref=e335]: © 2026 ALL RIGHTS RESERVED
+  - button "Open Next.js Dev Tools" [ref=e341] [cursor=pointer]:
+    - img [ref=e342]

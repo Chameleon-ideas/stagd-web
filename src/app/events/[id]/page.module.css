@@ -1,7 +1,7 @@
 /* ── VIEWPORT-LOCKED SPLIT PANEL ─────────────────────────────── */
 .page {
   display: flex;
-  height: calc(100vh - 60px); /* header = 60px */
+  height: 100%; /* Fill remaining viewport height perfectly */
   overflow: hidden;
   background-color: var(--bg);
 }

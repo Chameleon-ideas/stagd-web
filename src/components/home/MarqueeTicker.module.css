@@ -1,0 +1,99 @@
+/* ── Marquee Ticker Strip ──────────────────────────────────
+   Full-bleed horizontal text ticker. Pure CSS animation.
+   ─────────────────────────────────────────────────────────── */
+
+.ticker {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  /* Prevent height collapse */
+  min-height: 44px;
+  align-items: center;
+  border-top: 1px solid rgba(17, 17, 17, 0.12);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.12);
+  position: sticky;
+  top: 0;
+}
+
+/* Theme: Yellow (default) */
+.theme-yellow {
+  background-color: var(--color-yellow);
+  color: var(--color-ink);
+}
+
+/* Theme: Ink */
+.theme-ink {
+  background-color: var(--color-ink);
+  color: #F4F1E6;
+  border-top-color: rgba(244, 241, 230, 0.08);
+  border-bottom-color: rgba(244, 241, 230, 0.08);
+}
+
+/* Theme: Cream */
+.theme-cream {
+  background-color: #F4F1E6;
+  color: var(--color-ink);
+}
+
+/* Track — two duplicates running side by side for seamless loop */
+.track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: tickerScroll 24s linear infinite;
+}
+
+.speed-slow  .track { animation-duration: 40s; }
+.speed-normal .track { animation-duration: 24s; }
+.speed-fast  .track { animation-duration: 14s; }
+
+.item {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding-inline: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.dot {
+  font-size: 14px;
+  opacity: 0.35;
+}
+
+/* Size: large */
+.size-lg { min-height: 60px; }
+.size-lg .item {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.2vw, 28px);
+  letter-spacing: 0.06em;
+  padding-inline: 32px;
+  gap: 32px;
+}
+.size-lg .dot {
+  font-size: 20px;
+  opacity: 0.3;
+}
+
+/* Reverse direction */
+.trackReverse {
+  animation-direction: reverse;
+}
+
+/* Duplicate track runs simultaneously for seamless fill */
+.trackDupe {}
+
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Pause on hover */
+.ticker:hover .track {
+  animation-play-state: paused;
+}

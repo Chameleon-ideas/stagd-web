@@ -42,7 +42,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       profile:artist_profiles(
         id, bio, detailed_bio, disciplines, availability, available_from,
         starting_rate, rates_on_request, travel_available, verified,
-        featured_item_id, instagram_handle,
+        featured_item_id, instagram_handle, portfolio_theme,
         invoice_auto_send, bank_account_title, bank_name, bank_account_number, bank_iban,
         behance_url, website_url, youtube_url, tiktok_url, linkedin_url, twitter_url,
         portfolio:portfolio_items!portfolio_items_artist_id_fkey(
@@ -144,6 +144,7 @@ export async function getArtistProfile(username: string): Promise<ArtistPublicPr
       verified: profile?.verified ?? false,
       is_public: (profile as any)?.is_public ?? true,
       instagram_handle: profile?.instagram_handle,
+      portfolio_theme: (profile as any)?.portfolio_theme ?? 'dark',
       accent_color: undefined,
       invoice_auto_send: profile?.invoice_auto_send ?? true,
       bank_account_title: profile?.bank_account_title ?? undefined,
@@ -179,8 +180,8 @@ export async function getArtistProfileBasic(username: string): Promise<any> {
       id, full_name, username, city, avatar_url, role, phone,
       profile:artist_profiles(
         id, bio, detailed_bio, disciplines, availability, available_from,
-        starting_rate, rates_on_request, travel_available,
-        instagram_handle, invoice_auto_send, bank_account_title, bank_name, 
+        starting_rate, rates_on_request, travel_available, portfolio_theme,
+        instagram_handle, invoice_auto_send, bank_account_title, bank_name,
         bank_account_number, bank_iban, behance_url, website_url, linkedin_url, twitter_url, is_public
       )
     `)
@@ -246,6 +247,7 @@ export async function updateArtistProfile(_userId: string, updates: {
   bank_account_number?: string | null;
   bank_iban?: string | null;
   is_public?: boolean;
+  portfolio_theme?: 'light' | 'dark';
 }): Promise<{ error: string | null }> {
   return dbWrite('updateArtistProfile', { updates });
 }
@@ -288,21 +290,29 @@ export async function searchArtists(params?: {
     query = query.eq('city', params.city);
   }
 
-  if (params?.query?.trim()) {
-    const q = params.query.trim();
-    query = query.or(`full_name.ilike.%${q}%,username.ilike.%${q}%`);
-  }
-
-  const { data, error } = await query.limit(50);
-  if (error) return { data: [], total: 0, page: 1, per_page: 50, has_more: false };
+  const { data, error } = await query.limit(200);
+  if (error) return { data: [], total: 0, page: 1, per_page: 200, has_more: false };
 
   let results = data || [];
 
-  // Visibility Filter (Strict JS Fallback)
+  // Visibility filter
   results = results.filter((a: any) => {
     const p = Array.isArray(a.profile) ? a.profile[0] : a.profile;
     return p?.is_public !== false;
   });
+
+  // Text search: match name, username, or any discipline
+  if (params?.query?.trim()) {
+    const q = params.query.trim().toLowerCase();
+    results = results.filter((a: any) => {
+      const p = Array.isArray(a.profile) ? a.profile[0] : a.profile;
+      return (
+        a.full_name?.toLowerCase().includes(q) ||
+        a.username?.toLowerCase().includes(q) ||
+        (p?.disciplines ?? []).some((d: string) => d.toLowerCase().includes(q))
+      );
+    });
+  }
 
   if (params?.discipline && params.discipline !== 'All') {
     results = results.filter((a: any) =>
@@ -1048,6 +1058,14 @@ async function enrichTiersWithAvailability(events: any[]): Promise<any[]> {
       is_sold_out: tiers.length > 0 && tiers.every((t: any) => t.capacity > 0 && t.spots_remaining === 0),
     };
   });
+}
+
+export async function getCreativeCount(): Promise<number> {
+  const { count } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .in('role', ['creative', 'both']);
+  return count ?? 0;
 }
 
 export async function deleteAccount(): Promise<{ error: string | null }> {

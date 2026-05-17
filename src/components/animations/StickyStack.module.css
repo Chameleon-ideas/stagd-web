@@ -1,0 +1,10 @@
+.stack {
+  position: relative;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  transform-origin: top center;
+  will-change: transform, opacity;
+}

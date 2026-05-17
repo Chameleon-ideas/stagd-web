@@ -124,6 +124,7 @@ interface InitialData {
   bankAccountNumber: string;
   bankIban: string;
   isPublic: boolean;
+  portfolioTheme: 'light' | 'dark';
   role: 'creative' | 'general';
 }
 
@@ -162,6 +163,7 @@ function EditProfilePage() {
 
   // Visibility & Role
   const [isPublic, setIsPublic] = useState(true);
+  const [portfolioTheme, setPortfolioTheme] = useState<'light' | 'dark'>('dark');
   const [role, setRole] = useState<'creative' | 'general'>('creative');
 
   // Avatar
@@ -261,6 +263,7 @@ function EditProfilePage() {
             bankAccountNumber: p?.bank_account_number || '',
             bankIban: p?.bank_iban || '',
             isPublic: p?.is_public ?? true,
+            portfolioTheme: (p as any)?.portfolio_theme ?? 'dark',
             role: (user.role === 'creative' || user.role === 'both') ? 'creative' : 'general',
           };
 
@@ -285,6 +288,7 @@ function EditProfilePage() {
           setBankAccountNumber(data.bankAccountNumber);
           setBankIban(data.bankIban);
           setIsPublic(data.isPublic);
+          setPortfolioTheme((data as any).portfolioTheme ?? 'dark');
           setRole(data.role);
         }
       }).catch(err => {
@@ -322,6 +326,7 @@ function EditProfilePage() {
       bankAccountNumber !== initialData.bankAccountNumber ||
       bankIban !== initialData.bankIban ||
       isPublic !== initialData.isPublic ||
+      portfolioTheme !== initialData.portfolioTheme ||
       role !== initialData.role
     );
   }, [
@@ -329,7 +334,7 @@ function EditProfilePage() {
     disciplines, availability, availableFrom, startingRate, ratesOnRequest,
     travelAvailable, instagram, website, behance, linkedin, twitter,
     invoiceAutoSend, bankAccountTitle, bankName, bankAccountNumber, bankIban,
-    isPublic, role,
+    isPublic, portfolioTheme, role,
   ]);
 
   const checkUsername = useCallback(async (value: string) => {
@@ -423,6 +428,7 @@ function EditProfilePage() {
         bank_account_number: bankAccountNumber.trim() || null,
         bank_iban: bankIban.trim() || null,
         is_public: isPublic,
+        portfolio_theme: portfolioTheme,
       };
 
       // 1. Update basic profile
@@ -798,6 +804,17 @@ function EditProfilePage() {
                         <span className={styles.toggleDesc}>Show my profile on the Explore page</span>
                       </div>
                       {isPublic ? <ToggleRight size={28} color="var(--color-yellow)" /> : <ToggleLeft size={28} color="var(--text-faint)" />}
+                    </div>
+                  </div>
+                  <div className={styles.fieldFull}>
+                    <div className={styles.toggleRow} onClick={() => setPortfolioTheme(t => t === 'dark' ? 'light' : 'dark')}>
+                      <div className={styles.toggleLabel}>
+                        <span className={styles.toggleTitle}>Portfolio Theme</span>
+                        <span className={styles.toggleDesc}>
+                          {portfolioTheme === 'light' ? 'Light background — bright, editorial feel' : 'Dark background — cinematic, high-contrast'}
+                        </span>
+                      </div>
+                      {portfolioTheme === 'light' ? <ToggleRight size={28} color="var(--color-yellow)" /> : <ToggleLeft size={28} color="var(--text-faint)" />}
                     </div>
                   </div>
                 </div>

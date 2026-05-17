@@ -126,8 +126,10 @@ export default function ProfileClient({ username, profile: initialProfile, event
     }));
   };
 
+  const portfolioTheme = profile.profile?.portfolio_theme ?? 'dark';
+
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container} ref={containerRef} data-theme={portfolioTheme}>
       <div className={styles.inner}>
 
         {/* ── HEADER ── */}

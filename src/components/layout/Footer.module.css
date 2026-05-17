@@ -132,7 +132,7 @@
   width: 6px;
   height: 6px;
   background-color: var(--color-ink);
-  border-radius: 50%;
+  border-radius: 0;
 }
 
 .copyright {
@@ -227,4 +227,48 @@
     gap: var(--space-4);
     align-items: flex-start;
   }
+}
+
+/* Floating Brutalist back-to-top button */
+.floatingScrollBtn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  background-color: #FFDE0D;
+  color: #111111;
+  border: 1.5px solid #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+  box-shadow: 4px 4px 0px #111111; /* Brutalist shadow */
+  border-radius: 0; /* Strict design system rule: no circle */
+  padding: 0;
+}
+
+.floatingScrollBtnActive {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.floatingScrollBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #111111;
+  background-color: #ffe43d;
+}
+
+.arrowIcon {
+  transition: transform 0.2s ease;
+}
+
+.floatingScrollBtn:hover .arrowIcon {
+  transform: translateY(-2px);
 }

@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  height: calc(100vh - 60px); /* Header offset */
+  height: 100%; /* Fill remaining viewport height perfectly */
   background-color: var(--bg);
   color: var(--text);
   overflow: hidden;

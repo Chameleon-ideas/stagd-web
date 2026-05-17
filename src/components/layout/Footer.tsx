@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ArrowUp } from 'lucide-react';
 import styles from './Footer.module.css';
 
 export function Footer() {
   const [time, setTime] = useState('');
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   useEffect(() => {
     const tick = () =>
@@ -13,6 +15,25 @@ export function Footer() {
     tick();
     const id = setInterval(tick, 60_000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const totalHeight = document.documentElement.scrollHeight;
+      
+      // Appear when the user is within 700px of the footer/bottom (i.e. close to footer)
+      const closeToBottom = totalHeight - (scrollPosition + windowHeight) < 700;
+      
+      // Also ensure we have scrolled down at least 400px
+      setShowScrollBtn(closeToBottom && scrollPosition > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToTop = () => {
@@ -31,12 +52,7 @@ export function Footer() {
 
         <div className={styles.navGroup}>
           <span className={styles.navHeader}>(NAVIGATION)</span>
-          <div className={styles.navRow}>
-            <Link href="/" className={styles.navLink}>Home</Link>
-            <button onClick={scrollToTop} className={styles.backToTop}>
-              Back to Top
-            </button>
-          </div>
+          <Link href="/" className={styles.navLink}>Home</Link>
           <Link href="/explore" className={styles.navLink}>Explore</Link>
           <Link href="/about" className={styles.navLink}>About</Link>
         </div>
@@ -89,6 +105,15 @@ export function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Floating brutalist back-to-top button */}
+      <button 
+        onClick={scrollToTop}
+        className={`${styles.floatingScrollBtn} ${showScrollBtn ? styles.floatingScrollBtnActive : ''}`}
+        aria-label="Scroll back to top"
+      >
+        <ArrowUp size={20} className={styles.arrowIcon} />
+      </button>
     </footer>
   );
 }

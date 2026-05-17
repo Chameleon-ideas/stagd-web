@@ -21,17 +21,25 @@ const EVENT_SORT = ['Soonest', 'Price low-high', 'Price high-low'];
 
 // ── COMPONENTS ───────────────────────────────────────────────
 
-export default function ExploreClient({ initialTab }: { initialTab: string }) {
+export default function ExploreClient({
+  initialTab,
+  initialQuery = '',
+  initialDiscipline = 'All',
+}: {
+  initialTab: string;
+  initialQuery?: string;
+  initialDiscipline?: string;
+}) {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [filters, setFilters] = useState<any>({
     city: 'All',
-    discipline: 'All',
+    discipline: initialDiscipline,
     type: 'All',
     date: 'Any',
     sort: initialTab === 'creatives' ? 'Relevance' : 'Soonest',
-    query: '',
+    query: initialQuery,
   });
 
   const [results, setResults] = useState<any>({ data: [], total: 0 });
@@ -112,142 +120,144 @@ export default function ExploreClient({ initialTab }: { initialTab: string }) {
         <div className={styles.sidebarContent}>
           <h1 className={styles.sidebarTitle}>EXPLORE</h1>
 
-          {/* Search Bar */}
-          <div className={styles.searchContainer}>
-            <div className={styles.searchInputWrapper}>
-              <Search size={16} className={styles.searchIcon} />
-              <input
-                type="text"
-                placeholder="SEARCH ARCHIVE..."
-                className={styles.searchInput}
-                value={filters.query}
-                onChange={e => setFilters((prev: any) => ({ ...prev, query: e.target.value }))}
-              />
+          <div className={styles.sidebarScrollArea} data-lenis-prevent>
+            {/* Search Bar */}
+            <div className={styles.searchContainer}>
+              <div className={styles.searchInputWrapper}>
+                <Search size={16} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  placeholder="SEARCH ARCHIVE..."
+                  className={styles.searchInput}
+                  value={filters.query}
+                  onChange={e => setFilters((prev: any) => ({ ...prev, query: e.target.value }))}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className={styles.navLabel}>// DISCOVERY TYPE</div>
-          {/* Segmented Tab Switcher */}
-          <div className={styles.segmentedControl}>
-            <button
-              className={`${styles.segment} ${activeTab === 'creatives' ? styles.activeSegment : ''}`}
-              onClick={() => handleTabChange('creatives')}
-            >
-              Creatives
-            </button>
-            <button
-              className={`${styles.segment} ${activeTab === 'events' ? styles.activeSegment : ''}`}
-              onClick={() => handleTabChange('events')}
-            >
-              Events
-            </button>
-          </div>
-
-          <div className={styles.navLabel}>// PARAMETERS</div>
-
-          <div className={styles.filterVertical}>
-            {/* Shared City Filter */}
-            <div className={styles.dropdownWrapper}>
+            <div className={styles.navLabel}>// DISCOVERY TYPE</div>
+            {/* Segmented Tab Switcher */}
+            <div className={styles.segmentedControl}>
               <button
-                className={`${styles.filterBtn} ${filters.city !== 'All' ? styles.activeBtn : ''}`}
-                onClick={() => toggleDropdown('city')}
+                className={`${styles.segment} ${activeTab === 'creatives' ? styles.activeSegment : ''}`}
+                onClick={() => handleTabChange('creatives')}
               >
-                <MapPin size={14} />
-                {filters.city === 'All' ? 'Location' : filters.city}
-                <ChevronDown size={14} className={styles.chevron} />
+                Creatives
               </button>
-              {openDropdown === 'city' && (
-                <div className={styles.dropdown}>
-                  {CITIES.map(c => (
-                    <button key={c} className={styles.dropdownItem} onClick={() => handleFilterSelect('city', c)}>
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <button
+                className={`${styles.segment} ${activeTab === 'events' ? styles.activeSegment : ''}`}
+                onClick={() => handleTabChange('events')}
+              >
+                Events
+              </button>
             </div>
 
-            {/* Artist: Discipline */}
-            {activeTab === 'creatives' && (
+            <div className={styles.navLabel}>// PARAMETERS</div>
+
+            <div className={styles.filterVertical}>
+              {/* Shared City Filter */}
               <div className={styles.dropdownWrapper}>
                 <button
-                  className={`${styles.filterBtn} ${filters.discipline !== 'All' ? styles.activeBtn : ''}`}
-                  onClick={() => toggleDropdown('discipline')}
+                  className={`${styles.filterBtn} ${filters.city !== 'All' ? styles.activeBtn : ''}`}
+                  onClick={() => toggleDropdown('city')}
                 >
-                  <Briefcase size={14} />
-                  {filters.discipline === 'All' ? 'Discipline' : filters.discipline}
+                  <MapPin size={14} />
+                  {filters.city === 'All' ? 'Location' : filters.city}
                   <ChevronDown size={14} className={styles.chevron} />
                 </button>
-                {openDropdown === 'discipline' && (
+                {openDropdown === 'city' && (
                   <div className={styles.dropdown}>
-                    {DISCIPLINES.map(d => (
-                      <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('discipline', d)}>
-                        {d}
+                    {CITIES.map(c => (
+                      <button key={c} className={styles.dropdownItem} onClick={() => handleFilterSelect('city', c)}>
+                        {c}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
-            )}
 
-            {/* Event: Type & Date */}
-            {activeTab === 'events' && (
-              <>
+              {/* Artist: Discipline */}
+              {activeTab === 'creatives' && (
                 <div className={styles.dropdownWrapper}>
                   <button
-                    className={`${styles.filterBtn} ${filters.type !== 'All' ? styles.activeBtn : ''}`}
-                    onClick={() => toggleDropdown('type')}
+                    className={`${styles.filterBtn} ${filters.discipline !== 'All' ? styles.activeBtn : ''}`}
+                    onClick={() => toggleDropdown('discipline')}
                   >
-                    <Filter size={14} />
-                    {filters.type === 'All' ? 'Type' : filters.type}
+                    <Briefcase size={14} />
+                    {filters.discipline === 'All' ? 'Discipline' : filters.discipline}
                     <ChevronDown size={14} className={styles.chevron} />
                   </button>
-                  {openDropdown === 'type' && (
+                  {openDropdown === 'discipline' && (
                     <div className={styles.dropdown}>
-                      {EVENT_TYPES.map(t => (
-                        <button key={t} className={styles.dropdownItem} onClick={() => handleFilterSelect('type', t)}>
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className={styles.dropdownWrapper}>
-                  <button
-                    className={`${styles.filterBtn} ${filters.date !== 'Any' ? styles.activeBtn : ''}`}
-                    onClick={() => toggleDropdown('date')}
-                  >
-                    <span className={styles.monoLabel}>DATE:</span>
-                    {filters.date === 'Any' ? 'ANYTIME' : filters.date}
-                    <ChevronDown size={14} className={styles.chevron} />
-                  </button>
-                  {openDropdown === 'date' && (
-                    <div className={styles.dropdown}>
-                      {EVENT_DATES.map(d => (
-                        <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('date', d)}>
+                      {DISCIPLINES.map(d => (
+                        <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('discipline', d)}>
                           {d}
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
-              </>
-            )}
-
-            <div className={styles.dropdownWrapper}>
-              <button className={styles.filterBtn} onClick={() => toggleDropdown('sort')}>
-                <span className={styles.monoLabel}>SORT:</span> {filters.sort.toUpperCase()}
-                <ChevronDown size={14} className={styles.chevron} />
-              </button>
-              {openDropdown === 'sort' && (
-                <div className={styles.dropdown}>
-                  {(activeTab === 'creatives' ? ARTIST_SORT : EVENT_SORT).map(s => (
-                    <button key={s} className={styles.dropdownItem} onClick={() => handleFilterSelect('sort', s)}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
               )}
+
+              {/* Event: Type & Date */}
+              {activeTab === 'events' && (
+                <>
+                  <div className={styles.dropdownWrapper}>
+                    <button
+                      className={`${styles.filterBtn} ${filters.type !== 'All' ? styles.activeBtn : ''}`}
+                      onClick={() => toggleDropdown('type')}
+                    >
+                      <Filter size={14} />
+                      {filters.type === 'All' ? 'Type' : filters.type}
+                      <ChevronDown size={14} className={styles.chevron} />
+                    </button>
+                    {openDropdown === 'type' && (
+                      <div className={styles.dropdown}>
+                        {EVENT_TYPES.map(t => (
+                          <button key={t} className={styles.dropdownItem} onClick={() => handleFilterSelect('type', t)}>
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.dropdownWrapper}>
+                    <button
+                      className={`${styles.filterBtn} ${filters.date !== 'Any' ? styles.activeBtn : ''}`}
+                      onClick={() => toggleDropdown('date')}
+                    >
+                      <span className={styles.monoLabel}>DATE:</span>
+                      {filters.date === 'Any' ? 'ANYTIME' : filters.date}
+                      <ChevronDown size={14} className={styles.chevron} />
+                    </button>
+                    {openDropdown === 'date' && (
+                      <div className={styles.dropdown}>
+                        {EVENT_DATES.map(d => (
+                          <button key={d} className={styles.dropdownItem} onClick={() => handleFilterSelect('date', d)}>
+                            {d}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              <div className={styles.dropdownWrapper}>
+                <button className={styles.filterBtn} onClick={() => toggleDropdown('sort')}>
+                  <span className={styles.monoLabel}>SORT:</span> {filters.sort.toUpperCase()}
+                  <ChevronDown size={14} className={styles.chevron} />
+                </button>
+                {openDropdown === 'sort' && (
+                  <div className={styles.dropdown}>
+                    {(activeTab === 'creatives' ? ARTIST_SORT : EVENT_SORT).map(s => (
+                      <button key={s} className={styles.dropdownItem} onClick={() => handleFilterSelect('sort', s)}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

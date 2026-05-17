@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 interface ExplorePageProps {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; query?: string; discipline?: string }>;
 }
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
@@ -17,7 +17,11 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
 
   return (
     <WorkstationLayout>
-      <ExploreClient initialTab={activeTab} />
+      <ExploreClient
+        initialTab={activeTab}
+        initialQuery={params.query ?? ''}
+        initialDiscipline={params.discipline ?? 'All'}
+      />
     </WorkstationLayout>
   );
 }

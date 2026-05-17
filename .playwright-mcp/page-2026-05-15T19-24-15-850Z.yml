@@ -1,0 +1,238 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Stagd — Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Stagd" [ref=e8]
+        - navigation "Main navigation" [ref=e9]:
+          - button "ABOUT" [ref=e10] [cursor=pointer]
+          - link "EXPLORE" [ref=e11] [cursor=pointer]:
+            - /url: /explore
+          - link "CREATE AN EVENT" [ref=e12] [cursor=pointer]:
+            - /url: /events/create
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - region "STAGD" [ref=e16]:
+          - generic [ref=e17]:
+            - heading "STAGD" [level=1] [ref=e19]: STAG’D
+            - paragraph [ref=e20]: Pakistan’s creative class. Discovered, hired, experienced.
+            - generic [ref=e21]:
+              - link "I’M A CREATIVE" [ref=e22] [cursor=pointer]:
+                - /url: /auth/signup?role=creative
+              - link "WHAT’S ON" [ref=e23] [cursor=pointer]:
+                - /url: "#events"
+            - paragraph [ref=e24]: STARTING IN KARACHI · BUILT FOR PAKISTAN
+        - generic [ref=e26]:
+          - generic [ref=e28]:
+            - img [ref=e30]
+            - generic [ref=e33]:
+              - heading "Discover" [level=2] [ref=e34]
+              - paragraph [ref=e35]: EVERY CREATIVE IN PAKISTAN. ONE PLACE.
+          - generic [ref=e37]:
+            - img [ref=e39]
+            - generic [ref=e42]:
+              - heading "Hire" [level=2] [ref=e43]
+              - paragraph [ref=e44]: BRIEF THEM. AGREE TERMS. GET IT MADE.
+          - generic [ref=e46]:
+            - img [ref=e48]
+            - generic [ref=e50]:
+              - heading "Experience" [level=2] [ref=e51]
+              - paragraph [ref=e52]: FIND WHAT’S HAPPENING. BUY YOUR TICKET. SHOW UP.
+        - region [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: HAPPENING SOON
+            - link "SEE ALL EVENTS →" [ref=e56] [cursor=pointer]:
+              - /url: /explore?tab=events
+          - generic [ref=e57]:
+            - link "workshop Dovetails - Back to Basics Dovetails Woodshop Mon, 11 May 2026 · 9:50 am PKR 1,500 GET TICKETS" [ref=e58] [cursor=pointer]:
+              - /url: /events/e18e69a7-6ca0-4156-b1e1-3bb4c2a330db
+              - generic [ref=e59]: workshop
+              - heading "Dovetails - Back to Basics" [level=3] [ref=e60]
+              - paragraph [ref=e61]: Dovetails Woodshop
+              - paragraph [ref=e62]: Mon, 11 May 2026 · 9:50 am
+              - paragraph [ref=e63]: PKR 1,500
+              - generic [ref=e64]: GET TICKETS
+            - link "other Street Cricket UBL Stadium Wed, 13 May 2026 · 1:00 pm PKR 1,000 GET TICKETS" [ref=e65] [cursor=pointer]:
+              - /url: /events/5a11f24b-2914-48f1-b6a9-8dfc74ac3b46
+              - generic [ref=e66]: other
+              - heading "Street Cricket" [level=3] [ref=e67]
+              - paragraph [ref=e68]: UBL Stadium
+              - paragraph [ref=e69]: Wed, 13 May 2026 · 1:00 pm
+              - paragraph [ref=e70]: PKR 1,000
+              - generic [ref=e71]: GET TICKETS
+        - region "THE PEOPLE YOU SHOULD KNOW ABOUT" [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: THE PEOPLE YOU SHOULD KNOW ABOUT
+            - link "BROWSE ALL CREATIVES →" [ref=e77] [cursor=pointer]:
+              - /url: /explore
+          - generic [ref=e78]:
+            - link "Tuaha Mansoor VIEW PROFILE → Tuaha Mansoor Visual Arts Animator Cinematographer Karachi" [ref=e79] [cursor=pointer]:
+              - /url: /profile/tuaha
+              - generic [ref=e80]:
+                - img "Tuaha Mansoor" [ref=e81]
+                - generic [ref=e83]: VIEW PROFILE →
+              - generic [ref=e84]:
+                - paragraph [ref=e85]: Tuaha Mansoor
+                - generic [ref=e86]:
+                  - generic [ref=e87]: Visual Arts
+                  - generic [ref=e88]: Animator
+                  - generic [ref=e89]: Cinematographer
+                - paragraph [ref=e90]: Karachi
+            - link "VIEW PROFILE → User" [ref=e91] [cursor=pointer]:
+              - /url: /profile/user_b933bfdd
+              - generic [ref=e95]: VIEW PROFILE →
+              - paragraph [ref=e97]: User
+            - link "VIEW PROFILE → Muhammad Murtaza" [ref=e98] [cursor=pointer]:
+              - /url: /profile/muhammad_murtaza
+              - generic [ref=e102]: VIEW PROFILE →
+              - paragraph [ref=e104]: Muhammad Murtaza
+            - link "Mairaj Ulhaq VIEW PROFILE → Mairaj Ulhaq Food Photography Product Photography Marketing Content" [ref=e105] [cursor=pointer]:
+              - /url: /profile/mairaj_ulhaq
+              - generic [ref=e106]:
+                - img "Mairaj Ulhaq" [ref=e107]
+                - generic [ref=e109]: VIEW PROFILE →
+              - generic [ref=e110]:
+                - paragraph [ref=e111]: Mairaj Ulhaq
+                - generic [ref=e112]:
+                  - generic [ref=e113]: Food Photography
+                  - generic [ref=e114]: Product Photography
+                  - generic [ref=e115]: Marketing Content
+            - link "VIEW PROFILE → Zia Ahmed" [ref=e116] [cursor=pointer]:
+              - /url: /profile/zia_ahmed
+              - generic [ref=e120]: VIEW PROFILE →
+              - paragraph [ref=e122]: Zia Ahmed
+            - link "VIEW PROFILE → nashrah" [ref=e123] [cursor=pointer]:
+              - /url: /profile/nashrah
+              - generic [ref=e127]: VIEW PROFILE →
+              - paragraph [ref=e129]: nashrah
+            - link "VIEW PROFILE → Software Dev Zeeshan Food Photography Product Photography Marketing Content" [ref=e130] [cursor=pointer]:
+              - /url: /profile/software_dev_2
+              - generic [ref=e134]: VIEW PROFILE →
+              - generic [ref=e135]:
+                - paragraph [ref=e136]: Software Dev Zeeshan
+                - generic [ref=e137]:
+                  - generic [ref=e138]: Food Photography
+                  - generic [ref=e139]: Product Photography
+                  - generic [ref=e140]: Marketing Content
+          - link "BROWSE ALL CREATIVES" [ref=e142] [cursor=pointer]:
+            - /url: /explore
+        - region [ref=e144]:
+          - paragraph [ref=e145]: HOW IT WORKS
+          - generic [ref=e146]:
+            - generic [ref=e147]:
+              - img [ref=e149]
+              - heading "Build your profile" [level=3] [ref=e152]
+              - paragraph [ref=e153]: Your work, your disciplines, your rate. One link that does everything.
+              - generic [ref=e154]: stagd.app/yourname
+            - generic [ref=e156]:
+              - img [ref=e158]
+              - heading "Hire without the chaos" [level=3] [ref=e161]
+              - paragraph [ref=e162]: Find a creative by what they do and where they are. Send a brief. Agree terms. No WhatsApp threads.
+            - generic [ref=e164]:
+              - img [ref=e166]
+              - heading "Find what’s on" [level=3] [ref=e168]
+              - paragraph [ref=e169]: Concerts, workshops, gallery nights. Discover by city. Buy your ticket. QR code to the door.
+        - region "STAGD FOUNDING ARTISTS" [ref=e171]:
+          - paragraph [ref=e172]: STAGD FOUNDING ARTISTS
+          - generic [ref=e173]:
+            - link "Tuaha Mansoor — Visual Arts" [ref=e174] [cursor=pointer]:
+              - /url: /profile/tuaha
+              - generic [ref=e175]: Tuaha Mansoor
+              - generic [ref=e176]: —
+              - generic [ref=e177]: Visual Arts
+            - link "User — Creative" [ref=e178] [cursor=pointer]:
+              - /url: /profile/user_b933bfdd
+              - generic [ref=e179]: User
+              - generic [ref=e180]: —
+              - generic [ref=e181]: Creative
+            - link "Muhammad Murtaza — Creative" [ref=e182] [cursor=pointer]:
+              - /url: /profile/muhammad_murtaza
+              - generic [ref=e183]: Muhammad Murtaza
+              - generic [ref=e184]: —
+              - generic [ref=e185]: Creative
+            - link "Mairaj Ulhaq — Food Photography" [ref=e186] [cursor=pointer]:
+              - /url: /profile/mairaj_ulhaq
+              - generic [ref=e187]: Mairaj Ulhaq
+              - generic [ref=e188]: —
+              - generic [ref=e189]: Food Photography
+            - link "Zia Ahmed — Creative" [ref=e190] [cursor=pointer]:
+              - /url: /profile/zia_ahmed
+              - generic [ref=e191]: Zia Ahmed
+              - generic [ref=e192]: —
+              - generic [ref=e193]: Creative
+            - link "nashrah — Creative" [ref=e194] [cursor=pointer]:
+              - /url: /profile/nashrah
+              - generic [ref=e195]: nashrah
+              - generic [ref=e196]: —
+              - generic [ref=e197]: Creative
+            - link "Software Dev Zeeshan — Food Photography" [ref=e198] [cursor=pointer]:
+              - /url: /profile/software_dev_2
+              - generic [ref=e199]: Software Dev Zeeshan
+              - generic [ref=e200]: —
+              - generic [ref=e201]: Food Photography
+        - region "Your work deserves better than a DM thread." [ref=e202]:
+          - generic [ref=e204]:
+            - heading "Your work deserves better than a DM thread." [level=2] [ref=e205]
+            - generic [ref=e206]:
+              - link "JOIN AS A CREATIVE" [ref=e207] [cursor=pointer]:
+                - /url: /auth/signup?role=creative
+              - link "FIND AN ARTIST" [ref=e208] [cursor=pointer]:
+                - /url: /explore
+          - generic [ref=e210]: STAG’D
+          - generic [ref=e211]:
+            - generic [ref=e212]: © 2026 STAG’D · CHAMELEON IDEAS
+            - generic [ref=e213]: KARACHI · LAHORE · ISLAMABAD
+            - generic [ref=e214]:
+              - link "Instagram" [ref=e215] [cursor=pointer]:
+                - /url: https://instagram.com/stagdapp
+                - img [ref=e216]
+              - link "TikTok" [ref=e220] [cursor=pointer]:
+                - /url: https://tiktok.com/@stagdapp
+                - img [ref=e221]
+    - contentinfo [ref=e223]:
+      - generic [ref=e224]:
+        - generic [ref=e225]:
+          - generic [ref=e226]: (FOLLOW)
+          - link "Instagram" [ref=e227] [cursor=pointer]:
+            - /url: https://instagram.com
+          - link "Linkedin" [ref=e228] [cursor=pointer]:
+            - /url: https://linkedin.com
+          - link "Email" [ref=e229] [cursor=pointer]:
+            - /url: mailto:hello@stagd.app
+        - generic [ref=e230]:
+          - generic [ref=e231]: (NAVIGATION)
+          - generic [ref=e232]:
+            - link "Home" [ref=e233] [cursor=pointer]:
+              - /url: /
+            - button "Back to Top" [ref=e234] [cursor=pointer]
+          - link "Explore" [ref=e235] [cursor=pointer]:
+            - /url: /explore
+          - link "About" [ref=e236] [cursor=pointer]:
+            - /url: /about
+        - generic [ref=e237]:
+          - generic [ref=e238]: (DOWNLOAD)
+          - generic [ref=e239]:
+            - link "App Store" [ref=e240] [cursor=pointer]:
+              - /url: https://apps.apple.com/app/stagd
+              - img "App Store" [ref=e241]
+            - link "Play Store" [ref=e242] [cursor=pointer]:
+              - /url: https://play.google.com/store/apps/stagd
+              - img "Play Store" [ref=e243]
+      - generic [ref=e245]:
+        - generic [ref=e246]: FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP •
+        - generic [ref=e247]: FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP • FIND • HIRE • SHOW UP •
+      - generic [ref=e248]:
+        - generic [ref=e249]:
+          - generic [ref=e250]: Karachi, PK
+          - generic [ref=e252]: 24.8607° N, 67.0011° E
+        - generic [ref=e253]:
+          - link "PRIVACY POLICY" [ref=e254] [cursor=pointer]:
+            - /url: /privacy
+          - link "TERMS OF SERVICE" [ref=e255] [cursor=pointer]:
+            - /url: /terms
+          - generic [ref=e256]: © 2026 ALL RIGHTS RESERVED
+  - button "Open Next.js Dev Tools" [ref=e262] [cursor=pointer]:
+    - img [ref=e263]

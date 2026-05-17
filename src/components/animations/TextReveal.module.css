@@ -1,0 +1,15 @@
+.wordWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 0.4em;
+}
+
+.wordMask {
+  overflow: hidden;
+  display: inline-block;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}

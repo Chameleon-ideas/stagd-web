@@ -42,6 +42,7 @@ export interface ArtistProfile {
   rates_on_request?: boolean;
   travel_available?: boolean;
   accent_color?: string; // hex — web profile tint
+  portfolio_theme?: 'light' | 'dark'; // portfolio page appearance, set by creative
   instagram_handle?: string;
   behance_url?: string;
   website_url?: string;
