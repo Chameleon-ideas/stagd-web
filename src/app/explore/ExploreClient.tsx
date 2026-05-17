@@ -9,6 +9,7 @@ import { searchArtists, searchEvents } from '@/lib/api';
 import { formatPKR, formatDate } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import styles from './page.module.css';
+import { DotsLoader } from '@/components/ui/DotsLoader';
 
 // ── CONSTANTS ────────────────────────────────────────────────
 
@@ -289,7 +290,7 @@ export default function ExploreClient({
           <div className={styles.sidebarFooter}>
             <div className={styles.statusLine}>
               <span className={styles.statusDot} />
-              {loading ? 'LOADING...' : `${results.total} ${activeTab === 'creatives' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
+              {loading ? <DotsLoader centered={false} /> : `${results.total} ${activeTab === 'creatives' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
             </div>
 
             {activeTab === 'events' && (
@@ -328,7 +329,7 @@ export default function ExploreClient({
             </div>
           ) : (
             <div className={styles.empty}>
-              <p>SEARCHING...</p>
+              <DotsLoader />
             </div>
           )}
 

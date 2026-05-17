@@ -22,8 +22,8 @@
     linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
   background-size: 20px 20px;
   background-color: var(--bg);
-  /* No longer sticky — container's padding-top handles header clearance. */
-  height: 100%;
+  /* No explicit height — flex align-self: stretch fills the container's
+     content-area height (which already excludes padding-top). */
   overscroll-behavior: contain;
 }
 
@@ -81,6 +81,7 @@
 .actionFooter {
   display: flex;
   border-top: 1px solid var(--border-color);
+  flex-shrink: 0; /* Never let the footer get squeezed out of the pane */
 }
 
 .messageBtn, .hireBtn {
@@ -540,6 +541,7 @@
 /* Inner content that might need to scroll if bio is huge */
 .controlContent {
   flex: 1;
+  min-height: 0; /* Required so flex doesn't enforce content min-size, which would push the footer out */
   padding: var(--space-8);
   overflow-y: auto;
   overscroll-behavior: contain; /* Prevents scroll chaining to the dynamic outer page */
@@ -867,8 +869,8 @@
   height: 100%;
   background-color: var(--bg);
   z-index: 100;
-  /* container already cleared the header; only need inner breathing room */
-  padding: var(--space-6) var(--space-8) var(--space-8) var(--space-8);
+  /* position: absolute bypasses container's padding-top, so must clear the header itself */
+  padding: calc(var(--header-h, 60px) + var(--space-6)) var(--space-8) var(--space-8) var(--space-8);
   overflow-y: auto;
   background-image: 
     linear-gradient(to right, var(--grid-color) 1px, transparent 1px),

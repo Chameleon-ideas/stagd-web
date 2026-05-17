@@ -1,0 +1,41 @@
+/* ── DotsLoader ───────────────────────────────────── */
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text);
+  opacity: 0.9;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+.dot2 {
+  animation-delay: 0.2s;
+}
+
+.dot3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+}

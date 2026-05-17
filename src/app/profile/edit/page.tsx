@@ -31,6 +31,7 @@ import {
   submitCustomDisciplines,
 } from '@/lib/api';
 import styles from './EditProfile.module.css';
+import { DotsLoader } from '@/components/ui/DotsLoader';
 import RequestCreativeModal from '@/components/auth/RequestCreativeModal';
 
 const CITIES = ['Karachi', 'Lahore', 'Islamabad'] as const;
@@ -518,13 +519,13 @@ function EditProfilePage() {
   };
 
   if (isAuthLoading || isFetchingProfile) {
-    return <div className={styles.loadingContainer}><div className={styles.loading}>INITIALISING_PROFILE...</div></div>;
+    return <div className={styles.loadingContainer}><DotsLoader /></div>;
   }
 
   const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
-    <div className={styles.container} style={{ '--edit-header-height': user ? '88px' : '60px' } as React.CSSProperties}>
+    <div className={styles.container}>
       <div className={styles.inner}>
 
         {/* ── SIDEBAR ── */}

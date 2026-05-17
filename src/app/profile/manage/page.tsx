@@ -62,6 +62,7 @@ import {
 import type { PortfolioItem, Project } from '@/lib/types';
 import { IMAGE_CONFIG, validateImageFiles } from '@/lib/mediaConfig';
 import styles from './ManageWork.module.css';
+import { DotsLoader } from '@/components/ui/DotsLoader';
 
 const DISCIPLINE_OPTIONS = [
   'Food Photography', 'Product Photography', 'Marketing Content', 'Product Design',
@@ -402,11 +403,11 @@ export default function ManageWorkPage() {
   };
 
   if (isAuthLoading) {
-    return <div className={styles.container}><div className={styles.loading}>// INITIALISING SECURE SESSION...</div></div>;
+    return <div className={styles.container}><DotsLoader /></div>;
   }
 
   return (
-    <div className={styles.container} ref={containerRef} style={{ '--header-height': user ? '88px' : '60px' } as React.CSSProperties}>
+    <div className={styles.container} ref={containerRef}>
       {/* Column 1: Sidebar */}
       <aside className={styles.sidebar}>
         <Link href={`/profile/${user?.username}`} className={styles.backLink}>
@@ -489,7 +490,7 @@ export default function ManageWorkPage() {
               {portfolioError && <p className={styles.error}>⚠ {portfolioError}</p>}
 
               {isLoadingPortfolio ? (
-                <div className={styles.loading}>FETCHING ASSETS...</div>
+                <div className={styles.loading}><DotsLoader /></div>
               ) : portfolio.length === 0 ? (
                 <div className={styles.emptyState}>
                   <ImageIcon size={48} opacity={0.1} />
@@ -628,7 +629,7 @@ export default function ManageWorkPage() {
               </AnimatePresence>
 
               {isLoadingProjects ? (
-                <div className={styles.loading}>SYNCING PROJECTS...</div>
+                <div className={styles.loading}><DotsLoader /></div>
               ) : projects.length === 0 && !showNewProjectForm ? (
                 <div className={styles.emptyState}>
                   <FolderOpen size={48} opacity={0.1} />

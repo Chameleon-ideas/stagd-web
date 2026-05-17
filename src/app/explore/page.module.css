@@ -40,15 +40,16 @@
   z-index: 20;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding-top: var(--header-height, 60px);
+  /* No explicit height — align-self: stretch fills the content area after padding-top */
+  padding-top: var(--header-h, 60px);
 }
 
 .sidebarContent {
   padding: var(--space-8) var(--gutter);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0; /* Prevents flex overflow past sidebarFooter */
   overflow: hidden;
   gap: var(--space-4);
 }
