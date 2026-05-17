@@ -1,7 +1,7 @@
 .container {
   background-color: var(--bg);
   color: var(--text);
-  height: 100vh;
+  height: calc(100vh - var(--header-height, 88px));
   display: flex;
   overflow: hidden;
 }
@@ -15,6 +15,7 @@
   flex-direction: column;
   background: var(--bg-surface);
   flex-shrink: 0;
+  height: 100%;
 }
 
 .formArea {
@@ -33,11 +34,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+  height: 100%;
 }
 
 .backLink {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -57,7 +59,7 @@
 .stepMeta {
   font-family: var(--font-mono);
   color: var(--color-yellow);
-  font-size: 11px;
+  font-size: var(--text-small);
   margin-bottom: var(--space-2);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -65,7 +67,7 @@
 
 .title {
   font-family: var(--font-display);
-  font-size: 48px;
+  font-size: var(--text-h1);
   font-weight: 400;
   line-height: var(--leading-snug, 0.95);
   letter-spacing: var(--tracking-normal, 0);
@@ -84,7 +86,7 @@
   align-items: center;
   gap: var(--space-4);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -131,7 +133,7 @@
 
 .navCount {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   padding: 2px 8px;
   background: var(--bg-raised);
@@ -164,12 +166,12 @@
 .sectionHeader {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-6);
+  gap: var(--space-4);
   padding-bottom: var(--space-6);
   border-bottom: 1.5px solid var(--border-color);
 }
 
-.sectionHeader > div {
+.sectionHeader > div:not(.sectionNumber) {
   flex: 1;
 }
 
@@ -180,12 +182,12 @@
     gap: var(--space-4);
   }
 
-  .sectionHeader > div {
+  .sectionHeader > div:not(.sectionNumber) {
     width: 100%;
   }
 
   .sectionHeader .sectionNumber {
-    font-size: 36px;
+    font-size: var(--text-h2);
     margin-bottom: -10px;
   }
 
@@ -197,7 +199,7 @@
 
 .sectionNumber {
   font-family: var(--font-display);
-  font-size: 48px;
+  font-size: var(--text-h1);
   line-height: 1;
   color: var(--color-ink);
   opacity: 0.1;
@@ -210,7 +212,7 @@
 
 .sectionTitle {
   font-family: var(--font-display);
-  font-size: 42px;
+  font-size: var(--text-h1);
   text-transform: uppercase;
   line-height: var(--leading-snug, 0.95);
   letter-spacing: var(--tracking-normal, 0);
@@ -219,7 +221,7 @@
 
 .sectionDesc {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--text-muted);
   margin-top: 8px;
   text-transform: uppercase;
@@ -251,14 +253,14 @@
 .dropText {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 18px;
+  font-size: var(--text-body);
   text-transform: uppercase;
   color: var(--text);
 }
 
 .dropHint {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -307,7 +309,7 @@
 
 .imageTitle {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   color: var(--color-white);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -385,7 +387,7 @@
 
 .projectName {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: var(--text-h2);
   text-transform: uppercase;
   color: var(--text);
   margin: 0 0 12px;
@@ -402,7 +404,7 @@
 
 .tag {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -413,7 +415,7 @@
 
 .tagLocation {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -423,7 +425,7 @@
 
 .projectDesc {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--text-muted);
   line-height: 1.6;
   max-width: 600px;
@@ -460,7 +462,7 @@
   border: 1.5px solid var(--border-color);
   color: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -524,7 +526,7 @@
 
 .addImageThumb span {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   text-transform: uppercase;
 }
 
@@ -549,7 +551,7 @@
   border: 1.5px dashed var(--border-color);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s;
@@ -584,7 +586,7 @@
 
 .newProjectLabel {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: var(--text-subhead);
   text-transform: uppercase;
   color: var(--color-ink);
   line-height: var(--leading-snug, 0.95);
@@ -625,7 +627,7 @@
   padding: 20px;
   margin-bottom: 24px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--text-muted);
   line-height: 1.7;
 }
@@ -641,7 +643,7 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
@@ -695,7 +697,7 @@
 
 .modalTitle {
   font-family: var(--font-display);
-  font-size: 42px;
+  font-size: var(--text-h1);
   text-transform: uppercase;
   line-height: var(--leading-snug, 0.95);
   letter-spacing: var(--tracking-normal, 0);
@@ -748,7 +750,7 @@
 /* ── SHARED ── */
 .loading {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   letter-spacing: 0.15em;
   color: var(--text-muted);
   text-align: center;
@@ -762,7 +764,7 @@
   padding: var(--space-16);
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   color: var(--text-faint);
   text-transform: uppercase;
 }
@@ -813,6 +815,26 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.helpText {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.mediaFooter {
+  margin-top: auto;
+  border-top: 1.5px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.statusLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--text-faint);
+  margin-bottom: 12px;
 }
 
 @media (max-width: 1200px) {

@@ -27,6 +27,7 @@ function isViewportLockedRoute(pathname: string): boolean {
   if (pathname === '/explore') return true;
   if (pathname.startsWith('/messages')) return true;
   if (pathname.startsWith('/profile/edit')) return true;
+  if (pathname.startsWith('/profile/manage')) return true;
   if (isProfileRoute(pathname)) return true;
   
   // All other pages (including event pages) must scroll naturally.
@@ -44,7 +45,8 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
   const isHome = pathname === '/';
   const isLocked = isViewportLockedRoute(pathname);
   const { user } = useAuth();
-  const headerHeight = user ? 88 : 60;
+  // --header-h is set dynamically by Header.tsx via ResizeObserver;
+  // no need to hardcode a pixel value here.
 
   // Client-side detection to bypass viewport locking on mobile viewports (<= 768px)
   // where split-panes naturally collapse into standard long scroll containers.
@@ -68,7 +70,7 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
       style={{ 
         height: shouldLock ? '100vh' : 'auto',
         maxHeight: shouldLock ? '100vh' : 'none',
-        paddingTop: isHome ? '0' : (zeroPadding && !isMobile ? '0' : `${headerHeight}px`),
+        paddingTop: isHome ? '0' : (zeroPadding && !isMobile ? '0' : 'var(--header-h, 60px)'),
         overflow: shouldLock ? 'hidden' : 'visible'
       }}
     >

@@ -38,7 +38,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: var(--text-h2);
   border: 1.5px solid var(--border-color);
   flex-shrink: 0;
 }
@@ -62,16 +62,16 @@
 
 .name {
   font-family: var(--font-display);
-  font-size: 48px;
+  font-size: var(--text-h1);
   text-transform: uppercase;
   line-height: 0.9;
 }
 
 .username {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: var(--text-small);
   color: var(--text-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .metaRow {
@@ -83,25 +83,26 @@
 
 .roleBadge {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-accent);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-tag);
 }
 
 .location {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   color: var(--text-faint);
   text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
 }
 
 .statusPill {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   text-transform: uppercase;
-  height: 18px;
+  height: 24px;
   padding: 0 10px;
   border: 1px solid currentColor;
   border-radius: 40px;
@@ -110,6 +111,7 @@
   justify-content: center;
   gap: 6px;
   line-height: 0;
+  letter-spacing: var(--tracking-tag);
 }
 
 .statusAvailable { color: var(--color-green); }
@@ -159,7 +161,7 @@
   padding: 0 20px;
   height: 44px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small); /* Keeps wide monospace letters sharp and proportionate */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -232,7 +234,7 @@
 
 .compactStatValue {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: var(--text-subhead);
   text-transform: uppercase;
   color: var(--text);
   line-height: 1;
@@ -240,10 +242,10 @@
 
 .compactStatLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   color: var(--text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-tag);
 }
 
 .headerActions {
@@ -279,7 +281,7 @@
 
 .bioShort {
   font-family: var(--font-body);
-  font-size: 28px;
+  font-size: var(--text-h2);
   line-height: 1.2;
   font-weight: 700;
   text-transform: uppercase;
@@ -290,7 +292,7 @@
 
 .bioDetailed {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.6;
   color: var(--text-muted);
   max-width: 600px;
@@ -304,12 +306,12 @@
 
 .disciplineTag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-ink);
   padding: 4px 10px;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .socialIndex {
@@ -331,10 +333,10 @@
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   text-transform: uppercase;
   color: var(--text-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: var(--tracking-wide);
   transition: all 0.2s;
 }
 
@@ -360,14 +362,15 @@
 
 .sectionLabel {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--text-faint);
   text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
 }
 
 .sectionTitle {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: var(--text-h2);
   text-transform: uppercase;
 }
 
@@ -426,7 +429,7 @@
 
 .projectTitle {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: var(--text-subhead);
   text-transform: uppercase;
 }
 
@@ -435,8 +438,9 @@
   flex-wrap: wrap;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   color: var(--text-faint);
+  letter-spacing: var(--tracking-tag);
 }
 
 .projectThumbRow {
@@ -519,17 +523,17 @@
 
 .categoryBadge {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   background-color: var(--color-ink);
   color: #fff;
   padding: 4px 8px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-tag);
 }
 
 .priceChip {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   background-color: var(--color-yellow);
   color: var(--color-ink);
@@ -558,14 +562,14 @@
 
 .eventSerial {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   color: var(--color-yellow);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-tag);
 }
 
 .eventTitle {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: var(--text-h2);
   text-transform: uppercase;
   line-height: 0.9;
   color: #fff;
@@ -573,12 +577,13 @@
 
 .eventMetadataRow {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   color: rgba(255,255,255,0.7);
   text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: var(--tracking-wide);
 }
 
 .dotSeparator {
@@ -621,17 +626,17 @@
 .reviewerName {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 
 .reviewRating {
   color: var(--color-yellow);
-  font-size: 12px;
+  font-size: var(--text-small);
 }
 
 .reviewBody {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
   color: var(--text-muted);
 }
@@ -667,7 +672,7 @@
   border: 1px solid var(--border-color);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
   padding: var(--space-3);
   outline: none;
@@ -680,8 +685,8 @@
 
 .reviewSubmitBtn {
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-wide);
   font-weight: 700;
   padding: 9px 20px;
   background: var(--text);
@@ -700,9 +705,10 @@
   border: 1.5px dashed var(--border-color);
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   color: var(--text-faint);
   text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
 }
 
 @media (max-width: 900px) {
@@ -748,7 +754,7 @@
     flex: 1;
     width: auto;
     justify-content: center;
-    font-size: 9px;
+    font-size: var(--text-small);
     height: 38px;
     padding: 0 4px;
     letter-spacing: 0.05em;
@@ -801,4 +807,73 @@
   .portfolioGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── DESIGN SYSTEM ADAPTERS (Purged from inline JSX style overrides) ── */
+.projectMetaItem {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--text-faint);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+}
+
+.projectDescription {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: var(--leading-normal);
+}
+
+.projectThumbPlus {
+  width: 52px;
+  height: 52px;
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-small);
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+}
+
+.draftBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-tag);
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.continueEditingLink {
+  display: inline-block;
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-yellow);
+  text-decoration: none;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.reviewerAvatarFallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--text);
 }

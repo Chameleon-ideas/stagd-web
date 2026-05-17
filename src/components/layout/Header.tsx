@@ -26,6 +26,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const { user, logout, isLoading } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -36,6 +37,19 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Publish the real header height (nav + ticker) to CSS so every
+  // consumer stays consistent without any hardcoded magic numbers.
+  useEffect(() => {
+    const el = document.getElementById('site-header');
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty('--header-h', `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [user]); // re-run when user changes (ticker appears/disappears)
 
   const isMessages = pathname === '/messages';
   const hasRecipient = searchParams.get('recipient');
@@ -75,6 +89,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
   return (
     <header
       id="site-header"
+      ref={headerRef}
       className={`${styles.header} ${transparent ? styles.transparent : ''} ${isHome ? styles.homeHeader : ''} ${isMenuOpen ? styles.menuOpen : ''}`}
     >
       <div className={`container ${styles.inner}`}>

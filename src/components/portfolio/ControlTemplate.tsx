@@ -296,10 +296,11 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
     })
   };
 
-  const headerHeight = user ? 88 : 60;
+  // --header-h is published to :root by Header.tsx's ResizeObserver.
+  // We forward it as --header-height so the CSS module's sticky/padding rules pick it up.
 
   return (
-    <div className={styles.container} data-theme={profile.profile?.portfolio_theme ?? 'dark'} style={{ '--header-height': `${headerHeight}px` } as any}>
+    <div className={styles.container} data-theme={profile.profile?.portfolio_theme ?? 'dark'}>
       {/* ── ABOUT OVERLAY ── */}
       <AnimatePresence>
         {isAboutOpen && (

@@ -55,10 +55,7 @@
         /* ── Per-page accent (overridden by artist profile) ──── */
         --accent: var(--color-yellow);
 
-        /* ── Typography: Families ────────────────────────────── */
-        --font-display: 'Anton', Impact, 'Franklin Gothic Medium', sans-serif;
-        --font-body: 'DM Sans', system-ui, sans-serif;
-        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        /* ── Typography: Families (Inherits directly from layout.tsx Google Fonts on html) ── */
         --font-editorial: Georgia, 'Times New Roman', serif;
 
         /* ── Typography: Scale ───────────────────────────────── */
@@ -87,7 +84,7 @@
         --leading-loose: 1.8;
 
         /* ── Typography: Letter Spacing ─────────────────────── */
-        --tracking-tight: -0.02em;
+        --tracking-tight: 0.01rem;
         --tracking-normal: 0;
         --tracking-wide: 0.08em;
         --tracking-tag: 0.1em;

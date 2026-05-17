@@ -406,7 +406,7 @@ export default function ManageWorkPage() {
   }
 
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container} ref={containerRef} style={{ '--header-height': user ? '88px' : '60px' } as React.CSSProperties}>
       {/* Column 1: Sidebar */}
       <aside className={styles.sidebar}>
         <Link href={`/profile/${user?.username}`} className={styles.backLink}>
@@ -694,8 +694,8 @@ export default function ManageWorkPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: 'auto', borderTop: '1.5px solid var(--border-color)', paddingTop: '20px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#666', marginBottom: '12px' }}>
+        <div className={styles.mediaFooter}>
+          <div className={styles.statusLabel}>
             // STATUS: SYNCHRONIZED
           </div>
           <p className={styles.helpText}>

@@ -257,7 +257,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
             </div>
             {isCreative && (
               <div className={styles.socialIndex}>
-                <span className={styles.navLabel}>// Social Index</span>
+                <span className={styles.sectionLabel}>// Social Index</span>
                 <div className={styles.socialList}>
                   {profile.profile.instagram_handle && <a href={`https://instagram.com/${profile.profile.instagram_handle}`} target="_blank" rel="noopener" className={styles.socialLink}><Globe size={14} /> Instagram</a>}
                   {profile.social_links?.behance && <a href={profile.social_links.behance} target="_blank" rel="noopener" className={styles.socialLink}><Globe size={14} /> Behance</a>}
@@ -335,11 +335,11 @@ export default function ProfileClient({ username, profile: initialProfile, event
                         <div className={styles.projectBody}>
                           <h3 className={styles.projectTitle}>{project.title}</h3>
                           <div className={styles.projectMeta}>
-                            {project.format && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-faint)' }}>// FORMAT: {project.format.toUpperCase()}</span>}
-                            {project.year && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-faint)' }}>// YEAR: {project.year}</span>}
-                            {project.discipline && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-faint)' }}>// TAG: {project.discipline}</span>}
+                            {project.format && <span className={styles.projectMetaItem}>// FORMAT: {project.format.toUpperCase()}</span>}
+                            {project.year && <span className={styles.projectMetaItem}>// YEAR: {project.year}</span>}
+                            {project.discipline && <span className={styles.projectMetaItem}>// TAG: {project.discipline}</span>}
                           </div>
-                          {project.description && <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)', margin: '8px 0 0', lineHeight: 1.5 }}>{project.description}</p>}
+                          {project.description && <p className={styles.projectDescription}>{project.description}</p>}
                           {projNavItems.length > 0 && (
                             <div className={styles.projectThumbRow}>
                               {projNavItems.slice(0, 5).map((pi, i) => (
@@ -348,7 +348,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
                                 </div>
                               ))}
                               {projNavItems.length > 5 && (
-                                <div className={styles.projectThumb} style={{ background: 'var(--bg-raised)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-faint)', cursor: 'pointer' }} onClick={() => openLightbox(projNavItems, 5)}>
+                                <div className={styles.projectThumbPlus} onClick={() => openLightbox(projNavItems, 5)}>
                                   +{projNavItems.length - 5}
                                 </div>
                               )}
@@ -374,11 +374,11 @@ export default function ProfileClient({ username, profile: initialProfile, event
             <div className={styles.eventsGrid}>
               {draftEvents.map((draft) => (
                 <div key={draft.id} className={styles.eventCard} style={{ opacity: 0.75, position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: 12, right: 12, fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.1em', background: 'var(--color-yellow)', color: '#111', padding: '3px 8px', textTransform: 'uppercase' }}>DRAFT</span>
+                  <span className={styles.draftBadge}>DRAFT</span>
                   <h3 className={styles.eventTitle}>{draft.title || 'Untitled Event'}</h3>
                   <div className={styles.eventMeta} style={{ textTransform: 'uppercase' }}>{draft.event_type?.replace('_', ' ')}{draft.venue_name ? ` · ${draft.venue_name}` : ''}</div>
                   <div className={styles.eventMeta}>Last edited {new Date(draft.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</div>
-                  <Link href={`/events/create?draft=${draft.id}`} style={{ display: 'inline-block', marginTop: 'auto', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-yellow)', textDecoration: 'none', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  <Link href={`/events/create?draft=${draft.id}`} className={styles.continueEditingLink}>
                     Continue editing →
                   </Link>
                 </div>
@@ -443,7 +443,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
                   <div className={styles.reviewHeader}>
                     {review.reviewer.avatar_url
                       ? <img src={review.reviewer.avatar_url} alt={review.reviewer.full_name} className={styles.reviewerAvatar} />
-                      : <div className={styles.reviewerAvatar} style={{ background: 'var(--bg-raised)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '10px' }}>{review.reviewer.full_name[0]}</div>}
+                      : <div className={styles.reviewerAvatarFallback}>{review.reviewer.full_name[0]}</div>}
                     <div className={styles.reviewerInfo}>
                       <div className={styles.reviewerName}>{review.reviewer.full_name}</div>
                       <div className={styles.reviewRating}>{[...Array(5)].map((_, i) => <Star key={i} size={10} fill={i < review.rating ? 'currentColor' : 'none'} />)}</div>
