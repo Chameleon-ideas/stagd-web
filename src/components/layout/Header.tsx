@@ -117,7 +117,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
                     aria-label="Create"
                   >
                     <Plus size={14} />
-                    CREATE
+                    <span className={styles.createBtnText}>CREATE</span>
                   </button>
                 )}
 
@@ -182,7 +182,7 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>

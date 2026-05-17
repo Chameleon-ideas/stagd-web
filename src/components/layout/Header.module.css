@@ -24,6 +24,8 @@
   align-items: center;
   height: 60px;
   gap: var(--space-6);
+  position: relative;
+  z-index: 10;
 }
 
 .ticker {
@@ -432,7 +434,87 @@
 @media (max-width: 768px) {
   .nav { display: none; }
   .cta { display: none; }
-  .menuToggle { display: block; }
+  
+  .inner {
+    gap: 12px;
+  }
+  .actions {
+    gap: 12px;
+  }
+  .authWrapper {
+    gap: 12px;
+  }
+  
+  /* 1. Yellow Create Button Square (36x36) */
+  .createBtnText {
+    display: none;
+  }
+  .createBtn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+  }
+  
+  /* 2. User Avatar Button Square (36x36) with frame */
+  .userHandle {
+    display: none;
+  }
+  .userBtn {
+    padding: 0;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    background: #111111;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 0;
+    min-height: auto;
+    transition: border-color 0.2s;
+  }
+  .userBtn:hover {
+    background: #111111;
+    border-color: var(--color-yellow);
+  }
+  .userAvatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .userInitial {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 3. Hamburger Toggle Button Square (36x36) with frame */
+  .menuToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    background: transparent;
+    color: #ffffff;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 0;
+    transition: border-color 0.2s, background-color 0.2s;
+    margin-left: 2px;
+  }
+  .menuToggle:hover {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 @media (max-width: 480px) {

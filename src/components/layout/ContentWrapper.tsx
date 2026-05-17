@@ -11,54 +11,49 @@ interface ContentWrapperProps {
 // This is critical for split-pane workstations (Explore, Messages, Artist Profiles, Event Detail)
 // so that their nested panels calculate scrolling boundaries correctly.
 function isViewportLockedRoute(pathname: string): boolean {
-  // Static workstation layouts
+  // Only explicitly designated split-pane workstations are viewport-locked:
   if (pathname === '/explore') return true;
-  if (pathname === '/messages') return true;
+  if (pathname.startsWith('/messages')) return true;
   if (pathname.startsWith('/profile/edit')) return true;
   
-  // Dynamic workstation layouts
-  if (pathname.startsWith('/events/')) return true;
-
-  // Standard long-form scrolling content routes
-  const standardScrollRoutes = [
-    '/',
-    '/about',
-    '/terms',
-    '/privacy',
-    '/auth/login',
-    '/auth/signup',
-    '/verify',
-    '/scanner',
-    '/admin'
-  ];
-
-  if (standardScrollRoutes.includes(pathname)) {
-    return false;
-  }
-
-  // Fallback: Dynamic user profiles (/[username]) are viewport-locked classic workstation splits
-  return true;
+  // All other pages (including dynamic profiles, portfolio views, and event pages)
+  // must scroll naturally.
+  return false;
 }
 
 /**
  * ContentWrapper
  * Automatically adds top padding to clear the fixed global navigation bar.
- * Restricts viewport heights to exactly 100vh only on workstation-split routes,
- * while allowing standard editorial pages (like About, Legal, Forms) to scroll natively.
+ * Restricts viewport heights to exactly (100vh - 88px) only on workstation-split routes,
+ * while allowing standard editorial pages (like Profiles, Events, About) to scroll natively.
  */
 export function ContentWrapper({ children }: ContentWrapperProps) {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isLocked = isViewportLockedRoute(pathname);
 
+  // Client-side detection to bypass viewport locking on mobile viewports (<= 768px)
+  // where split-panes naturally collapse into standard long scroll containers.
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
+
+  const shouldLock = isLocked && !isMobile;
+
   return (
     <main 
       className="flex-1 flex flex-col" 
       style={{ 
-        height: isLocked ? '100vh' : 'auto',
-        maxHeight: isLocked ? '100vh' : 'none',
+        height: shouldLock ? (isHome ? '100vh' : 'calc(100vh - 88px)') : 'auto',
+        maxHeight: shouldLock ? (isHome ? '100vh' : 'calc(100vh - 88px)') : 'none',
         paddingTop: isHome ? '0' : '88px',
-        overflow: isLocked ? 'hidden' : 'visible'
+        overflow: shouldLock ? 'hidden' : 'visible'
       }}
     >
       {children}

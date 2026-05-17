@@ -68,14 +68,16 @@ export default async function HomePage() {
                 <div className={styles.heroSearchContainer} data-reveal>
                   <form action="/explore" className={styles.heroSearchForm}>
                     <div className={styles.heroSearchInputWrap}>
-                      <Search size={20} className={styles.heroSearchIcon} />
-                      <input
-                        type="text"
-                        name="query"
-                        placeholder="SEARCH ARTISTS, EVENTS, OR DISCIPLINE..."
-                        className={styles.heroSearchInput}
-                        aria-label="Search creatives and events"
-                      />
+                      <div className={styles.heroSearchField}>
+                        <Search size={20} className={styles.heroSearchIcon} />
+                        <input
+                          type="text"
+                          name="query"
+                          placeholder="SEARCH ARTISTS, EVENTS, OR DISCIPLINE..."
+                          className={styles.heroSearchInput}
+                          aria-label="Search creatives and events"
+                        />
+                      </div>
                       <button type="submit" className={styles.heroSearchBtn}>
                         SEARCH
                       </button>
@@ -100,13 +102,6 @@ export default async function HomePage() {
               </div>
             </section>
           </GSAPHeroReveal>
-
-          <MarqueeTicker
-            size="lg"
-            theme="yellow"
-            speed="fast"
-            items={['DISCOVER', 'HIRE', 'EXPERIENCE', 'PAKISTAN', 'KHI', 'LHR', 'ISB', 'CREATIVE CLASS']}
-          />
         </div>
 
         {/* ════════════════════════════════════════════════════
