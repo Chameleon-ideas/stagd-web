@@ -11,8 +11,8 @@
   /* Hover on yellow */
   --color-ink: #121212;
   /* Ink Black — dark mode, high-impact */
-  --color-white: #FFFFFF;
-  /* Pure white — avoid as body bg */
+  --color-white: #F5F2EA;
+  /* Warm near-white beige — replaces pure white across the platform */
 
   /* ── Colour: Event Accents ───────────────────────────── */
   --color-red: #E63946;
