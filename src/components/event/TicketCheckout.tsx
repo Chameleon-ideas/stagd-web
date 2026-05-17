@@ -76,7 +76,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
   const handlePurchase = async () => {
     if (!formData.name || !formData.email) return;
-    
+
     setLoading(true);
     setPurchaseError(null);
     try {
@@ -107,7 +107,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
   const handleDownload = async () => {
     if (!ticketResult) return;
-    
+
     // Create a hidden canvas to render the ticket
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -130,9 +130,9 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
     try {
       // 1. Background with Grid/Texture
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#F5F2EA';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       // Add diagonal stripe texture to bottom half
       ctx.strokeStyle = 'rgba(0,0,0,0.03)';
       ctx.lineWidth = 1;
@@ -146,14 +146,14 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       // 2. Header (Black) with Logo
       ctx.fillStyle = '#111111';
       ctx.fillRect(0, 0, canvas.width, 100);
-      
+
       // Load and draw the wordmark logo
       const logoImg = await loadImage('/images/stagd-logo.svg');
       const logoWidth = 140;
       const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
       ctx.drawImage(logoImg, 40, (100 - logoHeight) / 2, logoWidth, logoHeight);
-      
-      ctx.fillStyle = '#ffffff';
+
+      ctx.fillStyle = '#F5F2EA';
       ctx.font = '14px monospace';
       ctx.textAlign = 'right';
       ctx.fillText(`SERIAL NO: ${ticketResult.id.toUpperCase()}`, canvas.width - 40, 60);
@@ -162,7 +162,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       const coverImg = await loadImage(event.cover_image_url || '');
       const coverHeight = 450;
       ctx.drawImage(coverImg, 0, 100, canvas.width, coverHeight);
-      
+
       // Dusk Filter (Bottom to Top)
       const grad = ctx.createLinearGradient(0, 100 + coverHeight, 0, 100);
       grad.addColorStop(0, 'rgba(0,0,0,0.8)');
@@ -189,7 +189,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       ctx.fillStyle = '#888888';
       ctx.fillText('// DATE', 40, 690);
       ctx.fillText('// TIME', 420, 690);
-      
+
       ctx.fillStyle = '#111111';
       ctx.font = '900 28px sans-serif';
       ctx.fillText(formatDate(event.starts_at).toUpperCase(), 40, 730);
@@ -199,7 +199,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       ctx.fillStyle = '#888888';
       ctx.fillText('// VENUE', 40, 800);
       ctx.fillText('// TIER', 420, 800);
-      
+
       ctx.fillStyle = '#111111';
       ctx.font = '900 28px sans-serif';
       ctx.fillText((event.venue_name || 'KARACHI').toUpperCase(), 40, 840);
@@ -231,11 +231,11 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       ctx.fillStyle = '#111111';
       ctx.font = '900 14px monospace';
       ctx.fillText('ADMIT ONE //', 280, 980);
-      
+
       ctx.fillStyle = '#111111';
       ctx.font = '900 48px sans-serif';
       ctx.fillText(formData.name.toUpperCase(), 280, 1040);
-      
+
       ctx.fillStyle = '#888888';
       ctx.font = '14px monospace';
       ctx.fillText(`SERIAL_AUTH: ${ticketResult.id.toUpperCase()}`, 280, 1085);
@@ -253,15 +253,15 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = `stagd-ticket-${ticketResult.id.slice(-8).toLowerCase()}.png`;
-      
+
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       setTimeout(() => {
         document.body.removeChild(link);
       }, 100);
-      
+
     } catch (err) {
       console.error('Download failed:', err);
       // If it's a security error (tainted canvas), explain why
@@ -274,20 +274,20 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
   };
 
   return (
-    <div 
-      className={styles.overlay} 
+    <div
+      className={styles.overlay}
       onClick={(e) => e.target === e.currentTarget && onClose()}
       role="presentation"
     >
-      <div 
+      <div
         ref={modalRef}
-        className={`${styles.modal} ${showVisual ? styles.modalVisual : ''}`} 
-        role="dialog" 
-        aria-modal="true" 
+        className={`${styles.modal} ${showVisual ? styles.modalVisual : ''}`}
+        role="dialog"
+        aria-modal="true"
         aria-labelledby="checkout-title"
       >
-        <button 
-          className={styles.closeBtn} 
+        <button
+          className={styles.closeBtn}
           onClick={onClose}
           aria-label="Close checkout"
         >
@@ -300,7 +300,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
               <div className={styles.step}>
                 <span className={styles.stepTag}>{user ? 'Step 01 / 01' : 'Step 01 / 02'}</span>
                 <h2 id="checkout-title" className={styles.title}>Select Tickets</h2>
-                
+
                 <div className={styles.eventSummary}>
                   <div className={styles.eventThumb}>
                     {event.cover_image_url && <Image src={event.cover_image_url} alt="" fill className={styles.img} />}
@@ -316,10 +316,10 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                     <span className={styles.tierName}>{selectedTier.name}</span>
                     <span className={styles.tierPrice}>{formatPKR(selectedTier.price)}</span>
                   </div>
-                  
+
                   <div className={styles.qtyControl}>
-                    <button 
-                      className={styles.qtyBtn} 
+                    <button
+                      className={styles.qtyBtn}
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       aria-label="Decrease quantity"
                       disabled={quantity <= 1}
@@ -329,8 +329,8 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                     <span className={styles.qtyValue} aria-live="polite">
                       {quantity}
                     </span>
-                    <button 
-                      className={styles.qtyBtn} 
+                    <button
+                      className={styles.qtyBtn}
                       onClick={() => setQuantity(Math.min(10, quantity + 1))}
                       aria-label="Increase quantity"
                       disabled={quantity >= 10}
@@ -376,11 +376,11 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                 <div className={styles.form}>
                   <div className={styles.inputGroup}>
                     <label htmlFor="buyer-name" className={styles.label}>Full Name</label>
-                    <input 
+                    <input
                       id="buyer-name"
                       ref={firstInputRef}
-                      type="text" 
-                      className={styles.input} 
+                      type="text"
+                      className={styles.input}
                       placeholder="Zia Ahmed"
                       value={formData.name}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -389,10 +389,10 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                   </div>
                   <div className={styles.inputGroup}>
                     <label htmlFor="buyer-email" className={styles.label}>Email Address</label>
-                    <input 
+                    <input
                       id="buyer-email"
-                      type="email" 
-                      className={styles.input} 
+                      type="email"
+                      className={styles.input}
                       placeholder="zia@example.com"
                       value={formData.email}
                       onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -402,9 +402,9 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                 </div>
 
                 <div className={styles.footer}>
-                  <button 
-                    className="btn btn-primary btn-md" 
-                    style={{ width: '100%' }} 
+                  <button
+                    className="btn btn-primary btn-md"
+                    style={{ width: '100%' }}
                     onClick={handlePurchase}
                     disabled={loading || !formData.name || !formData.email}
                   >
@@ -436,21 +436,21 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
                 <div className={styles.qrWrapper}>
                   <div className={styles.qrContainer}>
-                    <Image 
-                      src={ticketResult.qr} 
-                      alt="Ticket QR Code" 
-                      fill 
-                      unoptimized 
-                      className={styles.qrImg} 
+                    <Image
+                      src={ticketResult.qr}
+                      alt="Ticket QR Code"
+                      fill
+                      unoptimized
+                      className={styles.qrImg}
                     />
                   </div>
                   <span className={styles.ticketId}>{ticketResult.id}</span>
                 </div>
 
                 <div className={styles.footer}>
-                  <button 
-                    className="btn btn-accent btn-md" 
-                    style={{ width: '100%' }} 
+                  <button
+                    className="btn btn-accent btn-md"
+                    style={{ width: '100%' }}
                     onClick={handleDownload}
                   >
                     <Download size={18} style={{ marginRight: 8 }} />
@@ -469,11 +469,11 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
             <div className={styles.ticketVisualInner}>
               <div className={styles.ticketVisualTop}>
                 <div className={styles.ticketVisualLogo}>
-                  <Image 
-                    src="/images/stagd-logo.svg" 
-                    alt="Stagd" 
-                    width={80} 
-                    height={32} 
+                  <Image
+                    src="/images/stagd-logo.svg"
+                    alt="Stagd"
+                    width={80}
+                    height={32}
                     className={styles.wordmark}
                   />
                 </div>
@@ -489,7 +489,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
 
               <div className={styles.ticketVisualInfo}>
                 <h3 className={styles.ticketVisualTitle}>{event.title}</h3>
-                
+
                 <div className={styles.ticketVisualMetaRow}>
                   <div className={styles.visualMetaCol}>
                     <span className={styles.visualLabel}>// DATE</span>
@@ -513,18 +513,18 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                 </div>
 
                 <div className={styles.visualCutoutRow}>
-                   <div className={styles.visualCutout} />
-                   <hr className={styles.visualDivider} />
-                   <div className={styles.visualCutout} />
+                  <div className={styles.visualCutout} />
+                  <hr className={styles.visualDivider} />
+                  <div className={styles.visualCutout} />
                 </div>
 
                 <div className={styles.ticketVisualQrRow}>
                   <div className={styles.visualQr}>
-                    <Image 
-                      src={ticketResult?.qr || ''} 
-                      alt="QR" 
-                      fill 
-                      unoptimized 
+                    <Image
+                      src={ticketResult?.qr || ''}
+                      alt="QR"
+                      fill
+                      unoptimized
                     />
                   </div>
                   <div className={styles.visualBuyer}>
@@ -539,7 +539,7 @@ export function TicketCheckout({ event, onClose }: TicketCheckoutProps) {
                 VALID FOR ONE-TIME ENTRY ONLY · NO REFUNDS · STAG'D V1.0
               </div>
             </div>
-            
+
             <div className={styles.visualActions}>
               <button className="btn btn-accent btn-md" style={{ width: '100%' }} onClick={handleDownload}>
                 <Download size={18} style={{ marginRight: 8 }} />

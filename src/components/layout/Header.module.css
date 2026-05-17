@@ -1,4 +1,14 @@
-@keyframes authFadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
 .header {
   position: fixed;
@@ -71,7 +81,9 @@
   transition: opacity var(--duration-ui);
 }
 
-.logo:hover { opacity: 0.75; }
+.logo:hover {
+  opacity: 0.75;
+}
 
 .logoImg {
   height: 28px !important;
@@ -128,9 +140,20 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(0.95); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.5; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
 }
 
 .statusText {
@@ -155,7 +178,7 @@
   cursor: pointer;
 }
 
-.navLink:hover { 
+.navLink:hover {
   color: var(--text);
   transform: translateY(-1px);
 }
@@ -221,7 +244,9 @@
   border-radius: 0;
 }
 
-.createBtn:hover { opacity: 0.85; }
+.createBtn:hover {
+  opacity: 0.85;
+}
 
 .loginLink {
   font-family: var(--font-mono);
@@ -416,7 +441,7 @@
 }
 
 .mobileOverlayDark .mobileLink {
-  color: #ffffff;
+  color: #F5F2EA;
 }
 
 .mobileOverlayDark .mobileDivider {
@@ -428,27 +453,37 @@
 }
 
 @media (max-width: 900px) {
-  .headerMeta { display: none; }
+  .headerMeta {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
-  .nav { display: none; }
-  .cta { display: none; }
-  
+  .nav {
+    display: none;
+  }
+
+  .cta {
+    display: none;
+  }
+
   .inner {
     gap: 12px;
   }
+
   .actions {
     gap: 12px;
   }
+
   .authWrapper {
     gap: 12px;
   }
-  
+
   /* 1. Yellow Create Button Square (36x36) */
   .createBtnText {
     display: none;
   }
+
   .createBtn {
     width: 36px;
     height: 36px;
@@ -458,11 +493,12 @@
     justify-content: center;
     border-radius: 0;
   }
-  
+
   /* 2. User Avatar Button Square (36x36) with frame */
   .userHandle {
     display: none;
   }
+
   .userBtn {
     padding: 0;
     border: 1.5px solid rgba(255, 255, 255, 0.15);
@@ -477,15 +513,18 @@
     min-height: auto;
     transition: border-color 0.2s;
   }
+
   .userBtn:hover {
     background: #121212;
     border-color: var(--color-yellow);
   }
+
   .userAvatar {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+
   .userInitial {
     width: 100%;
     height: 100%;
@@ -504,19 +543,22 @@
     height: 36px;
     border: 1.5px solid rgba(255, 255, 255, 0.15);
     background: transparent;
-    color: #ffffff;
+    color: #F5F2EA;
     padding: 0;
     cursor: pointer;
     border-radius: 0;
     transition: border-color 0.2s, background-color 0.2s;
     margin-left: 2px;
   }
+
   .menuToggle:hover {
-    border-color: #ffffff;
+    border-color: #F5F2EA;
     background: rgba(255, 255, 255, 0.05);
   }
 }
 
 @media (max-width: 480px) {
-  .backBtn span { display: none; }
+  .backBtn span {
+    display: none;
+  }
 }

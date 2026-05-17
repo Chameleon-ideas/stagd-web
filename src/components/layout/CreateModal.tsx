@@ -28,7 +28,7 @@ const OPTIONS: Option[] = [
     label: 'OPEN CALL',
     desc: 'Post a gig — get applications from vetted creatives.',
     bg: '#649839',
-    color: '#ffffff',
+    color: '#F5F2EA',
     href: null,
     soon: true,
   },

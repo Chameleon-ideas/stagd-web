@@ -106,7 +106,7 @@
   letter-spacing: 0.018em;
   /* Breathable premium letter spacing */
   text-transform: uppercase;
-  color: #ffffff;
+  color: #F5F2EA;
   margin: 0 auto 20px auto;
   text-align: center;
   max-width: 960px;
@@ -139,8 +139,8 @@
 
 .heroSearchInputWrap {
   display: flex;
-  background-color: #ffffff;
-  border: 1.5px solid #ffffff;
+  background-color: #F5F2EA;
+  border: 1.5px solid #F5F2EA;
   padding: 3px;
   position: relative;
   border-radius: 0;
@@ -228,7 +228,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   font-weight: 500;
-  color: #ffffff;
+  color: #F5F2EA;
   text-decoration: none;
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 6px 14px;
@@ -263,7 +263,7 @@
 }
 
 .directivesSection {
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   width: 100%;
   min-height: 100vh;
@@ -387,12 +387,12 @@
 
 /* Hover effects */
 .directiveRow:hover {
-  background-color: #ffffff;
+  background-color: #F5F2EA;
 }
 
 .showcaseSection {
   background-color: #649839;
-  color: #ffffff;
+  color: #F5F2EA;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   min-height: 100vh;
   position: relative;
@@ -426,7 +426,7 @@
   letter-spacing: 0.012em;
   text-transform: uppercase;
   margin: 0;
-  color: #ffffff;
+  color: #F5F2EA;
 }
 
 .showcaseLink {
@@ -463,7 +463,7 @@
   flex-direction: column;
   text-decoration: none;
   background-color: #121212;
-  color: #ffffff;
+  color: #F5F2EA;
   border-radius: 0;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -549,7 +549,7 @@
   letter-spacing: 0.01em;
   text-transform: uppercase;
   margin: 0;
-  color: #ffffff;
+  color: #F5F2EA;
 }
 
 .spotlightDesc {
@@ -600,7 +600,7 @@
   background-color: rgba(17, 17, 17, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-decoration: none;
-  color: #ffffff;
+  color: #F5F2EA;
   transition: background-color 0.2s, border-color 0.2s;
 }
 
@@ -637,7 +637,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-small);
   font-weight: 700;
-  color: #ffffff;
+  color: #F5F2EA;
 }
 
 .ledgerRowTitle {
@@ -647,7 +647,7 @@
   letter-spacing: 0.012em;
   text-transform: uppercase;
   margin: 0 0 10px;
-  color: #ffffff;
+  color: #F5F2EA;
 }
 
 .ledgerRowMeta {
@@ -661,7 +661,7 @@
 
 .manifestoSection {
   background-color: #121212;
-  color: #ffffff;
+  color: #F5F2EA;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   min-height: 100vh;
   position: relative;
@@ -690,7 +690,7 @@
   font-style: italic;
   font-size: var(--text-h1);
   line-height: 1.4;
-  color: #ffffff;
+  color: #F5F2EA;
   margin: 0;
 }
 
@@ -735,7 +735,7 @@
   font-size: var(--text-h2);
   letter-spacing: 0.015em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: #F5F2EA;
   margin: 0;
 }
 
@@ -749,7 +749,7 @@
 
 /* ── 05 · ACTIVE ROSTER GRID ────────────────────────────── */
 .creativesSection {
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   width: 100%;
   min-height: 100vh;
@@ -829,13 +829,13 @@
   scroll-snap-align: start;
   text-decoration: none;
   color: #121212;
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   border: 1px solid #121212;
   transition: transform 0.4s var(--ease-expo), background-color 0.4s var(--ease-expo), box-shadow 0.4s var(--ease-expo);
 }
 
 .creativeCard:hover {
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
 }
@@ -844,7 +844,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   overflow: hidden;
 }
 
@@ -860,7 +860,7 @@
 .creativeImageFallback {
   position: absolute;
   inset: 0;
-  background-color: #ffffff;
+  background-color: #F5F2EA;
 }
 
 .creativeHoverOverlay {
@@ -999,7 +999,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   color: #121212;
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   padding: 4px 10px;
   border-radius: 0;
 }
@@ -1007,7 +1007,7 @@
 /* ── 06 · HIGH-IMPACT ACTION (CTA Canvas) ────────────────── */
 .ctaCanvasSection {
   background-color: #121212;
-  color: #ffffff;
+  color: #F5F2EA;
   position: relative;
   overflow: hidden;
   padding: clamp(80px, 12vh, 140px) clamp(24px, 6vw, 80px);
@@ -1052,7 +1052,7 @@
   line-height: 1.0;
   letter-spacing: 0.015em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: #F5F2EA;
   margin: 0;
   font-weight: 900;
   display: flex;
@@ -1092,7 +1092,7 @@
 }
 
 .ctaCard {
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   color: #121212;
   border: 1.5px solid #121212;
   display: flex;
@@ -1179,7 +1179,7 @@
 .ctaCardFooter {
   padding: 20px 24px;
   border-top: 1.5px solid #121212;
-  background-color: #ffffff;
+  background-color: #F5F2EA;
   /* Slightly darker tray background */
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1196,7 +1196,7 @@
   font-size: var(--text-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: #F5F2EA;
   background: #121212;
   border: 1.5px solid #121212;
   text-decoration: none;
@@ -1233,7 +1233,7 @@
 
 .ctaBtnSecondary:hover {
   background-color: #121212;
-  color: #ffffff;
+  color: #F5F2EA;
 }
 
 /* ── RESPONSIVE ────────────────────────────────────────────── */
@@ -1353,7 +1353,7 @@
   }
 
   .heroSearchInput {
-    background-color: #ffffff;
+    background-color: #F5F2EA;
     width: 100%;
     border-radius: 0;
     height: 52px;
