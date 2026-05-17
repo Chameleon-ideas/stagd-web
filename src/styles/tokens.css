@@ -73,6 +73,8 @@
         /* 16px / 1.000rem */
         --text-small: 12px;
         /* 12px / 0.688rem */
+        --text-tag: 11px;
+        /* 11px — mono labels, chips, form field labels */
 
         /* ── Typography: Line Heights ────────────────────────── */
         --leading-tight: 0.85;

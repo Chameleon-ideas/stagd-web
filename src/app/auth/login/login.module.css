@@ -16,14 +16,14 @@
 .authBox {
   animation: boxIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   width: 100%;
-  max-width: 540px;
+  max-width: 480px;
   background-color: var(--bg-surface);
-  padding: var(--space-8) var(--space-8);
+  padding: var(--space-6) var(--space-6);
   border: var(--border);
   box-shadow: 8px 8px 0 var(--color-ink);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
   margin-block: var(--space-4);
 }
 
@@ -54,7 +54,7 @@
 
 .authHeader h1 {
   font-family: var(--font-display);
-  font-size: var(--text-display);
+  font-size: var(--text-h1);
   line-height: var(--leading-tight);
   text-transform: uppercase;
   letter-spacing: var(--tracking-tight);
@@ -63,7 +63,7 @@
 
 .authHeader p {
   font-family: var(--font-body);
-  font-size: var(--text-large);
+  font-size: var(--text-body);
   color: var(--text-muted);
 }
 
@@ -117,7 +117,7 @@
 .errorText {
   animation: errorIn 0.15s ease both;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   color: var(--color-red);
   text-transform: uppercase;
 }
