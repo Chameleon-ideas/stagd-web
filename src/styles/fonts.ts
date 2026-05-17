@@ -1,4 +1,4 @@
-import { Anton, DM_Sans, JetBrains_Mono, Playfair_Display } from 'next/font/google';
+import { Anton, DM_Sans, JetBrains_Mono } from 'next/font/google';
 
 export const anton = Anton({
   weight: '400',
@@ -19,11 +19,4 @@ export const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-mono',
-});
-
-export const playfair = Playfair_Display({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-editorial',
 });

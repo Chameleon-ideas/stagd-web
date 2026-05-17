@@ -15,14 +15,14 @@ interface MarqueeItem {
 }
 
 const ITEMS: MarqueeItem[] = [
-  { id: '1', type: 'EVENT', title: 'SOUNDS OF LYARI', meta: '// CONCERT · T2F', image: '/images/lyari.png', color: '#E63946' }, // Poster Red
-  { id: '2', type: 'ARTIST', title: 'ZOYA KHAN', meta: '// 3D GENERALIST', image: '/images/zoya_portrait.png', color: '#111111' }, // Ink Black
-  { id: '3', type: 'EVENT', title: 'OPEN STUDIO', meta: '// WORKSHOP · OKA', image: '/images/workshop.png', color: '#1CAEE5' }, // Sky Cyan
-  { id: '4', type: 'ARTIST', title: 'ALI HASAN', meta: '// SOUND DESIGN', image: '/images/hamza_portrait.png', color: '#111111' }, // Ink Black
-  { id: '5', type: 'EVENT', title: 'FOLD FOLIO', meta: '// MARKET · HINDU GYM', image: '/images/festival.png', color: '#FF5A1F' }, // Market Orange
-  { id: '6', type: 'ARTIST', title: 'SARA AHMED', meta: '// TEXTILE ARTIST', image: '/images/sara_portrait.png', color: '#111111' }, // Ink Black
-  { id: '7', type: 'EVENT', title: 'MURAL TOUR', meta: '// OUTDOOR · CLIFTON', image: '/images/mural_tour.png', color: '#D6F23B' }, // Civic Lime
-  { id: '8', type: 'ARTIST', title: 'OSMAN K', meta: '// PHOTOGRAPHER', image: '/images/osman_portrait.png', color: '#111111' }, // Ink Black
+  { id: '1', type: 'EVENT', title: 'SOUNDS OF LYARI', meta: '// CONCERT · T2F', image: '/images/lyari.webp', color: '#E63946' },
+  { id: '2', type: 'ARTIST', title: 'ZOYA KHAN', meta: '// 3D GENERALIST', image: '/images/zoya_portrait.webp', color: '#111111' },
+  { id: '3', type: 'EVENT', title: 'OPEN STUDIO', meta: '// WORKSHOP · OKA', image: '/images/workshop.webp', color: '#1CAEE5' },
+  { id: '4', type: 'ARTIST', title: 'ALI HASAN', meta: '// SOUND DESIGN', image: '/images/hamza_portrait.webp', color: '#111111' },
+  { id: '5', type: 'EVENT', title: 'FOLD FOLIO', meta: '// MARKET · HINDU GYM', image: '/images/festival.webp', color: '#FF5A1F' },
+  { id: '6', type: 'ARTIST', title: 'SARA AHMED', meta: '// TEXTILE ARTIST', image: '/images/sara_portrait.webp', color: '#111111' },
+  { id: '7', type: 'EVENT', title: 'MURAL TOUR', meta: '// OUTDOOR · CLIFTON', image: '/images/mural_tour.webp', color: '#D6F23B' },
+  { id: '8', type: 'ARTIST', title: 'OSMAN K', meta: '// PHOTOGRAPHER', image: '/images/osman_portrait.webp', color: '#111111' },
 ];
 
 const firstColumn = ITEMS.slice(0, 4);

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { anton, dmSans, jetbrainsMono, playfair } from '@/styles/fonts';
+import { anton, dmSans, jetbrainsMono } from '@/styles/fonts';
 import React, { Suspense } from 'react';
 import { AuthProvider } from '@/lib/auth';
 import { Analytics } from "@vercel/analytics/next"
@@ -43,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="dark" className={`${anton.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${playfair.variable}`}>
+    <html lang="en" data-theme="dark" className={`${anton.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased min-h-screen flex flex-col">
         <a href="#main-content" className="skip-link">
           Skip to main content

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Palette, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import styles from './RequestCreativeModal.module.css';
@@ -47,14 +46,7 @@ export default function RequestCreativeModal({ onClose, onSent }: Props) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <motion.div
-        className={styles.modal}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
           <X size={16} />
         </button>
@@ -71,18 +63,7 @@ export default function RequestCreativeModal({ onClose, onSent }: Props) {
           </p>
         </div>
 
-        <AnimatePresence>
-          {error && (
-            <motion.p
-              className={styles.error}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
+        {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.actions}>
           <button className="btn btn-ghost btn-md" onClick={onClose} disabled={sending}>
@@ -92,7 +73,7 @@ export default function RequestCreativeModal({ onClose, onSent }: Props) {
             {sending ? 'Sending...' : 'Send Request'}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

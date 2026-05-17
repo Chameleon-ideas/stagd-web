@@ -274,6 +274,7 @@ export async function searchArtists(params?: {
   city?: string;
   sort?: string;
   query?: string;
+  per_page?: number;
 }): Promise<PaginatedResponse<ArtistSearchResult>> {
 
 
@@ -290,8 +291,9 @@ export async function searchArtists(params?: {
     query = query.eq('city', params.city);
   }
 
-  const { data, error } = await query.limit(200);
-  if (error) return { data: [], total: 0, page: 1, per_page: 200, has_more: false };
+  const limit = params?.per_page || 200;
+  const { data, error } = await query.limit(limit);
+  if (error) return { data: [], total: 0, page: 1, per_page: limit, has_more: false };
 
   let results = data || [];
 

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const [eventsData, artistsData, creativeCount] = await Promise.all([
     searchEvents({ per_page: 8 }),
-    searchArtists({}),
+    searchArtists({ per_page: 8 }),
     getCreativeCount(),
   ]);
 
@@ -50,6 +50,7 @@ export default async function HomePage() {
                   alt="Pakistan's Creative Class"
                   fill
                   priority
+                  sizes="100vw"
                   className={styles.heroBgImage}
                 />
                 <div className={styles.heroBgOverlay} />

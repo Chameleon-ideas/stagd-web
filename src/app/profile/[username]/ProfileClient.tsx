@@ -12,14 +12,9 @@ import { useAuth } from '@/lib/auth';
 import { ArtistPublicProfile, PaginatedResponse, EventSearchResult } from '@/lib/types';
 import Lightbox, { LightboxItem } from './Lightbox';
 import styles from './ProfilePage.module.css';
-import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { GSAPEntrance } from '@/components/animations/GSAPEntrance';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const DISCIPLINE_COLORS = [
   { bg: 'var(--color-yellow)', text: 'var(--color-ink)' },
@@ -414,7 +409,7 @@ export default function ProfileClient({ username, profile: initialProfile, event
                         </div>
                       </div>
 
-                      <img src={item.event.cover_image_url || '/images/festival.png'} alt={item.event.title} className={styles.eventImage} />
+                      <img src={item.event.cover_image_url || '/images/festival.webp'} alt={item.event.title} className={styles.eventImage} />
                       <div className={styles.editorialGradientOverlay} />
                       
                       <div className={styles.eventContent}>

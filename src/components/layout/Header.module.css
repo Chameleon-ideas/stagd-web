@@ -1,3 +1,5 @@
+@keyframes authFadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+
 .header {
   position: fixed;
   width: 100%;
@@ -187,6 +189,7 @@
 }
 
 .authWrapper {
+  animation: authFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
   display: flex;
   align-items: center;
   gap: var(--space-6);

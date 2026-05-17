@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import { User, Palette, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import styles from './signup.module.css';
@@ -42,12 +41,7 @@ export default function SignupPage() {
 
   return (
     <div className={styles.authContainer}>
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={styles.authBox}
-      >
+      <div className={styles.authBox}>
         <div className={styles.authHeader}>
           <Link href="/" className={styles.backLink}>← Back</Link>
           <h1>Join Stag'd</h1>
@@ -169,18 +163,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <AnimatePresence>
-            {error && (
-              <motion.p 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className={styles.errorText}
-              >
-                ⚠ {error}
-              </motion.p>
-            )}
-          </AnimatePresence>
+          {error && <p className={styles.errorText}>⚠ {error}</p>}
 
           <button
             type="submit"
@@ -199,7 +182,7 @@ export default function SignupPage() {
         <p className={styles.authFooter}>
           Already have an account? <Link href="/auth/login">Login</Link>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

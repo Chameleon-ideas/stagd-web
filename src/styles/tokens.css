@@ -45,7 +45,7 @@
   --font-display:   'Anton', Impact, 'Franklin Gothic Medium', sans-serif;
   --font-body:      'DM Sans', system-ui, sans-serif;
   --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
-  --font-editorial: 'Playfair Display', Georgia, serif;
+  --font-editorial: Georgia, 'Times New Roman', serif;
 
   /* ── Typography: Scale ───────────────────────────────── */
   --text-hero:     clamp(80px, 10vw, 120px);  /* Event titles, page heroes */

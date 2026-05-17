@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Palette, User, Check, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import styles from './RolePickerModal.module.css';
@@ -63,12 +62,7 @@ export default function RolePickerModal({ onComplete }: Props) {
 
   return (
     <div className={styles.overlay}>
-      <motion.div
-        className={styles.modal}
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <div className={styles.modal}>
         <div className={styles.header}>
           <p className={styles.eyebrow}>// Welcome to Stag'd</p>
           <h1 className={styles.title}>How do you want<br />to show up?</h1>
@@ -107,18 +101,7 @@ export default function RolePickerModal({ onComplete }: Props) {
           </button>
         </div>
 
-        <AnimatePresence>
-          {error && (
-            <motion.p
-              className={styles.error}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
+        {error && <p className={styles.error}>{error}</p>}
 
         <button
           className="btn btn-primary btn-lg w-full"
@@ -133,7 +116,7 @@ export default function RolePickerModal({ onComplete }: Props) {
             </span>
           )}
         </button>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import { gsap } from '@/lib/gsap';
 import styles from './HeroEQ.module.css';
 
 /** Number of EQ bars rendered */

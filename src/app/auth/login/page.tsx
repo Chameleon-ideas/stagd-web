@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, ArrowRight, Mail } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import styles from './login.module.css';
@@ -53,12 +52,7 @@ export default function LoginPage() {
 
   return (
     <div className={styles.authContainer}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={styles.authBox}
-      >
+      <div className={styles.authBox}>
         <div className={styles.authHeader}>
           <Link href="/" className={styles.backLink}>← Back</Link>
           <h1>Welcome back</h1>
@@ -97,11 +91,9 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <AnimatePresence mode="wait">
-          {mode === 'password' ? (
-            <motion.form
+        {mode === 'password' ? (
+          <form
               key="password"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onSubmit={handlePasswordSubmit}
               className={styles.authForm}
             >
@@ -130,30 +122,23 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-              <AnimatePresence>
-                {error && (
-                  <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className={styles.errorText}>
-                    ⚠ {error}
-                  </motion.p>
-                )}
-              </AnimatePresence>
+              {error && <p className={styles.errorText}>⚠ {error}</p>}
               <button type="submit" className="btn btn-primary btn-lg w-full" disabled={isSubmitting} style={{ marginTop: 'var(--space-2)' }}>
                 {isSubmitting ? 'Signing in...' : <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Sign in <ArrowRight size={18} /></span>}
               </button>
-            </motion.form>
+            </form>
           ) : (
-            <motion.form
+            <form
               key="magic"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onSubmit={handleMagicSubmit}
               className={styles.authForm}
             >
               {magicSent ? (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '16px 0' }}>
+                <div style={{ textAlign: 'center', padding: '16px 0', animation: 'formIn 0.2s ease both' }}>
                   <Mail size={32} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.6 }} />
                   <p style={{ fontWeight: 600, marginBottom: '6px' }}>Check your inbox</p>
                   <p style={{ fontSize: '13px', color: 'var(--text-faint)' }}>We sent a login link to <strong>{email}</strong>. Click it to sign in.</p>
-                </motion.div>
+                </div>
               ) : (
                 <>
                   <div className={styles.formGroup}>
@@ -164,21 +149,14 @@ export default function LoginPage() {
                       required className="input"
                     />
                   </div>
-                  <AnimatePresence>
-                    {error && (
-                      <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className={styles.errorText}>
-                        ⚠ {error}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
+                  {error && <p className={styles.errorText}>⚠ {error}</p>}
                   <button type="submit" className="btn btn-primary btn-lg w-full" disabled={isSubmitting} style={{ marginTop: 'var(--space-2)' }}>
                     {isSubmitting ? 'Sending...' : <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Send login link <ArrowRight size={18} /></span>}
                   </button>
                 </>
               )}
-            </motion.form>
+            </form>
           )}
-        </AnimatePresence>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -216,7 +194,7 @@ export default function LoginPage() {
         <p className={styles.authFooter}>
           Don't have an account? <Link href="/auth/signup">Sign up</Link>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

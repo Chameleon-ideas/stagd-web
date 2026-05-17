@@ -1,12 +1,9 @@
 'use client';
 
 import { useRef } from 'react';
-import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import styles from './StickyStack.module.css';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface StickyStackProps {
   children: React.ReactNode[];

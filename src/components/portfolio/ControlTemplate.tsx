@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import gsap from 'gsap';
+import { gsap } from '@/lib/gsap';
 import { X, ZoomIn, Maximize2, ChevronLeft, ChevronRight, ChevronDown, Mail, UserPlus, Heart, Star, User } from 'lucide-react';
 import { CommissionEnquiry } from './CommissionEnquiry';
 import { FollowAuthModal } from './FollowAuthModal';

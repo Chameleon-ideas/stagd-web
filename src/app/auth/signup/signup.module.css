@@ -1,3 +1,6 @@
+@keyframes boxIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes errorIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
 .authContainer {
   min-height: calc(100vh - 60px);
   display: flex;
@@ -10,6 +13,7 @@
 }
 
 .authBox {
+  animation: boxIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   width: 100%;
   max-width: 600px;
   background-color: var(--bg-surface);
@@ -179,6 +183,7 @@
 }
 
 .errorText {
+  animation: errorIn 0.15s ease both;
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--color-red);

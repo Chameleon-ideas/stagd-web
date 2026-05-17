@@ -10,7 +10,6 @@ import { getViewingConv } from '@/lib/viewState';
 import { StagdLogo } from './StagdLogo';
 import { CreateModal } from './CreateModal';
 import { BugReportModal } from './BugReportModal';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import styles from './Header.module.css';
 
@@ -109,15 +108,8 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
         <div className={styles.actions}>
           <div className={styles.headerMeta}>VOL. 01 // KHI</div>
 
-          <AnimatePresence mode="wait">
-            {isMounted && !isLoading && (
-              <motion.div
-                key="auth-section"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className={styles.authWrapper}
-              >
+          {isMounted && !isLoading && (
+              <div className={styles.authWrapper}>
                 {user && (
                   <button
                     className={styles.createBtn}
@@ -181,9 +173,8 @@ export function Header({ transparent: propTransparent }: HeaderProps) {
                     </Link>
                   </div>
                 )}
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
 
           {/* Mobile Toggle */}
           <button

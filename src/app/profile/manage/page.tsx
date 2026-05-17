@@ -42,7 +42,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
-import gsap from 'gsap';
+import { gsap } from '@/lib/gsap';
 import { useGSAP } from '@gsap/react';
 import {
   getMyPortfolio,

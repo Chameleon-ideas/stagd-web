@@ -1,11 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 /* ────────────────────────────────────────────────────────────
    GSAPEntrance

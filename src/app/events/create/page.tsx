@@ -6,7 +6,7 @@ import { X, ImageIcon, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import styles from './create.module.css';
-import gsap from 'gsap';
+import { gsap } from '@/lib/gsap';
 import { useGSAP } from '@gsap/react';
 
 const EVENT_TYPES = [
