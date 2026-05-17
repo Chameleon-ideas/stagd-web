@@ -82,6 +82,17 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const [localReviews, setLocalReviews] = useState<any[]>(profile.reviews || []);
 
   const { user } = useAuth();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(max-width: 1024px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
+
 
   useEffect(() => {
     if (!user) return;
@@ -579,7 +590,11 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
 
       {/* ── RIGHT SECTION: THE STAGE ── */}
       {/* ── RIGHT SECTION: THE STAGE ── */}
-      <main className={styles.stage} ref={stageRef} data-lenis-prevent>
+      <main 
+        className={styles.stage} 
+        ref={stageRef} 
+        {...(!isMobile ? { 'data-lenis-prevent': true } : {})}
+      >
         {/* ── REVIEWS DROPDOWN (NEW TOP POSITION) ── */}
         <section className={styles.reviewsDropdown}>
           <button

@@ -719,9 +719,20 @@
   .controlPane {
     width: 100%;
     height: auto;
+    position: relative; /* Disable sticky position on mobile */
+    top: 0;             /* Reset sticky top offset */
     border-right: none;
     border-bottom: 1.5px solid var(--border-color);
     background-image: none;
+    flex: none;
+    overflow: visible;
+  }
+
+  .controlContent {
+    flex: none;
+    overflow: visible;
+    height: auto;
+    padding: var(--space-6) var(--space-4);
   }
   
   .stage {
@@ -1181,6 +1192,7 @@
   right: 20px;
   z-index: 1000;
   flex-direction: column;
+  align-items: flex-end;
   gap: 12px;
 }
 
@@ -1220,6 +1232,9 @@
   .stage {
     padding: 0; /* Full bleed images */
     gap: 4px; /* Hairline more gap */
+    flex: none;
+    overflow-y: visible;
+    height: auto;
   }
 
   .projectBlock {

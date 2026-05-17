@@ -705,6 +705,20 @@
     border-bottom: 1px solid var(--border-color);
     height: auto;
     padding-top: 0;
+    overflow: visible;
+  }
+
+  .sidebarContent {
+    flex: none;
+    height: auto;
+    overflow: visible;
+    padding: var(--space-6) var(--gutter);
+  }
+
+  .sidebarScrollArea {
+    flex: none;
+    height: auto;
+    overflow-y: visible;
   }
 
   .page {
@@ -713,12 +727,17 @@
   }
 
   .resultsPane {
+    flex: none;
     height: auto;
     padding-top: 0;
+    overflow: visible;
   }
 
   .resultsScrollArea {
-    overflow: visible;
+    flex: none;
+    height: auto;
+    overflow-y: visible;
+    padding: var(--space-4) var(--space-6);
   }
 
   .uniformGrid {

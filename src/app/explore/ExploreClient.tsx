@@ -33,6 +33,17 @@ export default function ExploreClient({
 }) {
   const router = useRouter();
   const { user } = useAuth();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(max-width: 768px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
+
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [filters, setFilters] = useState<any>({
@@ -124,7 +135,10 @@ export default function ExploreClient({
         <div className={styles.sidebarContent}>
           <h1 className={styles.sidebarTitle}>EXPLORE</h1>
 
-          <div className={styles.sidebarScrollArea} data-lenis-prevent>
+          <div 
+            className={styles.sidebarScrollArea} 
+            {...(!isMobile ? { 'data-lenis-prevent': true } : {})}
+          >
             {/* Search Bar */}
             <div className={styles.searchContainer}>
               <div className={styles.searchInputWrapper}>
