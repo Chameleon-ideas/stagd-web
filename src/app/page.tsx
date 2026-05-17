@@ -68,7 +68,7 @@ export default async function HomePage() {
                         <input
                           type="text"
                           name="query"
-                          placeholder="SEARCH ARTISTS, EVENTS, OR DISCIPLINE..."
+                          placeholder="SEARCH CREATIVES, EVENTS, OR DISCIPLINE..."
                           className={styles.heroSearchInput}
                           aria-label="Search creatives and events"
                         />
