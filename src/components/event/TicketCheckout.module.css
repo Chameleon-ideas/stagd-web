@@ -55,7 +55,7 @@
 
 .stepTag {
   font-family: var(--font-mono);
-  font-size: var(--text-tag);
+  font-size: var(--text-small);
   text-transform: uppercase;
   color: var(--text-muted);
   letter-spacing: var(--tracking-tag);

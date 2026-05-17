@@ -97,7 +97,7 @@ h3 { font-size: var(--text-h2); }
 }
 
 .text-body     { font-size: var(--text-body); line-height: var(--leading-normal); }
-.text-small    { font-size: var(--text-small); }
+.text-small,
 .text-tag      {
   font-family: var(--font-mono);
   font-size: var(--text-small);

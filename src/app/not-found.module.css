@@ -14,7 +14,7 @@
 
 .code {
   font-family: var(--font-mono);
-  font-size: var(--text-caption);
+  font-size: var(--text-small);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--color-yellow);

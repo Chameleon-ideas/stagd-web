@@ -106,8 +106,8 @@
   font-weight: 900;
   text-transform: uppercase;
   color: var(--text);
-  line-height: 0.85;
-  letter-spacing: -0.04em;
+  line-height: var(--leading-snug, 0.95);
+  letter-spacing: var(--tracking-normal, 0);
   margin: var(--space-4) 0;
 }
 
@@ -801,7 +801,7 @@
 
 .onboardingEyebrow {
   font-family: var(--font-mono);
-  font-size: var(--text-tag);
+  font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: var(--tracking-tag);
   color: var(--color-yellow);

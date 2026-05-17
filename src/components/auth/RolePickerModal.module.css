@@ -38,7 +38,7 @@
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: var(--text-tag);
+  font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: var(--tracking-tag);
   color: var(--text-muted);

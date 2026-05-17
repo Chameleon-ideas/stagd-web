@@ -4,192 +4,196 @@
    ============================================================ */
 
 :root {
-    /* ── Colour: Foundations ──────────────────────────────── */
-    --color-yellow: #FFDE0D;
-    /* Signal Yellow — e-stamp, price, active */
-    --color-yellow-dark: #D4B800;
-    /* Hover on yellow */
-    --color-ink: #121212;
-    /* Ink Black — dark mode, high-impact */
-    --color-white: #F5F2EA;
-    /* Warm near-white beige — replaces pure white across the platform */
+        /* ── Colour: Foundations ──────────────────────────────── */
+        --color-yellow: #FFDE0D;
+        /* Signal Yellow — e-stamp, price, active */
+        --color-yellow-dark: #D4B800;
+        /* Hover on yellow */
+        --color-ink: #121212;
+        /* Ink Black — dark mode, high-impact */
+        --color-white: #F5F2EA;
+        /* Warm near-white beige — replaces pure white across the platform */
 
-    /* ── Colour: Event Accents ───────────────────────────── */
-    --color-red: #E63946;
-    /* Poster Red — Concert / Music */
-    --color-cyan: #1CAEE5;
-    /* Sky Cyan — Workshop / Class / Open */
-    --color-green: #649839;
-    /* Karachi Green — Community / Music */
-    --color-orange: #FF5A1F;
-    /* Market Orange — Markets / Photography */
-    --color-lime: #D6F23B;
-    /* Civic Lime — Outdoor / Dance / Pottery */
+        /* ── Colour: Event Accents ───────────────────────────── */
+        --color-red: #E63946;
+        /* Poster Red — Concert / Music */
+        --color-cyan: #1CAEE5;
+        /* Sky Cyan — Workshop / Class / Open */
+        --color-green: #649839;
+        /* Karachi Green — Community / Music */
+        --color-orange: #FF5A1F;
+        /* Market Orange — Markets / Photography */
+        --color-lime: #D6F23B;
+        /* Civic Lime — Outdoor / Dance / Pottery */
 
-    /* ── Colour: Surfaces / Neutrals ─────────────────────── */
-    --color-cream: #F5F2EA;
-    /* Primary background (White) */
-    --color-paper: #F5F2EA;
-    /* Card / app background */
-    --color-newsprint: #F5F5F5;
-    /* Keep secondary surface slightly off-white for depth if needed, or white if strictly asked */
-    --color-grey: #666666;
-    /* Labels / metadata */
+        /* ── Colour: Surfaces / Neutrals ─────────────────────── */
+        --color-cream: #F5F2EA;
+        /* Primary background (White) */
+        --color-paper: #F5F2EA;
+        /* Card / app background */
+        --color-newsprint: #F5F5F5;
+        /* Keep secondary surface slightly off-white for depth if needed, or white if strictly asked */
+        --color-grey: #666666;
+        /* Labels / metadata */
 
-    /* ── Semantic aliases (light mode) ───────────────────── */
-    --bg: var(--color-cream);
-    --bg-rgb: 255, 255, 255;
-    --bg-surface: var(--color-paper);
-    --bg-raised: var(--color-newsprint);
-    --text: var(--color-ink);
-    --text-muted: var(--color-grey);
-    --text-accent: #B89000;
-    /* High-contrast gold for light mode accessibility */
-    --text-faint: #999390;
-    --grid-color: rgba(17, 17, 17, 0.04);
+        /* ── Semantic aliases (light mode) ───────────────────── */
+        --bg: var(--color-cream);
+        --bg-rgb: 255, 255, 255;
+        --bg-surface: var(--color-paper);
+        --bg-raised: var(--color-newsprint);
+        --text: var(--color-ink);
+        --text-muted: var(--color-grey);
+        --text-accent: #B89000;
+        /* High-contrast gold for light mode accessibility */
+        --text-faint: #999390;
+        --grid-color: rgba(17, 17, 17, 0.04);
 
-    /* ── Colour: States ──────────────────────────────────── */
-    --color-error: var(--color-red);
-    --color-success: var(--color-green);
+        /* ── Colour: States ──────────────────────────────────── */
+        --color-error: var(--color-red);
+        --color-success: var(--color-green);
 
-    /* ── Per-page accent (overridden by artist profile) ──── */
-    --accent: var(--color-yellow);
+        /* ── Per-page accent (overridden by artist profile) ──── */
+        --accent: var(--color-yellow);
 
-    /* ── Typography: Families ────────────────────────────── */
-    --font-display: 'Anton', Impact, 'Franklin Gothic Medium', sans-serif;
-    --font-body: 'DM Sans', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-    --font-editorial: Georgia, 'Times New Roman', serif;
+        /* ── Typography: Families ────────────────────────────── */
+        --font-display: 'Anton', Impact, 'Franklin Gothic Medium', sans-serif;
+        --font-body: 'DM Sans', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        --font-editorial: Georgia, 'Times New Roman', serif;
 
-    /* ── Typography: Scale ───────────────────────────────── */
-    --text-display: clamp(49px, 6vw, 90px);
-    /* 56px / 3.500rem */
-    --text-h1: clamp(36px, 4vw, 46px);
-    /* 36px / 2.313rem */
-    --text-h2: clamp(28px, 2vw, 36px);
-    /* 24px / 1.500rem */
-    --text-body: 18px;
-    /* 16px / 1.000rem */
-    --text-small: 12px;
-    /* 12px / 0.688rem */
+        /* ── Typography: Scale ───────────────────────────────── */
+        --text-display: clamp(70px, 6vw, 90px);
+        /* 56px / 3.500rem */
+        --text-h1: clamp(36px, 4vw, 46px);
+        /* 36px / 2.313rem */
+        --text-subhead: clamp(20px, 2.5vw, 24px);
+        /* 24px / 1.500rem */
+        --text-h2: clamp(28px, 2vw, 36px);
+        /* 24px / 1.500rem */
+        --text-large: 22px;
+        /* 22px / 1.375rem */
+        --text-body: clamp(16px, 2vw, 18px);
+        /* 16px / 1.000rem */
+        --text-small: 12px;
+        /* 12px / 0.688rem */
 
-    /* ── Typography: Line Heights ────────────────────────── */
-    --leading-tight: 0.85;
-    /* Display headings — brand spec */
-    --leading-snug: 0.95;
-    /* Subheads / Card titles */
-    --leading-normal: 1.65;
-    /* Body — brand spec */
-    --leading-loose: 1.8;
+        /* ── Typography: Line Heights ────────────────────────── */
+        --leading-tight: 0.85;
+        /* Display headings — brand spec */
+        --leading-snug: 0.95;
+        /* Subheads / Card titles */
+        --leading-normal: 1.65;
+        /* Body — brand spec */
+        --leading-loose: 1.8;
 
-    /* ── Typography: Letter Spacing ─────────────────────── */
-    --tracking-tight: -0.02em;
-    --tracking-normal: 0;
-    --tracking-wide: 0.08em;
-    --tracking-tag: 0.1em;
-    /* Chips, tags — brand spec */
-    --tracking-wider: 0.15em;
+        /* ── Typography: Letter Spacing ─────────────────────── */
+        --tracking-tight: -0.02em;
+        --tracking-normal: 0;
+        --tracking-wide: 0.08em;
+        --tracking-tag: 0.1em;
+        /* Chips, tags — brand spec */
+        --tracking-wider: 0.15em;
 
-    /* ── Spacing ─────────────────────────────────────────── */
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;
-    --space-6: 24px;
-    --space-8: 32px;
-    --space-10: 40px;
-    --space-12: 48px;
-    --space-16: 64px;
-    --space-20: 80px;
-    --space-24: 96px;
-    --space-32: 128px;
+        /* ── Spacing ─────────────────────────────────────────── */
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+        --space-16: 64px;
+        --space-20: 80px;
+        --space-24: 96px;
+        --space-32: 128px;
 
-    /* ── Border ──────────────────────────────────────────── */
-    --border-width: 1.5px;
-    /* Brand spec: 1.5px borders */
-    --border-color: var(--color-ink);
-    --border: var(--border-width) solid var(--border-color);
+        /* ── Border ──────────────────────────────────────────── */
+        --border-width: 1.5px;
+        /* Brand spec: 1.5px borders */
+        --border-color: var(--color-ink);
+        --border: var(--border-width) solid var(--border-color);
 
-    /* ── Border Radius ───────────────────────────────────── */
-    --radius-none: 0px;
-    /* EVERYTHING — no exceptions */
+        /* ── Border Radius ───────────────────────────────────── */
+        --radius-none: 0px;
+        /* EVERYTHING — no exceptions */
 
-    /* ── Motion ──────────────────────────────────────────── */
-    --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    /* Expo Out — primary */
-    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+        /* ── Motion ──────────────────────────────────────────── */
+        --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        /* Expo Out — primary */
+        --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-    --duration-ui: 240ms;
-    /* Micro UI: hover, tap feedback */
-    --duration-card: 320ms;
-    /* Card entrance / list reveal */
-    --duration-page: 400ms;
-    /* Page transitions */
-    --stagger-item: 40ms;
-    /* Per-item stagger in lists */
+        --duration-ui: 240ms;
+        /* Micro UI: hover, tap feedback */
+        --duration-card: 320ms;
+        /* Card entrance / list reveal */
+        --duration-page: 400ms;
+        /* Page transitions */
+        --stagger-item: 40ms;
+        /* Per-item stagger in lists */
 
-    /* ── Z-index ─────────────────────────────────────────── */
-    --z-base: 0;
-    --z-raised: 10;
-    --z-dropdown: 100;
-    --z-overlay: 200;
-    --z-modal: 300;
-    --z-toast: 400;
-    --z-top: 500;
+        /* ── Z-index ─────────────────────────────────────────── */
+        --z-base: 0;
+        --z-raised: 10;
+        --z-dropdown: 100;
+        --z-overlay: 200;
+        --z-modal: 300;
+        --z-toast: 400;
+        --z-top: 500;
 
-    /* ── Layout ──────────────────────────────────────────── */
-    --max-width: 1200px;
-    /* Brand spec: 1200px */
-    --gutter: clamp(16px, 4vw, 48px);
-    --column-gap: 24px;
+        /* ── Layout ──────────────────────────────────────────── */
+        --max-width: 1200px;
+        /* Brand spec: 1200px */
+        --gutter: clamp(16px, 4vw, 48px);
+        --column-gap: 24px;
 
-    /* ── Diagonal Stripe ─────────────────────────────────── */
-    /* Used on fallback posters and urgency overlays */
-    --stripe-size: 28px;
-    --stripe-angle: 135deg;
-    --stripe-light: rgba(255, 255, 255, 0.12);
-    /* On dark/colour bg */
-    --stripe-dark: rgba(17, 17, 17, 0.06);
-    /* On cream/light bg */
+        /* ── Diagonal Stripe ─────────────────────────────────── */
+        /* Used on fallback posters and urgency overlays */
+        --stripe-size: 28px;
+        --stripe-angle: 135deg;
+        --stripe-light: rgba(255, 255, 255, 0.12);
+        /* On dark/colour bg */
+        --stripe-dark: rgba(17, 17, 17, 0.06);
+        /* On cream/light bg */
 
-    --stripe-bg-light: repeating-linear-gradient(var(--stripe-angle),
-            transparent,
-            transparent calc(var(--stripe-size) - 1.5px),
-            var(--stripe-light) calc(var(--stripe-size) - 1.5px),
-            var(--stripe-light) var(--stripe-size));
+        --stripe-bg-light: repeating-linear-gradient(var(--stripe-angle),
+                        transparent,
+                        transparent calc(var(--stripe-size) - 1.5px),
+                        var(--stripe-light) calc(var(--stripe-size) - 1.5px),
+                        var(--stripe-light) var(--stripe-size));
 
-    --stripe-bg-dark: repeating-linear-gradient(var(--stripe-angle),
-            transparent,
-            transparent calc(var(--stripe-size) - 1.5px),
-            var(--stripe-dark) calc(var(--stripe-size) - 1.5px),
-            var(--stripe-dark) var(--stripe-size));
+        --stripe-bg-dark: repeating-linear-gradient(var(--stripe-angle),
+                        transparent,
+                        transparent calc(var(--stripe-size) - 1.5px),
+                        var(--stripe-dark) calc(var(--stripe-size) - 1.5px),
+                        var(--stripe-dark) var(--stripe-size));
 
-    /* ── Image Gradient Overlay ──────────────────────────── */
-    /* Applied to ALL cover images — non-negotiable */
-    --image-gradient: linear-gradient(to top,
-            rgba(17, 17, 17, 0.88) 0%,
-            rgba(17, 17, 17, 0.5) 40%,
-            rgba(17, 17, 17, 0) 60%);
+        /* ── Image Gradient Overlay ──────────────────────────── */
+        /* Applied to ALL cover images — non-negotiable */
+        --image-gradient: linear-gradient(to top,
+                        rgba(17, 17, 17, 0.88) 0%,
+                        rgba(17, 17, 17, 0.5) 40%,
+                        rgba(17, 17, 17, 0) 60%);
 }
 
 /* ── Dark Mode ──────────────────────────────────────────── */
 [data-theme="dark"] {
-    --bg: var(--color-ink);
-    --bg-rgb: 17, 17, 17;
-    --bg-surface: #1A1A1A;
-    --bg-raised: #222222;
-    --text: #F4F1E6;
-    --text-muted: #BDB7B3;
-    --text-accent: var(--color-yellow);
-    /* Signal yellow is fine on dark bg */
-    --text-faint: #8E8884;
-    --border-color: rgba(244, 241, 230, 0.22);
-    --grid-color: rgba(244, 241, 230, 0.03);
-    --stripe-dark: rgba(244, 241, 230, 0.04);
-    --stripe-bg-dark: repeating-linear-gradient(var(--stripe-angle),
-            transparent,
-            transparent calc(var(--stripe-size) - 1.5px),
-            rgba(244, 241, 230, 0.04) calc(var(--stripe-size) - 1.5px),
-            rgba(244, 241, 230, 0.04) var(--stripe-size));
+        --bg: var(--color-ink);
+        --bg-rgb: 17, 17, 17;
+        --bg-surface: #1A1A1A;
+        --bg-raised: #222222;
+        --text: #F4F1E6;
+        --text-muted: #BDB7B3;
+        --text-accent: var(--color-yellow);
+        /* Signal yellow is fine on dark bg */
+        --text-faint: #8E8884;
+        --border-color: rgba(244, 241, 230, 0.22);
+        --grid-color: rgba(244, 241, 230, 0.03);
+        --stripe-dark: rgba(244, 241, 230, 0.04);
+        --stripe-bg-dark: repeating-linear-gradient(var(--stripe-angle),
+                        transparent,
+                        transparent calc(var(--stripe-size) - 1.5px),
+                        rgba(244, 241, 230, 0.04) calc(var(--stripe-size) - 1.5px),
+                        rgba(244, 241, 230, 0.04) var(--stripe-size));
 }

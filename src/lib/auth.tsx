@@ -34,17 +34,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const loadProfile = async (userId: string): Promise<User | null> => {
-    const [{ data }, { data: { user: authUser } }] = await Promise.all([
-      supabase.from('profiles').select('id, full_name, username, role, avatar_url, city, phone').eq('id', userId).single(),
-      supabase.auth.getUser(),
-    ]);
-    if (!data) return null;
+  const loadProfile = async (userId: string, email: string): Promise<User | null> => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, username, role, avatar_url, city, phone')
+      .eq('id', userId)
+      .single();
+    if (error || !data) return null;
     return {
       id: data.id,
       full_name: data.full_name,
       username: data.username,
-      email: authUser?.email ?? '',
+      email: email,
       avatar_url: data.avatar_url,
       role: data.role,
       city: data.city ?? undefined,
@@ -53,20 +54,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const profile = await loadProfile(session.user.id);
-        setUser(profile);
-      }
-      setIsLoading(false);
-    });
+    let isInitial = true;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        const profile = await loadProfile(session.user.id);
+        const profile = await loadProfile(session.user.id, session.user.email ?? '');
         setUser(profile);
       } else {
         setUser(null);
+      }
+      if (isInitial) {
+        isInitial = false;
+        setIsLoading(false);
       }
     });
 
@@ -142,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
-      const profile = await loadProfile(session.user.id);
+      const profile = await loadProfile(session.user.id, session.user.email ?? '');
       setUser(profile);
     }
   };
