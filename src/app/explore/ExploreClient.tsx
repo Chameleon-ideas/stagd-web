@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ChevronDown, MapPin, Briefcase, Filter, Search } from 'lucide-react';
 import { searchArtists, searchEvents } from '@/lib/api';
 import { formatPKR, formatDate } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 import styles from './page.module.css';
 
 // ── CONSTANTS ────────────────────────────────────────────────
@@ -31,6 +32,7 @@ export default function ExploreClient({
   initialDiscipline?: string;
 }) {
   const router = useRouter();
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [filters, setFilters] = useState<any>({
@@ -113,8 +115,10 @@ export default function ExploreClient({
     }
   };
 
+  const headerHeight = user ? 88 : 60;
+
   return (
-    <div className={styles.exploreMain}>
+    <div className={styles.exploreMain} style={{ '--header-height': `${headerHeight}px` } as any}>
       {/* ── LEFT PANE: CONTROL ────────────────────────── */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarContent}>
@@ -127,7 +131,7 @@ export default function ExploreClient({
                 <Search size={16} className={styles.searchIcon} />
                 <input
                   type="text"
-                  placeholder="SEARCH ARCHIVE..."
+                  placeholder="SEARCH..."
                   className={styles.searchInput}
                   value={filters.query}
                   onChange={e => setFilters((prev: any) => ({ ...prev, query: e.target.value }))}
@@ -264,7 +268,7 @@ export default function ExploreClient({
           <div className={styles.sidebarFooter}>
             <div className={styles.statusLine}>
               <span className={styles.statusDot} />
-              {loading ? 'SYNCING ARCHIVE...' : `${results.total} ${activeTab === 'creatives' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
+              {loading ? 'LOADING...' : `${results.total} ${activeTab === 'creatives' ? 'CREATIVES' : activeTab.toUpperCase()} ONLINE`}
             </div>
 
             {activeTab === 'events' && (

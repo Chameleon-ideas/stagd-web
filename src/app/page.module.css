@@ -7,8 +7,9 @@
 .page {
   overflow-x: hidden;
   width: 100%;
-  background-color: #F4F1E6; /* Warm Cream background as default */
-  color: #111111;
+  background-color: #F4F1E6;
+  /* Warm Cream background as default */
+  color: #121212;
   position: relative;
 }
 
@@ -27,7 +28,7 @@
 /* ── Shared Utilities & Labels ───────────────────────────── */
 .navLabelDark {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -37,7 +38,7 @@
 
 .monoLabelYellow {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -52,7 +53,7 @@
 /* ── HERO ──────────────────────────────────────────────────── */
 .hero {
   min-height: 100vh;
-  background-color: #111111;
+  background-color: #121212;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -70,9 +71,12 @@
 
 .heroBgImage {
   object-fit: cover;
-  filter: blur(4px); /* Soft photographic depth-of-field blur */
-  transform: scale(1.03); /* Scaled up slightly to mask minor blurred edges */
-  opacity: 0.28; /* Rich visual texture, perfectly supporting white foreground text */
+  filter: blur(4px);
+  /* Soft photographic depth-of-field blur */
+  transform: scale(1.03);
+  /* Scaled up slightly to mask minor blurred edges */
+  opacity: 0.28;
+  /* Rich visual texture, perfectly supporting white foreground text */
 }
 
 .heroBgOverlay {
@@ -97,9 +101,10 @@
 
 .heroHeadline {
   font-family: var(--font-display);
-  font-size: clamp(56px, 7vw, 110px);
+  font-size: var(--text-display);
   line-height: 0.95;
-  letter-spacing: 0.018em; /* Breathable premium letter spacing */
+  letter-spacing: 0.018em;
+  /* Breathable premium letter spacing */
   text-transform: uppercase;
   color: #ffffff;
   margin: 0 auto 20px auto;
@@ -109,7 +114,7 @@
 
 .heroEditorialSub {
   font-family: var(--font-mono);
-  font-size: clamp(12px, 1.3vw, 14px);
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.2em;
   color: #FFDE0D;
@@ -154,7 +159,7 @@
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  color: #111111;
+  color: #121212;
   opacity: 0.4;
   pointer-events: none;
   z-index: 2;
@@ -167,28 +172,30 @@
   border: none;
   padding: 0 16px 0 52px;
   font-family: var(--font-body);
-  font-size: 15px;
-  color: #111111;
+  font-size: var(--text-body);
+  color: #121212;
   outline: none;
   border-radius: 0;
 }
+
 .heroSearchInput::placeholder {
   color: rgba(17, 17, 17, 0.4);
 }
 
 .heroSearchBtn {
   background-color: #FFDE0D;
-  color: #111111;
+  color: #121212;
   border: none;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--text-body);
   letter-spacing: 0.1em;
   padding: 0 28px;
   cursor: pointer;
   border-radius: 0;
   transition: opacity 0.2s;
 }
+
 .heroSearchBtn:hover {
   opacity: 0.9;
 }
@@ -204,7 +211,7 @@
 
 .quickFilterLabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.45);
@@ -219,7 +226,7 @@
 
 .quickFilterLink {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: var(--text-body);
   font-weight: 500;
   color: #ffffff;
   text-decoration: none;
@@ -228,6 +235,7 @@
   border-radius: 0;
   transition: background-color 0.2s, border-color 0.2s;
 }
+
 .quickFilterLink:hover {
   border-color: #FFDE0D;
   background-color: rgba(255, 222, 13, 0.05);
@@ -239,7 +247,7 @@
   justify-content: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.15em;
   color: #FFDE0D;
@@ -250,11 +258,12 @@
   width: 6px;
   height: 6px;
   background-color: #FFDE0D;
-  border-radius: 0; /* Strict design system rule: no circle */
+  border-radius: 0;
+  /* Strict design system rule: no circle */
 }
 
 .directivesSection {
-  background-color: #F4F1E6;
+  background-color: #ffffff;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   width: 100%;
   min-height: 100vh;
@@ -273,9 +282,10 @@
 
 .directivesSectionTitle {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5vw, 76px); /* Standardized H2 typescale */
+  font-size: var(--text-h1);
   line-height: 1.0;
-  letter-spacing: 0.012em; /* Breathe beautifully */
+  letter-spacing: 0.012em;
+  /* Breathe beautifully */
   text-transform: uppercase;
   margin: 0;
 }
@@ -283,11 +293,11 @@
 .directivesTable {
   display: flex;
   flex-direction: column;
-  border-top: 1.5px solid #111111;
+  border-top: 1.5px solid #121212;
 }
 
 .directiveRow {
-  border-bottom: 1.5px solid #111111;
+  border-bottom: 1.5px solid #121212;
   transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -307,7 +317,7 @@
 
 .dirMono {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.1em;
   color: rgba(17, 17, 17, 0.45);
@@ -315,7 +325,7 @@
 
 .dirHeadline {
   font-family: var(--font-display);
-  font-size: clamp(32px, 3.5vw, 48px); /* Standardized H3 typescale */
+  font-size: var(--text-h2);
   line-height: 1.05;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -330,7 +340,7 @@
 
 .dirDescription {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.65;
   color: rgba(17, 17, 17, 0.75);
   max-width: 520px;
@@ -339,16 +349,17 @@
 
 .dirLink {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #111111;
+  color: #121212;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
+
 .dirLink:hover {
   text-decoration: underline;
 }
@@ -369,13 +380,14 @@
 .directiveRow[data-pillar="green"] .dirGraphicStripe {
   background-color: #649839;
 }
+
 .directiveRow[data-pillar="dark"] .dirGraphicStripe {
-  background-color: #111111;
+  background-color: #121212;
 }
 
 /* Hover effects */
 .directiveRow:hover {
-  background-color: #ECE6D5;
+  background-color: #ffffff;
 }
 
 .showcaseSection {
@@ -409,7 +421,7 @@
 
 .showcaseTitle {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5vw, 76px); /* Standardized H2 typescale */
+  font-size: var(--text-h1);
   line-height: 1.0;
   letter-spacing: 0.012em;
   text-transform: uppercase;
@@ -419,7 +431,7 @@
 
 .showcaseLink {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -427,6 +439,7 @@
   text-decoration: none;
   transition: opacity 0.2s;
 }
+
 .showcaseLink:hover {
   opacity: 0.8;
 }
@@ -449,12 +462,13 @@
   display: flex;
   flex-direction: column;
   text-decoration: none;
-  background-color: #111111;
+  background-color: #121212;
   color: #ffffff;
   border-radius: 0;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .spotlightCard:hover {
   transform: translateY(-4px);
 }
@@ -482,7 +496,7 @@
 .spotlightFallbackImage {
   position: absolute;
   inset: 0;
-  background-color: #111111;
+  background-color: #121212;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -490,7 +504,7 @@
 
 .spotlightFallbackText {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: var(--text-h2);
   letter-spacing: 0.015em;
   color: rgba(255, 255, 255, 0.15);
 }
@@ -500,10 +514,10 @@
   top: 24px;
   left: 24px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #111111;
+  color: #121212;
   background-color: #FFDE0D;
   padding: 6px 14px;
   border-radius: 0;
@@ -522,7 +536,7 @@
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.55);
@@ -530,7 +544,7 @@
 
 .spotlightTitle {
   font-family: var(--font-display);
-  font-size: clamp(28px, 3.2vw, 42px); /* Standardized H3 typescale */
+  font-size: var(--text-h2);
   line-height: 1.05;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -540,7 +554,7 @@
 
 .spotlightDesc {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
@@ -548,7 +562,7 @@
 
 .spotlightCta {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -565,7 +579,7 @@
 
 .ledgerHeader {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: rgba(255, 255, 255, 0.6);
@@ -589,6 +603,7 @@
   color: #ffffff;
   transition: background-color 0.2s, border-color 0.2s;
 }
+
 .ledgerRow:hover {
   background-color: rgba(17, 17, 17, 0.6);
   border-color: #FFDE0D;
@@ -611,7 +626,7 @@
 
 .ledgerTag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -620,14 +635,14 @@
 
 .ledgerPrice {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   color: #ffffff;
 }
 
 .ledgerRowTitle {
   font-family: var(--font-display);
-  font-size: clamp(20px, 1.8vw, 24px);
+  font-size: var(--text-h2);
   line-height: 1.1;
   letter-spacing: 0.012em;
   text-transform: uppercase;
@@ -640,12 +655,12 @@
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   color: rgba(255, 255, 255, 0.5);
 }
 
 .manifestoSection {
-  background-color: #111111;
+  background-color: #121212;
   color: #ffffff;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   min-height: 100vh;
@@ -673,7 +688,7 @@
 .manifestoQuote {
   font-family: var(--font-editorial);
   font-style: italic;
-  font-size: clamp(24px, 2.6vw, 38px);
+  font-size: var(--text-h1);
   line-height: 1.4;
   color: #ffffff;
   margin: 0;
@@ -689,7 +704,7 @@
 
 .manifestoStepsLabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: rgba(255, 255, 255, 0.4);
@@ -703,7 +718,7 @@
 
 .stepNum {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: var(--text-h2);
   color: #FFDE0D;
   line-height: 0.9;
   letter-spacing: 0.01em;
@@ -717,7 +732,7 @@
 
 .stepTitle {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: var(--text-h2);
   letter-spacing: 0.015em;
   text-transform: uppercase;
   color: #ffffff;
@@ -726,7 +741,7 @@
 
 .stepDesc {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.65);
   margin: 0;
@@ -734,7 +749,7 @@
 
 /* ── 05 · ACTIVE ROSTER GRID ────────────────────────────── */
 .creativesSection {
-  background-color: #F4F1E6;
+  background-color: #ffffff;
   padding: clamp(80px, 12vh, 120px) clamp(24px, 6vw, 80px);
   width: 100%;
   min-height: 100vh;
@@ -761,131 +776,212 @@
 
 .creativesTitle {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5vw, 76px); /* Standardized H2 typescale */
+  font-size: var(--text-h1);
   line-height: 1.0;
   letter-spacing: 0.012em;
   text-transform: uppercase;
   margin: 0;
-  color: #111111;
+  color: #121212;
 }
 
 .creativesLink {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #111111;
+  color: #121212;
   text-decoration: none;
-  border-bottom: 1.5px solid #111111;
+  border-bottom: 1.5px solid #121212;
   padding-bottom: 4px;
   transition: opacity 0.2s;
 }
+
 .creativesLink:hover {
   opacity: 0.6;
 }
 
 .creativesGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  margin-left: calc(-1 * clamp(24px, 6vw, 80px));
+  margin-right: calc(-1 * clamp(24px, 6vw, 80px));
+  padding-left: clamp(24px, 6vw, 80px);
+  padding-right: clamp(24px, 6vw, 80px);
+  padding-bottom: 16px;
+  scrollbar-width: none;
+}
+
+.creativesGrid::-webkit-scrollbar {
+  display: none;
 }
 
 .creativeCard {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  width: clamp(220px, 22vw, 300px);
+  scroll-snap-align: start;
   text-decoration: none;
-  color: #111111;
-  background-color: #ECE6D5;
-  border: 1.5px solid #ECE6D5;
-  transition: border-color 0.25s var(--ease-expo), background-color 0.25s var(--ease-expo);
+  color: #121212;
+  background-color: #ffffff;
+  border: 1px solid #121212;
+  transition: transform 0.4s var(--ease-expo), background-color 0.4s var(--ease-expo), box-shadow 0.4s var(--ease-expo);
 }
+
 .creativeCard:hover {
-  border-color: #111111;
-  background-color: #F4F1E6;
+  background-color: #ffffff;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
 }
 
 .creativeImageWrap {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  background-color: #E8E4D2;
+  background-color: #ffffff;
   overflow: hidden;
-}
-
-/* Image treatment overlay gradient strictly bottom 50% */
-.creativeImageWrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(17, 17, 17, 0.75) 0%, transparent 50%);
-  pointer-events: none;
 }
 
 .creativeImage {
   object-fit: cover;
-  transition: transform 0.4s var(--ease-expo);
+  transition: transform 0.6s var(--ease-expo);
 }
+
 .creativeCard:hover .creativeImage {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 
 .creativeImageFallback {
   position: absolute;
   inset: 0;
-  background-color: #E8E4D2;
+  background-color: #ffffff;
 }
 
 .creativeHoverOverlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(255, 222, 13, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s var(--ease-expo);
   z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateY(101%);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .creativeCard:hover .creativeHoverOverlay {
+  transform: translateY(0);
+}
+
+/* Premium 2x2 Portfolio Grid Hover */
+.portfolioHoverGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 100%;
+  height: 100%;
+  background-color: #121212;
+  gap: 1px;
+  /* Hairline divider */
+}
+
+.portfolioHoverItem {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #222222;
+  transform: scale(1.1);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Staggered entry when card hovered */
+.creativeCard:hover .portfolioHoverItem {
+  transform: scale(1);
   opacity: 1;
 }
 
+.portfolioHoverItem:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.portfolioHoverItem:nth-child(2) {
+  transition-delay: 0.14s;
+}
+
+.portfolioHoverItem:nth-child(3) {
+  transition-delay: 0.18s;
+}
+
+.portfolioHoverItem:nth-child(4) {
+  transition-delay: 0.22s;
+}
+
+.portfolioHoverImg {
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.15);
+  opacity: 0.75;
+  transition: filter 0.4s var(--ease-expo), opacity 0.4s var(--ease-expo), transform 0.4s var(--ease-expo);
+}
+
+.portfolioHoverItem:hover .portfolioHoverImg {
+  filter: grayscale(0%) contrast(1.05);
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+.noPortfolioHover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-yellow);
+  padding: var(--space-4);
+  text-align: center;
+}
+
 .creativeHoverLabel {
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-small);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #111111;
+  color: #121212;
 }
 
 .creativeCardBody {
-  padding: 20px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .creativeCardHeader {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .creativeName {
   font-family: var(--font-display);
-  font-size: 20px;
-  line-height: 1.0;
+  font-size: var(--text-h2);
+  line-height: 1.1;
   letter-spacing: 0.01em;
   text-transform: uppercase;
-  color: #111111;
+  color: #121212;
   margin: 0;
 }
 
 .creativeCity {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   color: rgba(17, 17, 17, 0.45);
   margin: 0;
@@ -899,18 +995,18 @@
 
 .creativeTag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: #111111;
-  background-color: #E8E4D2;
+  color: #121212;
+  background-color: #ffffff;
   padding: 4px 10px;
   border-radius: 0;
 }
 
 /* ── 06 · HIGH-IMPACT ACTION (CTA Canvas) ────────────────── */
 .ctaCanvasSection {
-  background-color: #111111;
+  background-color: #121212;
   color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -942,16 +1038,17 @@
 
 .ctaCanvasVolume {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #FFDE0D; /* Accent volume label */
+  color: #FFDE0D;
+  /* Accent volume label */
   text-transform: uppercase;
 }
 
 .ctaCanvasHeading {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5vw, 76px); /* Standardized H2 typescale */
+  font-size: var(--text-h1);
   line-height: 1.0;
   letter-spacing: 0.015em;
   text-transform: uppercase;
@@ -970,16 +1067,18 @@
   display: inline-flex !important;
   vertical-align: middle;
   position: relative;
-  top: -2px; /* Soft visual centering adjustment */
+  top: -2px;
+  /* Soft visual centering adjustment */
 }
 
 .ctaHeadingLogo img {
-  filter: none !important; /* Force pristine white/yellow branding on black section background */
+  filter: none !important;
+  /* Force pristine white/yellow branding on black section background */
 }
 
 .ctaCanvasLeftDesc {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.6);
   max-width: 480px;
@@ -993,9 +1092,9 @@
 }
 
 .ctaCard {
-  background-color: #F4F1E6;
-  color: #111111;
-  border: 1.5px solid #111111;
+  background-color: #ffffff;
+  color: #121212;
+  border: 1.5px solid #121212;
   display: flex;
   flex-direction: column;
   box-shadow: 6px 6px 0px #FFDE0D;
@@ -1010,7 +1109,7 @@
 
 .ctaCardHeader {
   padding: 16px 24px;
-  border-bottom: 1.5px solid #111111;
+  border-bottom: 1.5px solid #121212;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1018,7 +1117,7 @@
 
 .ctaCardTag {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.1em;
   color: rgba(17, 17, 17, 0.5);
@@ -1026,10 +1125,11 @@
 
 .ctaCardAccess {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #649839; /* Success Green */
+  color: #649839;
+  /* Success Green */
 }
 
 .ctaCardBody {
@@ -1041,9 +1141,9 @@
 
 .ctaCardText {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: 1.6;
-  color: #111111;
+  color: #121212;
   margin: 0;
 }
 
@@ -1065,21 +1165,22 @@
   width: 6px;
   height: 6px;
   background-color: #FFDE0D;
-  border: 1px solid #111111;
+  border: 1px solid #121212;
 }
 
 .ctaBenefitText {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-small);
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #111111;
+  color: #121212;
 }
 
 .ctaCardFooter {
   padding: 20px 24px;
-  border-top: 1.5px solid #111111;
-  background-color: #ECE6D5; /* Slightly darker tray background */
+  border-top: 1.5px solid #121212;
+  background-color: #ffffff;
+  /* Slightly darker tray background */
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
@@ -1092,12 +1193,12 @@
   height: 48px;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #ffffff;
-  background: #111111;
-  border: 1.5px solid #111111;
+  background: #121212;
+  border: 1.5px solid #121212;
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
@@ -1107,7 +1208,7 @@
 
 .ctaBtnPrimary:hover {
   background-color: #FFDE0D;
-  color: #111111;
+  color: #121212;
 }
 
 .ctaBtnSecondary {
@@ -1117,12 +1218,12 @@
   height: 48px;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #111111;
+  color: #121212;
   background: transparent;
-  border: 1.5px solid #111111;
+  border: 1.5px solid #121212;
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
@@ -1131,22 +1232,25 @@
 }
 
 .ctaBtnSecondary:hover {
-  background-color: #111111;
+  background-color: #121212;
   color: #ffffff;
 }
 
 /* ── RESPONSIVE ────────────────────────────────────────────── */
 
 @media (max-width: 1024px) {
+
   /* Hero & Centered Container */
   .hero {
     min-height: auto;
     height: auto;
   }
+
   .heroInnerCentered {
-    padding: 160px 20px 80px 20px; /* Safe padding-top to avoid header cutoff */
+    padding: 160px 20px 80px 20px;
+    /* Safe padding-top to avoid header cutoff */
   }
-  
+
   /* Standard Page Section Padding */
   .directivesSection,
   .showcaseSection,
@@ -1161,36 +1265,43 @@
   .directivesTable {
     grid-template-columns: 1fr;
   }
+
   .directiveRowInner {
     grid-template-columns: 1fr;
     gap: 20px;
     padding: 32px 0;
   }
+
   .dirVisualCol {
     justify-content: flex-start;
   }
+
   .showcaseGrid {
     grid-template-columns: 1fr;
     gap: 32px;
   }
+
   .manifestoInner {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+
   .manifestoRight {
     border-left: none;
     padding-left: 0;
     border-top: 1.5px solid rgba(255, 255, 255, 0.1);
     padding-top: 32px;
   }
+
   .creativesGrid {
-    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
+
   .ctaCanvasInner {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+
   .ctaCardFooter {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -1198,10 +1309,13 @@
 }
 
 @media (max-width: 768px) {
+
   /* Dynamic padding on mobile */
   .heroInnerCentered {
-    padding: 160px 16px 60px 16px; /* Safe padding-top to avoid header cutoff */
+    padding: 160px 16px 60px 16px;
+    /* Safe padding-top to avoid header cutoff */
   }
+
   .directivesSection,
   .showcaseSection,
   .manifestoSection,
@@ -1209,11 +1323,12 @@
   .ctaCanvasSection {
     padding: 60px 16px;
   }
-  
+
   /* Spotlight Card on mobile */
   .spotlightContent {
     padding: 24px 16px;
   }
+
   .spotlightBadge {
     top: 16px;
     left: 16px;
@@ -1229,12 +1344,14 @@
     gap: 10px;
     box-shadow: none;
   }
+
   .heroSearchField {
     position: relative;
     width: 100%;
     display: flex;
     align-items: center;
   }
+
   .heroSearchInput {
     background-color: #ffffff;
     width: 100%;
@@ -1243,6 +1360,7 @@
     padding-left: 48px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
+
   .heroSearchIcon {
     left: 16px;
     top: 50%;
@@ -1250,50 +1368,65 @@
     z-index: 2;
     opacity: 0.5;
   }
+
   .heroSearchBtn {
     width: 100%;
     height: 48px;
-    font-size: 13px;
+    font-size: var(--text-body);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
-  
+
   /* Quick Filters spacing */
   .quickFilterItems {
     gap: 6px;
   }
+
   .quickFilterLink {
-    font-size: 12px;
+    font-size: var(--text-small);
     padding: 4px 10px;
   }
-  
-  /* Creative Cards standard 2-column editorial grid down to small viewports */
+
   .creativesGrid {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: visible;
   }
+
+  .creativeCard {
+    width: 100%;
+  }
+
   .creativeCardBody {
-    padding: 12px;
+    padding: 16px 12px;
     gap: 8px;
   }
+
   .creativeName {
-    font-size: 16px;
+    font-size: var(--text-body);
   }
-  
+
   /* CTA Canvas Heading Wrap spacing */
   .ctaCanvasHeading {
     gap: 8px;
   }
+
   .ctaCardBody {
     padding: 24px 16px;
   }
 }
 
 @media (max-width: 480px) {
+
   /* Tighten visual padding further for tiny devices */
   .heroHeadline {
     margin-bottom: 16px;
   }
-  
+
   .directiveRowInner {
     padding: 24px 0;
   }

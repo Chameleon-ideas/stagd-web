@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 
 interface ContentWrapperProps {
   children: React.ReactNode;
@@ -10,6 +11,17 @@ interface ContentWrapperProps {
 // Determines if the current path requires a viewport-locked layout (e.g. 100vh height + overflow: hidden).
 // This is critical for split-pane workstations (Explore, Messages, Artist Profiles, Event Detail)
 // so that their nested panels calculate scrolling boundaries correctly.
+function isProfileRoute(pathname: string): boolean {
+  const segments = pathname.split('/').filter(Boolean);
+  return segments.length === 1 && !['explore', 'messages', 'about', 'events', 'auth', 'terms', 'privacy'].includes(segments[0]);
+}
+
+function shouldUseZeroPaddingRoute(pathname: string): boolean {
+  if (isProfileRoute(pathname)) return true;
+  if (pathname === '/explore') return true;
+  return false;
+}
+
 function isViewportLockedRoute(pathname: string): boolean {
   // Only explicitly designated split-pane workstations are viewport-locked:
   if (pathname === '/explore') return true;
@@ -31,6 +43,8 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isLocked = isViewportLockedRoute(pathname);
+  const { user } = useAuth();
+  const headerHeight = user ? 88 : 60;
 
   // Client-side detection to bypass viewport locking on mobile viewports (<= 768px)
   // where split-panes naturally collapse into standard long scroll containers.
@@ -45,14 +59,15 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
   }, []);
 
   const shouldLock = isLocked && !isMobile;
+  const zeroPadding = shouldUseZeroPaddingRoute(pathname);
 
   return (
     <main 
       className="flex-1 flex flex-col" 
       style={{ 
-        height: shouldLock ? (isHome ? '100vh' : 'calc(100vh - 88px)') : 'auto',
-        maxHeight: shouldLock ? (isHome ? '100vh' : 'calc(100vh - 88px)') : 'none',
-        paddingTop: isHome ? '0' : '88px',
+        height: shouldLock ? (isHome || zeroPadding ? '100vh' : `calc(100vh - ${headerHeight}px)`) : 'auto',
+        maxHeight: shouldLock ? (isHome || zeroPadding ? '100vh' : `calc(100vh - ${headerHeight}px)`) : 'none',
+        paddingTop: isHome ? '0' : (zeroPadding && !isMobile ? '0' : `${headerHeight}px`),
         overflow: shouldLock ? 'hidden' : 'visible'
       }}
     >

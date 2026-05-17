@@ -22,17 +22,17 @@ export function Footer() {
       const scrollPosition = window.scrollY;
       const windowHeight = window.innerHeight;
       const totalHeight = document.documentElement.scrollHeight;
-      
+
       // Appear when the user is within 700px of the footer/bottom (i.e. close to footer)
       const closeToBottom = totalHeight - (scrollPosition + windowHeight) < 700;
-      
+
       // Also ensure we have scrolled down at least 400px
       setShowScrollBtn(closeToBottom && scrollPosition > 400);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-    
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -98,8 +98,8 @@ export function Footer() {
         </div>
 
         <div className={styles.bottomRight}>
-          <Link href="/privacy" className={styles.policyLink}>PRIVACY POLICY</Link>
-          <Link href="/terms" className={styles.policyLink}>TERMS OF SERVICE</Link>
+          <Link href="/privacy" className={styles.policyLink}>PRIVACY</Link>
+          <Link href="/terms" className={styles.policyLink}>TERMS</Link>
           <div className={styles.copyright}>
             © {new Date().getFullYear()} ALL RIGHTS RESERVED
           </div>
@@ -107,7 +107,7 @@ export function Footer() {
       </div>
 
       {/* Floating brutalist back-to-top button */}
-      <button 
+      <button
         onClick={scrollToTop}
         className={`${styles.floatingScrollBtn} ${showScrollBtn ? styles.floatingScrollBtnActive : ''}`}
         aria-label="Scroll back to top"

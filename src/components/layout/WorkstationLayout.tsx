@@ -13,7 +13,8 @@ export function WorkstationLayout({ children }: { children: React.ReactNode }) {
         flex: 1, 
         minHeight: 0, // Critical for nested flex scrolling
         position: 'relative',
-        width: '100%'
+        width: '100%',
+        height: '100%'
       }}
     >
       {children}

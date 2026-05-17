@@ -282,7 +282,10 @@ export async function searchArtists(params?: {
     .from('profiles')
     .select(`
       id, full_name, username, avatar_url, city,
-      profile:artist_profiles(disciplines, availability, starting_rate, rates_on_request, verified, is_public),
+      profile:artist_profiles(
+        disciplines, availability, starting_rate, rates_on_request, verified, is_public,
+        portfolio:portfolio_items!portfolio_items_artist_id_fkey(id, image_url, sort_order, is_hidden)
+      ),
       reviews!reviews_reviewee_id_fkey(rating)
     `)
     .in('role', ['creative', 'both']);
@@ -293,7 +296,10 @@ export async function searchArtists(params?: {
 
   const limit = params?.per_page || 200;
   const { data, error } = await query.limit(limit);
-  if (error) return { data: [], total: 0, page: 1, per_page: limit, has_more: false };
+  if (error) {
+    console.error("searchArtists query error:", error);
+    return { data: [], total: 0, page: 1, per_page: limit, has_more: false };
+  }
 
   let results = data || [];
 
@@ -326,15 +332,24 @@ export async function searchArtists(params?: {
   const mapped = results.map((a: any) => {
     const profile = Array.isArray(a.profile) ? a.profile[0] : a.profile;
     const reviews = a.reviews || [];
+    const portfolio = profile?.portfolio || [];
     const reviewAverage = reviews.length > 0
       ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length
       : 0;
+    
+    // Sort and limit portfolio items
+    const visiblePortfolio = portfolio
+      .filter((p: any) => !p.is_hidden)
+      .sort((p1: any, p2: any) => (p1.sort_order ?? 0) - (p2.sort_order ?? 0))
+      .slice(0, 4); // Fetch top 4 items for hover gallery
+
     return {
       user: { id: a.id, full_name: a.full_name, username: a.username, avatar_url: a.avatar_url, city: a.city },
       profile,
       review_average: Math.round(reviewAverage * 10) / 10,
       review_count: reviews.length,
       project_count: 0,
+      portfolio: visiblePortfolio,
     };
   });
 

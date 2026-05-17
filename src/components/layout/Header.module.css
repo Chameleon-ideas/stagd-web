@@ -84,7 +84,7 @@
 
 /* Homepage: always dark, not transparent */
 .header.homeHeader {
-  background: #111111 !important;
+  background: #121212 !important;
   border-bottom-color: rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -412,7 +412,7 @@
 
 /* Dark mobile overlay on homepage (dark hero bg) */
 .mobileOverlayDark {
-  background-color: #111111 !important;
+  background-color: #121212 !important;
 }
 
 .mobileOverlayDark .mobileLink {
@@ -466,7 +466,7 @@
   .userBtn {
     padding: 0;
     border: 1.5px solid rgba(255, 255, 255, 0.15);
-    background: #111111;
+    background: #121212;
     width: 36px;
     height: 36px;
     display: flex;
@@ -478,7 +478,7 @@
     transition: border-color 0.2s;
   }
   .userBtn:hover {
-    background: #111111;
+    background: #121212;
     border-color: var(--color-yellow);
   }
   .userAvatar {

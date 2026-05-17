@@ -37,6 +37,7 @@ export function InteractiveCardDeck({ children }: InteractiveCardDeckProps) {
     if (panels.length <= 1) return;
 
     // Pin the container and slide up subsequent panels sequentially on desktop
+    // Optimized with pinType: 'transform' to avoid scroll jumps when combined with Lenis smooth scroll
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: container,
@@ -44,7 +45,8 @@ export function InteractiveCardDeck({ children }: InteractiveCardDeckProps) {
         end: `+=${(panels.length - 1) * 100}%`,
         scrub: true,
         pin: true,
-        anticipatePin: 1,
+        pinType: 'transform', // Highly recommended when integrating ScrollTrigger with Lenis to prevent layout jerking
+        anticipatePin: 0,     // Zero anticipation prevents initial transition jumps
       },
     });
 
@@ -69,9 +71,9 @@ export function InteractiveCardDeck({ children }: InteractiveCardDeckProps) {
     );
   }
 
-  // Mobile Render Flow: Native CSS Sticky Stacked Cards that match the desktop transition perfectly!
-  // Uses height: 'auto' (natural content size) and overflow: 'visible' so sections fit perfectly 
-  // without empty black space gaps, while stacking overlay transitions remain clean.
+  // Mobile Render Flow: Native relative natural scrolling cards.
+  // Uses relative positioning and height: auto so that sections (which are very tall on mobile)
+  // scroll completely and naturally without being clipped, stuck, or truncated by sticky bounds.
   if (isMobile) {
     return (
       <div 
@@ -86,12 +88,12 @@ export function InteractiveCardDeck({ children }: InteractiveCardDeckProps) {
         {children.map((child, i) => {
           // Curated background color map matching each card panel's branding to prevent transparency overlay slivers
           const cardBackgrounds = [
-            '#111111', // Hero Panel
+            '#121212', // Hero Panel
             '#F4F1E6', // Directives Panel
             '#649839', // Showcase Panel
-            '#111111', // Manifesto Panel
+            '#121212', // Manifesto Panel
             '#F4F1E6', // Creative Roster Panel
-            '#111111', // CTA Canvas Panel
+            '#121212', // CTA Canvas Panel
           ];
           const bg = cardBackgrounds[i] || '#F4F1E6';
 
@@ -99,16 +101,13 @@ export function InteractiveCardDeck({ children }: InteractiveCardDeckProps) {
             <div 
               key={i} 
               style={{
-                position: 'sticky',
-                top: 0,
-                left: 0,
+                position: 'relative', // Natural vertical scroll flow on mobile to prevent clipping
                 width: '100%',
                 height: 'auto',
                 overflow: 'visible',
                 zIndex: i + 1,
                 backgroundColor: bg,
                 borderTop: i > 0 ? '1.5px solid rgba(17, 17, 17, 0.15)' : 'none',
-                boxShadow: i > 0 ? '0 -20px 40px rgba(0, 0, 0, 0.12)' : 'none',
               }}
             >
               {child}

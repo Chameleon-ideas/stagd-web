@@ -4,12 +4,7 @@ import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { searchEvents, searchArtists, getCreativeCount } from '@/lib/api';
 import { formatDateTime } from '@/lib/utils';
-import {
-  GSAPEntrance,
-  GSAPHeroReveal,
-  GSAPLineReveal,
-} from '@/components/animations/GSAPEntrance';
-import { MarqueeTicker } from '@/components/home/MarqueeTicker';
+import { GSAPEntrance, GSAPHeroReveal, GSAPLineReveal } from '@/components/animations/GSAPEntrance';
 import { InteractiveCardDeck } from '@/components/home/InteractiveCardDeck';
 import { StagdLogo } from '@/components/layout/StagdLogo';
 import styles from './page.module.css';
@@ -23,13 +18,13 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const [eventsData, artistsData, creativeCount] = await Promise.all([
     searchEvents({ per_page: 8 }),
-    searchArtists({ per_page: 8 }),
+    searchArtists({ per_page: 24 }),
     getCreativeCount(),
   ]);
 
   const liveEvents = eventsData.data;
   const allArtists = artistsData.data;
-  const featuredArtists = allArtists.slice(0, 8);
+  const featuredArtists = allArtists.filter(({ user }) => !!user.avatar_url);
   const showFeatured = featuredArtists.length > 0;
 
   return (
@@ -127,7 +122,7 @@ export default async function HomePage() {
                         Every creative in Pakistan—photographers, printmakers, DJs, directors, makeup artists—in one searchable place. Find by discipline, city, or vibe.
                       </p>
                       <Link href="/explore" className={styles.dirLink}>
-                        BROWSE ARCHIVES &rarr;
+                        BROWSE ALL &rarr;
                       </Link>
                     </div>
                     <div className={styles.dirVisualCol} data-line>
@@ -182,14 +177,6 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
-
-          <MarqueeTicker
-            size="lg"
-            theme="ink"
-            speed="normal"
-            reverse
-            items={['HAPPENING SOON', 'CONCERTS', 'WORKSHOPS', 'GALLERY NIGHTS', 'OPEN MICS', 'BUY A TICKET']}
-          />
         </div>
 
         {/* ════════════════════════════════════════════════════
@@ -202,7 +189,7 @@ export default async function HomePage() {
                 <span className={styles.monoLabelYellow}>// THE SPOTLIGHT REGISTER</span>
                 <h2 className={styles.showcaseTitle}>ACTIVE PLATFORM LEDGER</h2>
               </div>
-              <Link href="/explore?tab=events" className={styles.showcaseLink}>VIEW THE FULL ARCHIVE &rarr;</Link>
+              <Link href="/explore?tab=events" className={styles.showcaseLink}>VIEW ALL EVENTS &rarr;</Link>
             </div>
 
             <div className={styles.showcaseGrid}>
@@ -240,7 +227,7 @@ export default async function HomePage() {
                             {spotlight.venue_name ? `${spotlight.venue_name} · ` : ''}
                             {spotlight.is_free ? 'FREE ENTRANCE' : `PKR ${spotlight.min_price.toLocaleString()}`}
                           </p>
-                          <span className={styles.spotlightCta}>BOOK ARCHIVE TICKETS &rarr;</span>
+                          <span className={styles.spotlightCta}>GET TICKETS &rarr;</span>
                         </div>
                       </Link>
                     );
@@ -294,13 +281,6 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
-
-          <MarqueeTicker
-            size="lg"
-            theme="yellow"
-            speed="slow"
-            items={['PHOTOGRAPHERS', 'MUSICIANS', 'DJS', 'DIRECTORS', 'MAKEUP ARTISTS', 'CREATIVES']}
-          />
         </div>
 
         {/* ════════════════════════════════════════════════════
@@ -310,7 +290,7 @@ export default async function HomePage() {
           <section className={styles.manifestoSection}>
             <div className={styles.manifestoInner}>
               <div className={styles.manifestoLeft}>
-                <span className={styles.monoLabelYellow}>// ARCHIVE STATEMENT</span>
+                <span className={styles.monoLabelYellow}>// OUR STATEMENT</span>
                 <blockquote className={styles.manifestoQuote}>
                   &ldquo;We believe Pakistan&rsquo;s creative class deserves a prestigious stage of record. Zero cold DMs, zero lost briefs, and zero administrative chaos.&rdquo;
                 </blockquote>
@@ -321,7 +301,7 @@ export default async function HomePage() {
                 <div className={styles.manifestoStepRow}>
                   <span className={styles.stepNum}>01</span>
                   <div className={styles.stepBody}>
-                    <h4 className={styles.stepTitle}>ARCHIVE PROFILE</h4>
+                    <h4 className={styles.stepTitle}>BUILD YOUR PROFILE</h4>
                     <p className={styles.stepDesc}>Register your credentials, portfolio, rates, and verification metrics in one standard index.</p>
                   </div>
                 </div>
@@ -342,13 +322,6 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
-
-          <MarqueeTicker
-            size="lg"
-            theme="ink"
-            speed="normal"
-            items={['ONE LINK', 'ZERO DMS', 'CLEAR PROCESS', 'BRIEF TO DELIVERY', 'NO CHAOS', 'STAGD']}
-          />
         </div>
 
         {/* ════════════════════════════════════════════════════
@@ -367,10 +340,10 @@ export default async function HomePage() {
             </div>
             <GSAPEntrance selector="[data-card]" y={28} stagger={0.05} duration={0.38} start="top 92%">
               <div className={styles.creativesGrid}>
-                {featuredArtists.map(({ user: artist, profile }) => (
+                {featuredArtists.map(({ user: artist, profile, portfolio }) => (
                   <Link
                     key={artist.id}
-                    href={`/profile/${artist.username}`}
+                    href={`/${artist.username}`}
                     className={styles.creativeCard}
                     data-card
                   >
@@ -386,8 +359,28 @@ export default async function HomePage() {
                       ) : (
                         <div className={styles.creativeImageFallback} />
                       )}
+
+                      {/* Premium Hover Showcase of Creative's Work */}
                       <div className={styles.creativeHoverOverlay}>
-                        <span className={styles.creativeHoverLabel}>ENTER PORTFOLIO →</span>
+                        {portfolio && portfolio.length > 0 ? (
+                          <div className={styles.portfolioHoverGrid}>
+                            {portfolio.slice(0, 4).map((item: any, idx: number) => (
+                              <div key={item.id || idx} className={styles.portfolioHoverItem}>
+                                <Image
+                                  src={item.image_url}
+                                  alt={item.title || artist.full_name}
+                                  fill
+                                  sizes="25vw"
+                                  className={styles.portfolioHoverImg}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className={styles.noPortfolioHover}>
+                            <span className={styles.creativeHoverLabel}>ENTER PORTFOLIO →</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className={styles.creativeCardBody}>

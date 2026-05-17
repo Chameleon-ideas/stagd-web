@@ -301,6 +301,7 @@ export interface ArtistSearchResult {
   hero_image?: string; // first portfolio item
   review_average: number;
   review_count: number;
+  portfolio?: PortfolioItem[];
 }
 
 export interface EventSearchResult {

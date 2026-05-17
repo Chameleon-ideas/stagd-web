@@ -182,7 +182,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       });
     });
     profile.portfolio.forEach((item: any) => {
-      media.push({ ...item, project: 'Archive' });
+      media.push({ ...item, project: 'Uncategorised' });
     });
     return media;
   }, [projects, profile.portfolio]);
@@ -285,12 +285,14 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
     })
   };
 
+  const headerHeight = user ? 88 : 60;
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ '--header-height': `${headerHeight}px` } as any}>
       {/* ── ABOUT OVERLAY ── */}
       <AnimatePresence>
         {isAboutOpen && (
-          <motion.div 
+          <motion.div
             className={styles.aboutOverlay}
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
@@ -314,9 +316,9 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 </div>
                 <div className={styles.aboutPortraitWrapper}>
                   {profile.user.avatar_url && (
-                    <img 
-                      src={profile.user.avatar_url} 
-                      alt={profile.user.full_name} 
+                    <img
+                      src={profile.user.avatar_url}
+                      alt={profile.user.full_name}
                       className={styles.aboutPortrait}
                     />
                   )}
@@ -331,7 +333,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       {/* ── IMAGE LIGHTBOX (DYNAMIC) ── */}
       <AnimatePresence initial={false} custom={direction}>
         {selectedImage && (
-          <motion.div 
+          <motion.div
             className={styles.lightbox}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -347,7 +349,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
             </button>
 
             <div className={styles.lightboxContent} onClick={(e) => e.stopPropagation()} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
-              <motion.div 
+              <motion.div
                 className={styles.lightboxImageWrapper}
                 key={selectedIndex}
                 custom={direction}
@@ -423,8 +425,8 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               return profile.profile.disciplines?.map((d: string, i: number) => {
                 const colors = colorsArray[i];
                 return (
-                  <span 
-                    key={d} 
+                  <span
+                    key={d}
                     className={styles.disciplineTag}
                     style={{ backgroundColor: colors.bg, color: colors.text }}
                   >
@@ -460,7 +462,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
           </div>
 
           <nav className={styles.navSection}>
-            <button 
+            <button
               className={styles.sidebarSectionHeading}
               style={{ color: 'var(--color-yellow)' }}
               onClick={() => setIsAboutOpen(true)}
@@ -469,7 +471,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               <span className={styles.navLabelInline}>//</span> ABOUT THE CREATIVE
             </button>
 
-            <button 
+            <button
               className={styles.sidebarSectionHeading}
               onClick={() => setIsProjectsOpen(!isProjectsOpen)}
               aria-expanded={isProjectsOpen}
@@ -494,8 +496,8 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                 >
                   <div className={styles.projectsListInner}>
                     {projects.map((project: any) => (
-                      <button 
-                        key={project.id} 
+                      <button
+                        key={project.id}
                         className={styles.projectLink}
                         onClick={() => {
                           setIsAboutOpen(false);
@@ -519,25 +521,25 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               </h3>
               <div className={styles.sidebarEvents}>
                 {events.data.map((item: any) => (
-                  <Link 
-                    key={item.event.id} 
+                  <Link
+                    key={item.event.id}
                     href={`/events/${item.event.slug ?? item.event.id}`}
                     className={styles.eventSidebarCard}
                   >
                     {item.event.cover_image_url && (
                       <div className={styles.eventSidebarBg}>
                         {item.event.cover_image_url && (
-                          <Image 
-                            src={item.event.cover_image_url} 
-                            alt="" 
-                            fill 
+                          <Image
+                            src={item.event.cover_image_url}
+                            alt=""
+                            fill
                             sizes="300px"
                           />
                         )}
                       </div>
                     )}
                     <div className={styles.eventSidebarOverlay} />
-                    
+
                     <div className={styles.eventSidebarContent}>
                       <div className={styles.eventSidebarTop}>
                         <div className={styles.eventSidebarBadge}>LIVE</div>
@@ -580,8 +582,8 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
       <main className={styles.stage} ref={stageRef} data-lenis-prevent>
         {/* ── REVIEWS DROPDOWN (NEW TOP POSITION) ── */}
         <section className={styles.reviewsDropdown}>
-          <button 
-            className={styles.dropdownHeader} 
+          <button
+            className={styles.dropdownHeader}
             onClick={() => setIsReviewsOpen(!isReviewsOpen)}
             aria-expanded={isReviewsOpen}
           >
@@ -590,11 +592,11 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
               <div className={styles.avgRatingBrief}>
                 <div className={styles.starsRow}>
                   {[1, 2, 3, 4, 5].map(i => (
-                    <Star 
-                      key={i} 
-                      size={12} 
-                      fill={i <= profile.review_average ? 'var(--color-yellow)' : 'none'} 
-                      color={i <= profile.review_average ? 'var(--color-yellow)' : 'var(--border-color)'} 
+                    <Star
+                      key={i}
+                      size={12}
+                      fill={i <= profile.review_average ? 'var(--color-yellow)' : 'none'}
+                      color={i <= profile.review_average ? 'var(--color-yellow)' : 'var(--border-color)'}
                     />
                   ))}
                 </div>
@@ -629,10 +631,10 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                         {[1, 2, 3, 4, 5].map((i) => {
                           const active = i <= (reviewHover || reviewStar);
                           return (
-                            <button 
-                              key={i} 
-                              onMouseEnter={() => setReviewHover(i)} 
-                              onMouseLeave={() => setReviewHover(0)} 
+                            <button
+                              key={i}
+                              onMouseEnter={() => setReviewHover(i)}
+                              onMouseLeave={() => setReviewHover(0)}
                               onClick={() => setReviewStar(i)}
                               className={styles.starPickerBtn}
                             >
@@ -641,18 +643,18 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                           );
                         })}
                       </div>
-                      <textarea 
-                        value={reviewBody} 
+                      <textarea
+                        value={reviewBody}
                         onChange={(e) => setReviewBody(e.target.value)}
-                        placeholder="Share your experience... (optional)" 
-                        maxLength={500} 
+                        placeholder="Share your experience... (optional)"
+                        maxLength={500}
                         rows={3}
                         className={styles.reviewInput}
                       />
                       <div className={styles.formActions}>
                         <span className={styles.charCount}>{reviewBody.length}/500</span>
-                        <button 
-                          onClick={handleReviewSubmit} 
+                        <button
+                          onClick={handleReviewSubmit}
                           disabled={reviewStar === 0 || reviewSubmitting}
                           className={styles.submitReviewBtn}
                         >
@@ -679,7 +681,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                               <div className={styles.reviewerText}>
                                 <span className={styles.reviewerName}>{review.reviewer?.full_name}</span>
                                 <div className={styles.reviewerStars}>
-                                  {[1,2,3,4,5].map(i => <Star key={i} size={8} fill={i <= review.rating ? 'var(--color-yellow)' : 'none'} color={i <= review.rating ? 'var(--color-yellow)' : 'var(--border-color)'} />)}
+                                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={8} fill={i <= review.rating ? 'var(--color-yellow)' : 'none'} color={i <= review.rating ? 'var(--color-yellow)' : 'var(--border-color)'} />)}
                                 </div>
                               </div>
                             </div>
@@ -703,10 +705,10 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
         {projects.map((project: any, pIndex: number) => (
           <section key={project.id} id={project.id} className={styles.projectBlock}>
             <div className={styles.projectIdentity}>
-               <div className={styles.projectNumberWrapper}>
-                 <span className={styles.projectNumber}>0{pIndex + 1}</span>
-               </div>
-               <h2 className={styles.verticalTitle}>{project.title}</h2>
+              <div className={styles.projectNumberWrapper}>
+                <span className={styles.projectNumber}>0{pIndex + 1}</span>
+              </div>
+              <h2 className={styles.verticalTitle}>{project.title}</h2>
             </div>
 
             <div className={styles.bentoGrid} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
@@ -751,25 +753,25 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
             </div>
 
             <div className={styles.projectInfoFooter}>
-               <div className={styles.projectDescWrapper}>
-                  {project.discipline && (() => {
-                    const colors = getDisciplineColors([project.discipline])[0];
-                    return (
-                      <span 
-                        className={styles.projectDiscipline}
-                        style={{ color: colors.bg, borderBottomColor: colors.bg }}
-                      >
-                        {project.discipline}
-                      </span>
-                    );
-                  })()}
-                  <p className={styles.projectDesc}>{project.description}</p>
-               </div>
-               <div className={styles.projectSpecs}>
-                  <span>// FORMAT: {project.format?.toUpperCase() || 'N/A'}</span>
-                  <span>// YEAR: {project.year || 'N/A'}</span>
-                  <span>// TAG: {project.discipline?.toUpperCase()}</span>
-               </div>
+              <div className={styles.projectDescWrapper}>
+                {project.discipline && (() => {
+                  const colors = getDisciplineColors([project.discipline])[0];
+                  return (
+                    <span
+                      className={styles.projectDiscipline}
+                      style={{ color: colors.bg, borderBottomColor: colors.bg }}
+                    >
+                      {project.discipline}
+                    </span>
+                  );
+                })()}
+                <p className={styles.projectDesc}>{project.description}</p>
+              </div>
+              <div className={styles.projectSpecs}>
+                <span>// FORMAT: {project.format?.toUpperCase() || 'N/A'}</span>
+                <span>// YEAR: {project.year || 'N/A'}</span>
+                <span>// TAG: {project.discipline?.toUpperCase()}</span>
+              </div>
             </div>
           </section>
         ))}
@@ -777,13 +779,13 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
         {/* ── ARCHIVE SECTION: DENSE GRID ── */}
         {profile.portfolio.length > 0 && (
           <section className={styles.archiveSection}>
-             <div className={styles.archiveHeader}>
-                <span className={styles.navLabel}>// Full Catalog</span>
-                <h2 className={styles.archiveTitle}>Archive Study</h2>
-             </div>
-             <div className={styles.denseGrid} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
-               {profile.portfolio.map((item: any, i: number) => (
-                 <motion.div
+            <div className={styles.archiveHeader}>
+              <span className={styles.navLabel}>// Full Catalog</span>
+              <h2 className={styles.archiveTitle}>Full Portfolio</h2>
+            </div>
+            <div className={styles.denseGrid} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
+              {profile.portfolio.map((item: any, i: number) => (
+                <motion.div
                   key={item.id}
                   className={styles.imageWrapper}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -791,20 +793,20 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
                   transition={{ delay: i * 0.05 }}
                   viewport={{ once: true }}
                   onClick={() => openLightbox(item.image_url)}
-                 >
-                   <div className={styles.imageHover}><Maximize2 size={20} /></div>
-                   {item.image_url && (
-                     <img
-                       src={item.image_url}
-                       alt={item.title || ''}
-                       className={styles.projectImage}
-                       loading="lazy"
-                       style={{ pointerEvents: 'none' }}
-                     />
-                   )}
-                 </motion.div>
-               ))}
-             </div>
+                >
+                  <div className={styles.imageHover}><Maximize2 size={20} /></div>
+                  {item.image_url && (
+                    <img
+                      src={item.image_url}
+                      alt={item.title || ''}
+                      className={styles.projectImage}
+                      loading="lazy"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </section>
         )}
 
