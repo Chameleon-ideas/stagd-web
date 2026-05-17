@@ -299,7 +299,7 @@ export function ControlTemplate({ profile, events }: ControlTemplateProps) {
   const headerHeight = user ? 88 : 60;
 
   return (
-    <div className={styles.container} style={{ '--header-height': `${headerHeight}px` } as any}>
+    <div className={styles.container} data-theme={profile.profile?.portfolio_theme ?? 'dark'} style={{ '--header-height': `${headerHeight}px` } as any}>
       {/* ── ABOUT OVERLAY ── */}
       <AnimatePresence>
         {isAboutOpen && (

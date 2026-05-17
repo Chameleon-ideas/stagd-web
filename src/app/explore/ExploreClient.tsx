@@ -26,10 +26,12 @@ export default function ExploreClient({
   initialTab,
   initialQuery = '',
   initialDiscipline = 'All',
+  initialResults = { data: [], total: 0 },
 }: {
   initialTab: string;
   initialQuery?: string;
   initialDiscipline?: string;
+  initialResults?: { data: any[]; total: number };
 }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -55,10 +57,15 @@ export default function ExploreClient({
     query: initialQuery,
   });
 
-  const [results, setResults] = useState<any>({ data: [], total: 0 });
-  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<any>(initialResults);
+  const [loading, setLoading] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const timer = setTimeout(async () => {
       setLoading(true);
       try {

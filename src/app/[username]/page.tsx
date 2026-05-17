@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getArtistProfile } from '@/lib/api';
+import { getArtistProfile, getArtistEvents } from '@/lib/api';
 import ProfileClient from './ProfileClient';
 
 interface Props {
@@ -29,5 +29,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  return <ProfileClient params={params} />;
+  const { username } = await params;
+
+  let profile = null;
+  let events = null;
+  try {
+    profile = await getArtistProfile(username);
+    if (profile) {
+      events = await getArtistEvents(profile.user.id);
+    }
+  } catch (err) {
+    console.error('Failed to load artist profile:', err);
+  }
+
+  return <ProfileClient profile={profile} events={events} />;
 }

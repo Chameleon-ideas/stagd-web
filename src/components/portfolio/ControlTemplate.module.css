@@ -4,6 +4,7 @@
   background-color: var(--bg);
   color: var(--text);
   overflow: visible;
+  position: relative;
 }
 
 .controlPane {
@@ -854,7 +855,7 @@
   height: 100%;
   background-color: var(--bg);
   z-index: 100;
-  padding: var(--space-12) var(--space-8);
+  padding: calc(var(--header-height, 88px) + var(--space-6)) var(--space-8) var(--space-8) var(--space-8);
   overflow-y: auto;
   background-image: 
     linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
@@ -936,9 +937,29 @@
   }
 }
 
+@media (max-width: 768px) {
+  .aboutOverlay {
+    padding: calc(var(--header-height, 88px) + var(--space-4)) var(--space-4) var(--space-6) var(--space-4);
+  }
+  .aboutTitle {
+    font-size: 32px;
+    margin-bottom: var(--space-2);
+  }
+  .aboutHeader {
+    margin-bottom: var(--space-6);
+  }
+  .aboutText {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .aboutPortraitWrapper {
+    max-width: 100%;
+  }
+}
+
 .aboutClose {
-  position: sticky;
-  top: 0;
+  position: relative;
+  display: inline-block;
   margin-bottom: var(--space-8);
   background: var(--color-ink);
   color: var(--color-yellow);
@@ -950,6 +971,13 @@
   font-weight: 700;
   cursor: pointer;
   z-index: 101;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.aboutClose:hover {
+  background: var(--color-yellow);
+  color: var(--color-ink);
 }
 
 .navButton {

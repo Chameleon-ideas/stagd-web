@@ -27,9 +27,9 @@ function isViewportLockedRoute(pathname: string): boolean {
   if (pathname === '/explore') return true;
   if (pathname.startsWith('/messages')) return true;
   if (pathname.startsWith('/profile/edit')) return true;
+  if (isProfileRoute(pathname)) return true;
   
-  // All other pages (including dynamic profiles, portfolio views, and event pages)
-  // must scroll naturally.
+  // All other pages (including event pages) must scroll naturally.
   return false;
 }
 
@@ -58,7 +58,8 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
     return () => media.removeEventListener('change', listener);
   }, []);
 
-  const shouldLock = isLocked && !isMobile;
+  const isMessages = pathname.startsWith('/messages');
+  const shouldLock = isLocked && (!isMobile || isMessages);
   const zeroPadding = shouldUseZeroPaddingRoute(pathname);
 
   return (

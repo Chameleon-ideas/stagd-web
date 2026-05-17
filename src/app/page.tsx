@@ -186,8 +186,8 @@ export default async function HomePage() {
           <section id="events" className={styles.showcaseSection}>
             <div className={styles.showcaseHeader}>
               <div className={styles.showcaseLabelBlock}>
-                <span className={styles.monoLabelYellow}>// THE SPOTLIGHT REGISTER</span>
-                <h2 className={styles.showcaseTitle}>ACTIVE PLATFORM LEDGER</h2>
+                <span className={styles.monoLabelYellow}>// LIVE BOX OFFICE</span>
+                <h2 className={styles.showcaseTitle}>CULTURE IN REAL LIFE</h2>
               </div>
               <Link href="/explore?tab=events" className={styles.showcaseLink}>VIEW ALL EVENTS &rarr;</Link>
             </div>

@@ -1,8 +1,10 @@
 
 .main {
   display: flex;
-  height: 100%; /* Fill remaining viewport height perfectly */
+  flex: 1; /* Stretch to fill `#workstation-container` height */
+  width: 100%;
   overflow: hidden; /* Only panes scroll, never the page */
+  min-height: 0; /* Enable nested flex scroll calculations */
 }
 
 .hasActiveChat {}
@@ -13,6 +15,7 @@
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  min-height: 0; /* Prevent vertical stretching in flex parent */
   background-image: 
     linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
@@ -203,6 +206,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0; /* Prevent vertical stretching in flex parent */
   background-color: var(--bg);
 }
 
@@ -1287,6 +1291,18 @@
     align-items: center;
     justify-content: center;
   }
+
+  .previewPane {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 20;
+    background-color: var(--bg);
+    border-left: none;
+    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
 
 /* ── NEW CONVERSATION PROMPT ──────────────────────── */
@@ -1368,4 +1384,13 @@
 
 .btnStartEnquiry:hover {
   transform: scale(1.02);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
