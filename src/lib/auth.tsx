@@ -114,12 +114,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (data: { fullName: string; email: string; password: string; role: 'creative' | 'patron' }) => {
     setIsLoading(true);
-    const username = data.fullName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+
+    // Build base username: lowercase, spaces→underscore, strip non-alphanumeric-underscore
+    let base = data.fullName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    if (base.length < 3) base = base.padEnd(3, '0');  // schema requires ≥3 chars
+    base = base.slice(0, 28);                           // leave room for up to "_99" suffix
+
+    // Find an available username by appending a numeric suffix on collision
+    let username = base;
+    for (let attempt = 1; attempt <= 99; attempt++) {
+      const { data: existing } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .maybeSingle();
+      if (!existing) break;
+      username = `${base}_${attempt}`;
+    }
+
+    // Validate the `next` redirect: must be a relative path with safe characters only
+    const rawNext = new URLSearchParams(window.location.search).get('next');
+    const safeNext = rawNext && /^\/[a-zA-Z0-9/_?=&-]*$/.test(rawNext) ? rawNext : null;
+
     const { error: signUpError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback${new URLSearchParams(window.location.search).get('next') ? `?next=${new URLSearchParams(window.location.search).get('next')}` : ''}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback${safeNext ? `?next=${encodeURIComponent(safeNext)}` : ''}`,
         data: {
           full_name: data.fullName,
           username,

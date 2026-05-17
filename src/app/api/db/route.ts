@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { sendMail } from '@/lib/mail';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 async function generateEventSlug(title: string, admin: SupabaseClient): Promise<string> {
   const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const suffix = Math.random().toString(36).slice(2, 6);
@@ -109,10 +118,32 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    await supabaseAdmin
+    // Atomic scan: only update rows where scanned_at is still NULL.
+    // If two scanners race, only one UPDATE will match; the other returns 0 rows.
+    const { data: updated } = await supabaseAdmin
       .from('tickets')
       .update({ scanned_at: new Date().toISOString() })
-      .eq('ticket_id', ticketId);
+      .eq('ticket_id', ticketId)
+      .is('scanned_at', null)
+      .select('id');
+
+    if (!updated || updated.length === 0) {
+      // Another scanner won the race — re-fetch the actual scanned_at for the response
+      const { data: rescanned } = await supabaseAdmin
+        .from('tickets')
+        .select('scanned_at')
+        .eq('ticket_id', ticketId)
+        .single();
+      return NextResponse.json({
+        status: 'already_used',
+        ticket_id: ticket.ticket_id,
+        buyer_name: ticket.buyer_name,
+        tier_name: tier?.name,
+        quantity: ticket.quantity,
+        event_title: event?.title,
+        scanned_at: rescanned?.scanned_at ?? null,
+      });
+    }
 
     return NextResponse.json({
       status: 'valid',
@@ -152,12 +183,12 @@ export async function POST(req: NextRequest) {
           subject: `Creative Access Request — @${profile.username}`,
           html: `
             <h2 style="font-family:sans-serif">Creative Access Request</h2>
-            <p style="font-family:sans-serif"><strong>${profile.full_name}</strong> (@${profile.username}) wants to upgrade from Patron to Creative on Stag'd.</p>
+            <p style="font-family:sans-serif"><strong>${escapeHtml(profile.full_name)}</strong> (@${escapeHtml(profile.username)}) wants to upgrade from Patron to Creative on Stag'd.</p>
             <table style="font-family:sans-serif;border-collapse:collapse;margin-top:16px">
-              <tr><td style="padding:4px 16px 4px 0;color:#666">Name</td><td><strong>${profile.full_name}</strong></td></tr>
-              <tr><td style="padding:4px 16px 4px 0;color:#666">Username</td><td>@${profile.username}</td></tr>
-              <tr><td style="padding:4px 16px 4px 0;color:#666">Email</td><td>${authUser?.email ?? 'unknown'}</td></tr>
-              <tr><td style="padding:4px 16px 4px 0;color:#666">User ID</td><td style="font-family:monospace;font-size:12px">${userId}</td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Name</td><td><strong>${escapeHtml(profile.full_name)}</strong></td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Username</td><td>@${escapeHtml(profile.username)}</td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">Email</td><td>${escapeHtml(authUser?.email ?? 'unknown')}</td></tr>
+              <tr><td style="padding:4px 16px 4px 0;color:#666">User ID</td><td style="font-family:monospace;font-size:12px">${escapeHtml(userId)}</td></tr>
               <tr><td style="padding:4px 16px 4px 0;color:#666">Requested at</td><td>${new Date().toUTCString()}</td></tr>
             </table>
           `,
@@ -507,15 +538,17 @@ export async function POST(req: NextRequest) {
         ]);
         const artistProfile = artistRow as any;
         const artistUserId: string = artistProfile?.id;
-        const artistName: string = artistProfile?.profiles?.full_name ?? 'the creative';
+        const artistName: string = escapeHtml(artistProfile?.profiles?.full_name ?? 'the creative');
         const artistUsername: string = artistProfile?.profiles?.username ?? '';
-        const clientName: string = clientAuth?.user_metadata?.full_name ?? 'Someone';
+        const clientName: string = escapeHtml(clientAuth?.user_metadata?.full_name ?? 'Someone');
         const clientEmail: string | undefined = clientAuth?.email;
 
         const { data: { user: artistAuth } } = await supabaseAdmin.auth.admin.getUserById(artistUserId);
         const artistEmail: string | undefined = artistAuth?.email;
 
         const messagesUrl = 'https://stagd.app/messages';
+        const safeDisc = escapeHtml(cd.discipline);
+        const safeDeliv = escapeHtml(cd.deliverable);
 
         // Email to client
         if (clientEmail) {
@@ -526,13 +559,13 @@ export async function POST(req: NextRequest) {
               <p>Hi ${clientName},</p>
               <p>Your brief has been sent to <strong>${artistName}</strong>. They'll review it and get back to you shortly.</p>
               <p><strong>What you sent:</strong><br/>
-              ${cd.discipline} — ${cd.deliverable}<br/>
+              ${safeDisc} — ${safeDeliv}<br/>
               Budget: PKR ${Number(cd.budget).toLocaleString()}<br/>
-              Timeline: ${cd.deadline} (${cd.duration})</p>
+              Timeline: ${escapeHtml(cd.deadline)} (${escapeHtml(cd.duration)})</p>
               <p><a href="${messagesUrl}">View your conversation →</a></p>
               <p style="color:#888;font-size:12px;">Stag'd · stagd.app</p>
             `,
-          }).catch(() => {});
+          }).catch(e => console.error('[sendMail client error]', e));
         }
 
         // Email to artist
@@ -544,13 +577,13 @@ export async function POST(req: NextRequest) {
               <p>Hi ${artistName},</p>
               <p>You have a new commission enquiry from <strong>${clientName}</strong>.</p>
               <p><strong>Brief:</strong><br/>
-              ${cd.discipline} — ${cd.deliverable}<br/>
+              ${safeDisc} — ${safeDeliv}<br/>
               Budget: PKR ${Number(cd.budget).toLocaleString()}<br/>
-              Timeline: ${cd.deadline} (${cd.duration})</p>
+              Timeline: ${escapeHtml(cd.deadline)} (${escapeHtml(cd.duration)})</p>
               <p><a href="${messagesUrl}">Respond in messages →</a></p>
               <p style="color:#888;font-size:12px;">Stag'd · stagd.app</p>
             `,
-          }).catch(() => {});
+          }).catch(e => console.error('[sendMail artist error]', e));
         }
 
         return NextResponse.json({ id: row.id, error: null });
@@ -644,22 +677,23 @@ export async function POST(req: NextRequest) {
           // Auto-send invoice — generate invoice number
           const { data: proposal } = await supabaseAdmin
             .from('proposals').select('total_price').eq('id', proposalId).single();
-          const { data: clientUser } = await supabaseAdmin
-            .from('profiles').select('email, full_name').eq('id', commission.client_id).single();
-          if (proposal && clientUser?.email) {
+          // Email lives in auth.users, not profiles
+          const { data: { user: clientAuth } } = await supabaseAdmin.auth.admin.getUserById(commission.client_id);
+          const clientEmail = clientAuth?.email;
+          if (proposal && clientEmail) {
             const year = new Date().getFullYear();
             const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
             const invoiceNumber = `INV-${year}-${rand}`;
             await supabaseAdmin.from('invoices').insert({
               commission_id: commissionId,
               invoice_number: invoiceNumber,
-              sent_to_email: clientUser.email,
+              sent_to_email: clientEmail,
               total_amount: proposal.total_price,
             });
             await supabaseAdmin.from('messages').insert({
               commission_id: commissionId,
               sender_id: commission.artist_id,
-              body: `Invoice ${invoiceNumber} sent to ${clientUser.email}`,
+              body: `Invoice ${invoiceNumber} sent to ${clientEmail}`,
               type: 'payment_confirmation',
             });
           }
@@ -682,7 +716,7 @@ export async function POST(req: NextRequest) {
       case 'updatePaymentStatus': {
         const { commissionId, status: payStatus } = body;
         const { data: commission } = await supabaseAdmin
-          .from('commissions').select('artist_id').eq('id', commissionId).single();
+          .from('commissions').select('artist_id, payment_status').eq('id', commissionId).single();
         if (!commission || commission.artist_id !== userId)
           return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
@@ -692,7 +726,10 @@ export async function POST(req: NextRequest) {
         await Promise.all([
           supabaseAdmin.from('commissions').update({ payment_status: payStatus }).eq('id', commissionId),
           supabaseAdmin.from('payment_status_log').insert({
-            commission_id: commissionId, status: payStatus, updated_by: userId,
+            commission_id: commissionId,
+            old_status: commission.payment_status,
+            new_status: payStatus,
+            changed_by: userId,
           }),
           supabaseAdmin.from('messages').insert({
             commission_id: commissionId,
@@ -804,13 +841,14 @@ export async function POST(req: NextRequest) {
         if (!commission || commission.artist_id !== userId)
           return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-        // Get latest accepted proposal
-        const { data: proposal } = await supabaseAdmin
-          .from('proposals').select('total_price').eq('commission_id', commissionId).eq('status', 'accepted').single();
-        const { data: clientUser } = await supabaseAdmin
-          .from('profiles').select('email').eq('id', commission.client_id).single();
+        // Get latest accepted proposal + client email from auth.users (not in profiles)
+        const [{ data: proposal }, { data: { user: clientAuth } }] = await Promise.all([
+          supabaseAdmin.from('proposals').select('total_price').eq('commission_id', commissionId).eq('status', 'accepted').single(),
+          supabaseAdmin.auth.admin.getUserById(commission.client_id),
+        ]);
+        const clientEmail = clientAuth?.email;
 
-        if (!proposal || !clientUser?.email)
+        if (!proposal || !clientEmail)
           return NextResponse.json({ error: 'Missing proposal or client email' });
 
         const year = new Date().getFullYear();
@@ -821,13 +859,13 @@ export async function POST(req: NextRequest) {
           supabaseAdmin.from('invoices').insert({
             commission_id: commissionId,
             invoice_number: invoiceNumber,
-            sent_to_email: clientUser.email,
+            sent_to_email: clientEmail,
             total_amount: proposal.total_price,
           }),
           supabaseAdmin.from('messages').insert({
             commission_id: commissionId,
             sender_id: userId,
-            body: `Invoice ${invoiceNumber} sent to ${clientUser.email}`,
+            body: `Invoice ${invoiceNumber} sent to ${clientEmail}`,
             type: 'payment_confirmation',
           }),
         ]);
@@ -959,16 +997,16 @@ export async function POST(req: NextRequest) {
         const { data } = await supabaseAdmin
           .from('custom_discipline_submissions')
           .select('value, user_id, created_at');
-        const counts: Record<string, { count: number; users: Set<string>; latest: string }> = {};
+        const counts: Record<string, { count: number; users: Set<string>; latest: string; display: string }> = {};
         for (const row of data ?? []) {
           const key = row.value.toLowerCase();
-          if (!counts[key]) counts[key] = { count: 0, users: new Set(), latest: row.created_at };
+          if (!counts[key]) counts[key] = { count: 0, users: new Set(), latest: row.created_at, display: row.value };
           counts[key].count++;
           counts[key].users.add(row.user_id);
           if (row.created_at > counts[key].latest) counts[key].latest = row.created_at;
         }
-        const result = Object.entries(counts).map(([, v]) => ({
-          value: (data ?? []).find(r => r.value.toLowerCase() === Object.keys(counts).find(k => counts[k] === v))?.value ?? '',
+        const result = Object.values(counts).map(v => ({
+          value: v.display,
           submission_count: v.count,
           unique_users: v.users.size,
           latest_at: v.latest,

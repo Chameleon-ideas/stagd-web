@@ -966,9 +966,20 @@ function MessagesContent() {
         </section>
 
         {showEnquiryModal && newArtist && (
-          <CommissionEnquiry 
-            artist={newArtist} 
-            onClose={() => setShowEnquiryModal(false)} 
+          <CommissionEnquiry
+            artist={newArtist}
+            onClose={() => setShowEnquiryModal(false)}
+            onSuccess={(commissionId) => {
+              setShowEnquiryModal(false);
+              setNewArtist(null);
+              // Reload conversations so the newly-created commission appears and switch to it
+              if (user) {
+                getConversations(user.id).then(convs => {
+                  setConversations(convs);
+                  setActiveConvId(commissionId);
+                });
+              }
+            }}
           />
         )}
 

@@ -11,6 +11,7 @@ import styles from './CommissionEnquiry.module.css';
 interface CommissionEnquiryProps {
   artist: ArtistPublicProfile;
   onClose: () => void;
+  onSuccess?: (commissionId: string) => void;
 }
 
 type Step = 1 | 2 | 3 | 4 | 'success';
@@ -43,7 +44,7 @@ function AvailabilityText({ artist }: { artist: ArtistPublicProfile }) {
   return <>{name} is not taking new projects right now</>;
 }
 
-export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
+export function CommissionEnquiry({ artist, onClose, onSuccess }: CommissionEnquiryProps) {
   const [step, setStep] = useState<Step>(1);
   const [formData, setFormData] = useState({
     discipline: '',
@@ -136,10 +137,11 @@ export function CommissionEnquiry({ artist, onClose }: CommissionEnquiryProps) {
         const { url } = await uploadBriefReference(user.id, referenceFile);
         referenceImageUrl = url ?? undefined;
       }
-      await submitCommission(artist.profile.id, user.id, {
+      const commissionId = await submitCommission(artist.profile.id, user.id, {
         ...formData,
         referenceImageUrl,
       });
+      onSuccess?.(commissionId);
       setStep('success');
     } catch (err) {
       console.error(err);
